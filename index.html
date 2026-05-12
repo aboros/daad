@@ -231,9 +231,24 @@
             </div>
         </div>
 
-        <!-- Events Display -->
-        <div id="eventsContainer" class="daad-frame bg-black/45 backdrop-blur-sm border border-white/15 shadow-daad p-4 sm:p-6 mb-24 rounded-sm">
-            <!-- Events will be dynamically inserted here -->
+        <!-- Events Display: tabs (by stage | by day & time) -->
+        <div class="daad-frame bg-black/45 backdrop-blur-sm border border-white/15 shadow-daad p-4 sm:p-6 mb-24 rounded-sm">
+            <div class="flex flex-wrap gap-2 border-b border-white/15 pb-3 mb-5" role="tablist" aria-label="Lineup layout">
+                <button type="button" id="tab-by-stage" role="tab" aria-selected="true" aria-controls="panel-by-stage"
+                    class="tab-daad font-sans text-xs font-bold uppercase tracking-[0.12em] px-4 py-2 rounded-sm border transition-colors border-white bg-white text-neutral-900 hover:bg-neutral-100">
+                    By stage
+                </button>
+                <button type="button" id="tab-by-schedule" role="tab" aria-selected="false" aria-controls="panel-by-schedule"
+                    class="tab-daad font-sans text-xs font-bold uppercase tracking-[0.12em] px-4 py-2 rounded-sm border transition-colors border-white/35 text-white/90 bg-transparent hover:bg-white/10">
+                    By day &amp; time
+                </button>
+            </div>
+            <div id="panel-by-stage" role="tabpanel" aria-labelledby="tab-by-stage" class="tab-panel">
+                <!-- stage grouping -->
+            </div>
+            <div id="panel-by-schedule" role="tabpanel" aria-labelledby="tab-by-schedule" class="tab-panel hidden">
+                <!-- day / time-slot grouping -->
+            </div>
         </div>
     </div>
 
@@ -327,6 +342,96 @@
             }
         }
 
+        function formatDayHeading(dateKey) {
+            const d = new Date(dateKey + 'T12:00:00');
+            return d.toLocaleDateString('en-US', {
+                weekday: 'long',
+                month: 'long',
+                day: 'numeric',
+            });
+        }
+
+        function formatClockLabel(isoStart) {
+            const d = new Date(isoStart);
+            return d.toLocaleTimeString('en-US', {
+                hour: 'numeric',
+                minute: '2-digit',
+            });
+        }
+
+        function buildScheduleGroups(events) {
+            const map = {};
+            for (const event of events) {
+                const day = event.startTime.split('T')[0];
+                if (!map[day]) map[day] = {};
+                const slotKey = event.startTime;
+                if (!map[day][slotKey]) map[day][slotKey] = [];
+                map[day][slotKey].push(event);
+            }
+            return Object.keys(map)
+                .sort()
+                .map((dateKey) => ({
+                    dateKey,
+                    slots: Object.keys(map[dateKey])
+                        .sort()
+                        .map((startKey) => ({
+                            start: startKey,
+                            events: map[dateKey][startKey].sort((a, b) =>
+                                a.location.localeCompare(b.location)
+                            ),
+                        })),
+                }));
+        }
+
+        function renderEventCard(event, options) {
+            options = options || {};
+            const st = stageRowStyle(event.location);
+            const isSelected = window.selectedEvents.has(event.id);
+            const rowBg = isSelected ? st.cardSel : st.cardDef;
+            const sublineHtml = options.scheduleSlot
+                ? `<p class="text-sm text-white/65 mt-0.5"><span class="text-white/55 uppercase tracking-wider text-xs font-semibold">${event.location}</span></p>`
+                : `<p class="text-sm text-white/65 mt-0.5">${formatDate(event.startTime)}</p>`;
+            return `
+                            <div class="p-4 rounded-sm transition-all cursor-pointer border ${rowBg}"
+                                 onclick="toggleEventSelection('${event.id}')">
+                                <div class="flex justify-between items-start gap-3">
+                                    <div class="flex items-start gap-3 min-w-0">
+                                        <input type="checkbox" 
+                                               class="mt-1 h-4 w-4 shrink-0 rounded-sm cursor-pointer ${st.chk}"
+                                               ${isSelected ? 'checked' : ''}
+                                               onclick="event.stopPropagation()"
+                                               onchange="toggleEventSelection('${event.id}')">
+                                        <div class="min-w-0">
+                                            <h3 class="font-semibold text-white leading-snug">${event.summary}</h3>
+                                            ${sublineHtml}
+                                        </div>
+                                    </div>
+                                    <span class="text-xs font-semibold uppercase tracking-wider text-white/55 shrink-0">${formatDuration(event.duration)}</span>
+                                </div>
+                            </div>`;
+        }
+
+        function setActiveScheduleTab(tab) {
+            const stageBtn = document.getElementById('tab-by-stage');
+            const schedBtn = document.getElementById('tab-by-schedule');
+            const stagePanel = document.getElementById('panel-by-stage');
+            const schedPanel = document.getElementById('panel-by-schedule');
+            const isStage = tab === 'stage';
+            stageBtn.setAttribute('aria-selected', isStage);
+            schedBtn.setAttribute('aria-selected', !isStage);
+            const activeClass =
+                'tab-daad font-sans text-xs font-bold uppercase tracking-[0.12em] px-4 py-2 rounded-sm border transition-colors border-white bg-white text-neutral-900 hover:bg-neutral-100';
+            const idleClass =
+                'tab-daad font-sans text-xs font-bold uppercase tracking-[0.12em] px-4 py-2 rounded-sm border transition-colors border-white/35 text-white/90 bg-transparent hover:bg-white/10';
+            stageBtn.className = isStage ? activeClass : idleClass;
+            schedBtn.className = isStage ? idleClass : activeClass;
+            stagePanel.classList.toggle('hidden', !isStage);
+            schedPanel.classList.toggle('hidden', isStage);
+            try {
+                localStorage.setItem('daadLineupViewTab', tab);
+            } catch (e) {}
+        }
+
         // Initialize the application
         async function init() {
             const events = await fetchEvents();
@@ -375,6 +480,15 @@
 
             // Display events
             displayEvents(events);
+
+            try {
+                if (localStorage.getItem('daadLineupViewTab') === 'schedule') {
+                    setActiveScheduleTab('schedule');
+                }
+            } catch (e) {}
+
+            document.getElementById('tab-by-stage').addEventListener('click', () => setActiveScheduleTab('stage'));
+            document.getElementById('tab-by-schedule').addEventListener('click', () => setActiveScheduleTab('schedule'));
 
             // Add event listeners
             document.getElementById('dateFilter').addEventListener('change', () => filterEvents(events, 'dateFilter'));
@@ -581,15 +695,21 @@ END:VCALENDAR`;
             URL.revokeObjectURL(url);
         }
 
-        // Display events in the current view
+        // Display events in both tab panels
         function displayEvents(events) {
-            const container = document.getElementById('eventsContainer');
-            displayListView(events, container);
+            const stagePanel = document.getElementById('panel-by-stage');
+            const schedulePanel = document.getElementById('panel-by-schedule');
+            displayListView(events, stagePanel);
+            displayScheduleView(events, schedulePanel);
         }
 
-        // Display events in list view
+        // Display events grouped by stage / venue
         function displayListView(events, container) {
-            
+            if (!events.length) {
+                container.innerHTML =
+                    '<p class="text-white/65 text-sm py-6 text-center">No sets match the current filters.</p>';
+                return;
+            }
             const groupedEvents = groupEventsByLocation(events);
             container.innerHTML = '';
 
@@ -600,32 +720,49 @@ END:VCALENDAR`;
                 locationSection.innerHTML = `
                     <h2 class="font-display text-2xl sm:text-3xl uppercase tracking-[0.08em] text-white border-b border-white/15 pb-3 mb-4 pl-4 border-l-4 ${st.h2}">${location}</h2>
                     <div class="space-y-2">
-                        ${locationEvents.map(event => {
-                            const isSelected = window.selectedEvents.has(event.id);
-                            const rowBg = isSelected ? st.cardSel : st.cardDef;
-                            return `
-                            <div class="p-4 rounded-sm transition-all cursor-pointer border ${rowBg}"
-                                 onclick="toggleEventSelection('${event.id}')">
-                                <div class="flex justify-between items-start gap-3">
-                                    <div class="flex items-start gap-3 min-w-0">
-                                        <input type="checkbox" 
-                                               class="mt-1 h-4 w-4 shrink-0 rounded-sm cursor-pointer ${st.chk}"
-                                               ${isSelected ? 'checked' : ''}
-                                               onclick="event.stopPropagation()"
-                                               onchange="toggleEventSelection('${event.id}')">
-                                        <div class="min-w-0">
-                                            <h3 class="font-semibold text-white leading-snug">${event.summary}</h3>
-                                            <p class="text-sm text-white/65 mt-0.5">${formatDate(event.startTime)}</p>
-                                        </div>
-                                    </div>
-                                    <span class="text-xs font-semibold uppercase tracking-wider text-white/55 shrink-0">${formatDuration(event.duration)}</span>
-                                </div>
-                            </div>`;
-                        }).join('')}
+                        ${locationEvents.map((event) => renderEventCard(event)).join('')}
                     </div>
                 `;
                 container.appendChild(locationSection);
             });
+        }
+
+        function displayScheduleView(events, container) {
+            if (!events.length) {
+                container.innerHTML =
+                    '<p class="text-white/65 text-sm py-6 text-center">No sets match the current filters.</p>';
+                return;
+            }
+            const days = buildScheduleGroups(events);
+            container.innerHTML = days
+                .map(
+                    (day) => `
+                <section class="mb-10 last:mb-2">
+                    <h2 class="font-display text-2xl sm:text-3xl uppercase tracking-[0.08em] text-white border-b border-white/15 pb-3 mb-5">${formatDayHeading(day.dateKey)}</h2>
+                    ${day.slots
+                        .map((slot) => {
+                            const conflict = slot.events.length > 1;
+                            const gridClass = conflict
+                                ? 'grid gap-2 sm:grid-cols-2'
+                                : 'space-y-2';
+                            const hint = conflict
+                                ? `<span class="text-[10px] sm:text-xs font-bold uppercase tracking-[0.14em] text-amber-200/95 border border-amber-400/45 px-2 py-1 rounded-sm whitespace-nowrap">Same start — pick one stage</span>`
+                                : '';
+                            return `
+                    <div class="mb-6 last:mb-0">
+                        <div class="flex flex-wrap items-baseline gap-x-3 gap-y-2 mb-2 border-l-4 border-white/35 pl-3">
+                            <h3 class="font-sans text-lg sm:text-xl font-bold text-white tabular-nums tracking-tight">${formatClockLabel(slot.start)}</h3>
+                            ${hint}
+                        </div>
+                        <div class="${gridClass}">
+                            ${slot.events.map((event) => renderEventCard(event, { scheduleSlot: true })).join('')}
+                        </div>
+                    </div>`;
+                        })
+                        .join('')}
+                </section>`
+                )
+                .join('');
         }
 
         // Group events by location
