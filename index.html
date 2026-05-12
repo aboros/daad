@@ -146,13 +146,13 @@
             <div class="flex justify-between items-center py-4 gap-4 flex-wrap">
                 <div class="flex items-center gap-3">
                     <h1 class="font-display text-3xl sm:text-4xl tracking-[0.04em] uppercase leading-none text-white">
-                        DAAD Gathering <span class="text-white/65 font-display">2026</span>
+                        DAAD <span class="text-white/65 font-display">2026</span>
                     </h1>
                 </div>
                 <nav aria-label="Main">
                     <ul class="flex gap-6 font-sans text-xs uppercase tracking-[0.14em] font-semibold">
-                        <li><a href="index.html" class="text-white hover:text-white/80 transition-colors">Browse</a></li>
-                        <li><a href="downloads.html" class="text-white hover:text-white/80 transition-colors">Download</a></li>
+                        <li><a href="index.html" class="text-white hover:text-white/80 transition-colors">Personal lineup</a></li>
+                        <li><a href="downloads.html" class="text-white hover:text-white/80 transition-colors">Full downloads</a></li>
                     </ul>
                 </nav>
             </div>
@@ -161,10 +161,11 @@
 
     <div class="container mx-auto px-4 py-8 pb-32 relative z-10">
         <div class="mb-10">
-            <h2 class="font-display text-4xl sm:text-5xl uppercase tracking-[0.06em] text-white mb-3">Event schedule</h2>
+            <h2 class="font-display text-4xl sm:text-5xl uppercase tracking-[0.06em] text-white mb-3">Personal lineup</h2>
             <p class="text-white/75 max-w-2xl text-sm sm:text-base leading-relaxed font-medium">
-                Browse and filter every set. Tap rows to build your lineup, then open Download for calendar files — same lime-on-ink mood as
-                <a href="https://2026.daad.hu/" class="text-white underline decoration-white/35 underline-offset-2 hover:decoration-white">2026.daad.hu</a>.
+                Browse and filter every set. Tap rows to build your lineup. <br>
+                Save for later or add to your calendar app to have it with you offline. <br>
+                Official website: <a href="https://2026.daad.hu/" class="text-white underline decoration-white/35 underline-offset-2 hover:decoration-white">2026.daad.hu</a>.
             </p>
         </div>
 
@@ -188,11 +189,11 @@
                     <input type="text" id="artistFilter" placeholder="Search artist…" class="daad-field w-full rounded-sm border border-white/20 bg-black/40 px-3 py-2.5 text-sm text-white placeholder:text-white/40 focus:border-white/60 focus:ring-1 focus:ring-white/40 outline-none transition-shadow">
                 </div>
                 <div>
-                    <label class="block text-xs font-bold uppercase tracking-[0.12em] text-white/85 mb-2">Selection</label>
+                    <label class="block text-xs font-bold uppercase tracking-[0.12em] text-white/85 mb-2">Show</label>
                     <select id="selectionFilter" class="daad-field w-full rounded-sm border border-white/20 bg-black/40 px-3 py-2.5 text-sm text-white focus:border-white/60 focus:ring-1 focus:ring-white/40 outline-none transition-shadow">
-                        <option value="all">All Events</option>
-                        <option value="selected">Selected Events</option>
-                        <option value="unselected">Unselected Events</option>
+                        <option value="all">All sets</option>
+                        <option value="selected">In my lineup</option>
+                        <option value="unselected">Not in my lineup</option>
                     </select>
                 </div>
             </div>
