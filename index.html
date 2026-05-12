@@ -3,57 +3,193 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>DAAD Gathering 2026</title>
+    <meta name="theme-color" content="#581c87">
+    <title>DAAD Gathering 2026 — Schedule</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Barlow:ital,wght@0,400;0,500;0,600;0,700;1,400&family=Bebas+Neue&display=swap" rel="stylesheet">
     <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        daad: {
+                            ink: '#fafaf7',
+                            night: '#0c0808',
+                            panel: 'rgba(12, 8, 8, 0.72)',
+                            line: 'rgba(255, 255, 255, 0.18)',
+                        },
+                    },
+                    fontFamily: {
+                        display: ['"Bebas Neue"', 'sans-serif'],
+                        sans: ['Barlow', 'system-ui', 'sans-serif'],
+                    },
+                    boxShadow: {
+                        daad: '0 0 0 1px rgba(255, 255, 255, 0.12), 0 22px 48px rgba(0, 0, 0, 0.55)',
+                    },
+                },
+            },
+        };
+    </script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        /* Atmospheric BG: oversized rotating wash + soft vignette (no grid) */
+        body.daad-poster {
+            position: relative;
+            color: #fafaf7;
+            background: #07050a;
+            isolation: isolate;
+        }
+        body.daad-poster::before {
+            content: '';
+            position: fixed;
+            left: 50%;
+            top: 50%;
+            width: 200vmax;
+            height: 200vmax;
+            margin-left: -100vmax;
+            margin-top: -100vmax;
+            z-index: -2;
+            transform-origin: 50% 50%;
+            background: linear-gradient(
+                115deg,
+                #3d0a12 0%,
+                #dc2626 14%,
+                #c026d3 38%,
+                #7c3aed 58%,
+                #312e81 78%,
+                #0f172a 100%
+            );
+            opacity: 0.9;
+            animation: daad-aurora-rotate 100s linear infinite;
+        }
+        @keyframes daad-aurora-rotate {
+            from {
+                transform: rotate(0deg);
+            }
+            to {
+                transform: rotate(360deg);
+            }
+        }
+        body.daad-poster::after {
+            content: '';
+            position: fixed;
+            inset: 0;
+            z-index: -1;
+            pointer-events: none;
+            background:
+                radial-gradient(ellipse 85% 55% at 25% 10%, rgba(251, 113, 133, 0.18), transparent 52%),
+                radial-gradient(ellipse 65% 70% at 88% 35%, rgba(196, 181, 253, 0.16), transparent 45%),
+                radial-gradient(ellipse 50% 45% at 55% 85%, rgba(52, 211, 153, 0.06), transparent 50%),
+                radial-gradient(ellipse 130% 95% at 50% 110%, rgba(0, 0, 0, 0.45), transparent 42%),
+                radial-gradient(ellipse 120% 100% at 50% 50%, transparent 0%, rgba(4, 2, 8, 0.82) 100%);
+        }
+        @media (prefers-reduced-motion: reduce) {
+            body.daad-poster::before {
+                animation: none;
+            }
+        }
+        .daad-frame {
+            position: relative;
+            --daad-corn: rgba(255, 255, 255, 0.7);
+            --daad-len: 20px;
+            --daad-th: 2px;
+            --daad-inset: 12px;
+        }
+        .daad-frame::before {
+            content: '';
+            position: absolute;
+            inset: var(--daad-inset);
+            pointer-events: none;
+            z-index: 0;
+            background:
+                linear-gradient(var(--daad-corn), var(--daad-corn)) top left / var(--daad-len) var(--daad-th) no-repeat,
+                linear-gradient(var(--daad-corn), var(--daad-corn)) top left / var(--daad-th) var(--daad-len) no-repeat,
+                linear-gradient(var(--daad-corn), var(--daad-corn)) top right / var(--daad-len) var(--daad-th) no-repeat,
+                linear-gradient(var(--daad-corn), var(--daad-corn)) top right / var(--daad-th) var(--daad-len) no-repeat,
+                linear-gradient(var(--daad-corn), var(--daad-corn)) bottom left / var(--daad-len) var(--daad-th) no-repeat,
+                linear-gradient(var(--daad-corn), var(--daad-corn)) bottom left / var(--daad-th) var(--daad-len) no-repeat,
+                linear-gradient(var(--daad-corn), var(--daad-corn)) bottom right / var(--daad-len) var(--daad-th) no-repeat,
+                linear-gradient(var(--daad-corn), var(--daad-corn)) bottom right / var(--daad-th) var(--daad-len) no-repeat;
+        }
+        .daad-frame > * {
+            position: relative;
+            z-index: 1;
+        }
+        ::-webkit-scrollbar {
+            width: 10px;
+            height: 10px;
+        }
+        ::-webkit-scrollbar-track {
+            background: rgba(0, 0, 0, 0.25);
+        }
+        ::-webkit-scrollbar-thumb {
+            background: rgba(255, 255, 255, 0.45);
+            border-radius: 0;
+        }
+        ::selection {
+            background: #fef3c7;
+            color: #1c1917;
+        }
+        select.daad-field option,
+        .daad-field option {
+            background-color: #1c0f14;
+            color: #fafaf7;
+        }
+    </style>
 </head>
-<body class="bg-gray-100 min-h-screen">
+<body class="daad-poster min-h-screen text-daad-ink antialiased font-sans">
     <!-- Header with Navigation -->
-    <header class="bg-indigo-600 text-white shadow-lg">
+    <header class="border-b border-white/15 bg-black/35 backdrop-blur-md sticky top-0 z-20">
         <div class="container mx-auto px-4">
-            <div class="flex justify-between items-center py-4">
-                <div class="flex items-center space-x-4">
-                    <h1 class="text-2xl font-bold">DAAD Gathering 2026</h1>
+            <div class="flex justify-between items-center py-4 gap-4 flex-wrap">
+                <div class="flex items-center gap-3">
+                    <h1 class="font-display text-3xl sm:text-4xl tracking-[0.04em] uppercase leading-none text-white">
+                        DAAD Gathering <span class="text-white/65 font-display">2026</span>
+                    </h1>
                 </div>
-                <nav>
-                    <ul class="flex space-x-6">
-                        <li><a href="index.html" class="hover:text-indigo-200 transition-colors">Browse</a></li>
-                        <li><a href="downloads.html" class="hover:text-indigo-200 transition-colors">Download</a></li>
+                <nav aria-label="Main">
+                    <ul class="flex gap-6 font-sans text-xs uppercase tracking-[0.14em] font-semibold">
+                        <li><a href="index.html" class="text-white hover:text-white/80 transition-colors">Browse</a></li>
+                        <li><a href="downloads.html" class="text-white hover:text-white/80 transition-colors">Download</a></li>
                     </ul>
                 </nav>
             </div>
         </div>
     </header>
 
-    <div class="container mx-auto px-4 py-8">
-        <div class="mb-8">
-            <h2 class="text-3xl font-bold text-gray-800 mb-2">Event Schedule</h2>
-            <p class="text-gray-600">Browse and filter all events.</p>
-            <p class="text-gray-600">Click events to create your custom sortiment of events and click download to get your custom schedule that you can import to your own calendar.</p>
+    <div class="container mx-auto px-4 py-8 pb-32 relative z-10">
+        <div class="mb-10">
+            <h2 class="font-display text-4xl sm:text-5xl uppercase tracking-[0.06em] text-white mb-3">Event schedule</h2>
+            <p class="text-white/75 max-w-2xl text-sm sm:text-base leading-relaxed font-medium">
+                Browse and filter every set. Tap rows to build your lineup, then open Download for calendar files — same lime-on-ink mood as
+                <a href="https://2026.daad.hu/" class="text-white underline decoration-white/35 underline-offset-2 hover:decoration-white">2026.daad.hu</a>.
+            </p>
         </div>
 
         <!-- Filters and Controls -->
-        <div class="bg-white rounded-lg shadow-md p-4 mb-6">
+        <div class="daad-frame bg-black/45 backdrop-blur-sm border border-white/15 shadow-daad p-5 mb-6 rounded-sm">
             <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
                 <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-1">Date</label>
-                    <select id="dateFilter" class="w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500">
+                    <label class="block text-xs font-bold uppercase tracking-[0.12em] text-white/85 mb-2">Date</label>
+                    <select id="dateFilter" class="daad-field w-full rounded-sm border border-white/20 bg-black/40 px-3 py-2.5 text-sm text-white focus:border-white/60 focus:ring-1 focus:ring-white/40 outline-none transition-shadow">
                         <option value="">All Dates</option>
                     </select>
                 </div>
                 <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-1">Location</label>
-                    <select id="locationFilter" class="w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500">
+                    <label class="block text-xs font-bold uppercase tracking-[0.12em] text-white/85 mb-2">Location</label>
+                    <select id="locationFilter" class="daad-field w-full rounded-sm border border-white/20 bg-black/40 px-3 py-2.5 text-sm text-white focus:border-white/60 focus:ring-1 focus:ring-white/40 outline-none transition-shadow">
                         <option value="">All Locations</option>
                     </select>
                 </div>
                 <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-1">Artist</label>
-                    <input type="text" id="artistFilter" placeholder="Search artist..." class="w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500">
+                    <label class="block text-xs font-bold uppercase tracking-[0.12em] text-white/85 mb-2">Artist</label>
+                    <input type="text" id="artistFilter" placeholder="Search artist…" class="daad-field w-full rounded-sm border border-white/20 bg-black/40 px-3 py-2.5 text-sm text-white placeholder:text-white/40 focus:border-white/60 focus:ring-1 focus:ring-white/40 outline-none transition-shadow">
                 </div>
                 <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-1">Selection</label>
-                    <select id="selectionFilter" class="w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500">
+                    <label class="block text-xs font-bold uppercase tracking-[0.12em] text-white/85 mb-2">Selection</label>
+                    <select id="selectionFilter" class="daad-field w-full rounded-sm border border-white/20 bg-black/40 px-3 py-2.5 text-sm text-white focus:border-white/60 focus:ring-1 focus:ring-white/40 outline-none transition-shadow">
                         <option value="all">All Events</option>
                         <option value="selected">Selected Events</option>
                         <option value="unselected">Unselected Events</option>
@@ -63,31 +199,31 @@
         </div>
 
         <!-- Selection Overview Panel -->
-        <div id="selectionOverview" class="fixed bottom-0 left-0 right-0 bg-black shadow-lg border-t border-gray-200 p-4 transform transition-transform duration-300 translate-y-full">
+        <div id="selectionOverview" class="fixed bottom-0 left-0 right-0 bg-gradient-to-t from-black via-black/96 to-black/85 border-t border-white/20 p-4 transform transition-transform duration-300 translate-y-full z-30 shadow-[0_-8px_40px_rgba(0,0,0,0.9)]">
             <div class="container mx-auto">
                 <div class="space-y-4">
                     <div>
-                        <a id="toggleDetails" class="flex justify-between text-white hover:text-gray-300 text-sm font-medium items-center hover:cursor-pointer">
-                            <span>Expand details of <span id="totalEvents">0</span> in <span id="totalDuration">0 hours</span></span>
-                            <i class="fas fa-chevron-up transform transition-transform duration-200"></i>
+                        <a id="toggleDetails" class="flex justify-between text-white hover:text-white/80 text-xs font-bold uppercase tracking-[0.12em] items-center cursor-pointer gap-3">
+                            <span>Expand details — <span id="totalEvents">0</span> sets · <span id="totalDuration">0 hours</span></span>
+                            <i class="fas fa-chevron-up transform transition-transform duration-200 text-white/60"></i>
                         </a>
                         <div id="stageDetails" class="mt-4 pb-8 hidden">
-                            <div class="border-t border-b border-gray-700 py-4">
+                            <div class="border-t border-b border-white/15 py-4">
                                 <div id="stageStats" class="space-y-2">
                                     <!-- Stage statistics will be inserted here -->
                                 </div>
                             </div>
                         </div>
                     </div>
-                    <div class="flex space-x-4">
-                        <button id="addToCalendar" class="bg-green-600 text-white px-4 py-2 rounded-md hover:bg-green-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed" disabled>
-                            <i class="fas fa-calendar-plus mr-2"></i>Add to Calendar
+                    <div class="flex flex-wrap gap-3">
+                        <button id="addToCalendar" type="button" class="inline-flex items-center font-sans text-xs font-bold uppercase tracking-[0.12em] px-4 py-2.5 rounded-sm bg-white text-neutral-900 hover:bg-neutral-200 transition-colors disabled:opacity-40 disabled:cursor-not-allowed" disabled>
+                            <i class="fas fa-calendar-plus mr-2"></i>Add to calendar
                         </button>
-                        <button id="downloadIcs" class="bg-indigo-600 text-white px-4 py-2 rounded-md hover:bg-indigo-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed" disabled>
-                            <i class="fas fa-download mr-2"></i>Download as ICS
+                        <button id="downloadIcs" type="button" class="inline-flex items-center font-sans text-xs font-bold uppercase tracking-[0.12em] px-4 py-2.5 rounded-sm bg-white text-neutral-900 hover:bg-neutral-200 transition-colors disabled:opacity-40 disabled:cursor-not-allowed" disabled>
+                            <i class="fas fa-download mr-2"></i>Download ICS
                         </button>
-                        <button id="saveSelections" class="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed" disabled>
-                            <i class="fas fa-save mr-2"></i>Save Selections
+                        <button id="saveSelections" type="button" class="inline-flex items-center font-sans text-xs font-bold uppercase tracking-[0.12em] px-4 py-2.5 rounded-sm border border-white/55 text-white bg-transparent hover:bg-white/10 transition-colors disabled:opacity-40 disabled:cursor-not-allowed" disabled>
+                            <i class="fas fa-save mr-2"></i>Save selections
                         </button>
                     </div>
                 </div>
@@ -95,12 +231,54 @@
         </div>
 
         <!-- Events Display -->
-        <div id="eventsContainer" class="bg-white rounded-lg shadow-md p-4 mb-24">
+        <div id="eventsContainer" class="daad-frame bg-black/45 backdrop-blur-sm border border-white/15 shadow-daad p-4 sm:p-6 mb-24 rounded-sm">
             <!-- Events will be dynamically inserted here -->
         </div>
     </div>
 
     <script>
+        const STAGE_STYLES = {
+            'DAAD STAGE': {
+                h2: 'border-l-fuchsia-500',
+                cardDef: 'bg-black/40 border-white/10 hover:border-white/25',
+                cardSel: 'bg-fuchsia-950/45 border-fuchsia-400/85 ring-1 ring-fuchsia-400/50',
+                chk: 'accent-fuchsia-400 border-white/35 bg-black/50',
+            },
+            'THE DOME': {
+                h2: 'border-l-orange-500',
+                cardDef: 'bg-black/40 border-white/10 hover:border-white/25',
+                cardSel: 'bg-orange-950/40 border-orange-400/85 ring-1 ring-orange-400/50',
+                chk: 'accent-orange-400 border-white/35 bg-black/50',
+            },
+            'DRAGON NEST': {
+                h2: 'border-l-emerald-400',
+                cardDef: 'bg-black/40 border-white/10 hover:border-white/25',
+                cardSel: 'bg-emerald-950/45 border-emerald-400/85 ring-1 ring-emerald-400/50',
+                chk: 'accent-emerald-400 border-white/35 bg-black/50',
+            },
+            'COOKING GROOVE': {
+                h2: 'border-l-amber-400',
+                cardDef: 'bg-black/40 border-white/10 hover:border-white/25',
+                cardSel: 'bg-amber-950/40 border-amber-400/85 ring-1 ring-amber-400/50',
+                chk: 'accent-amber-300 border-white/35 bg-black/50',
+            },
+            'AM/BEACH': {
+                h2: 'border-l-sky-400',
+                cardDef: 'bg-black/40 border-white/10 hover:border-white/25',
+                cardSel: 'bg-sky-950/45 border-sky-400/85 ring-1 ring-sky-400/50',
+                chk: 'accent-sky-400 border-white/35 bg-black/50',
+            },
+        };
+
+        function stageRowStyle(location) {
+            return STAGE_STYLES[location] || {
+                h2: 'border-l-white/50',
+                cardDef: 'bg-black/40 border-white/10 hover:border-white/25',
+                cardSel: 'bg-white/12 border-white ring-1 ring-white/45',
+                chk: 'accent-white border-white/35 bg-black/50',
+            };
+        }
+
         // Fetch and process events data
         async function fetchEvents() {
             try {
@@ -415,31 +593,31 @@ END:VCALENDAR`;
             container.innerHTML = '';
 
             Object.entries(groupedEvents).forEach(([location, locationEvents]) => {
-                
+                const st = stageRowStyle(location);
                 const locationSection = document.createElement('div');
                 locationSection.className = 'mb-6';
                 locationSection.innerHTML = `
-                    <h2 class="text-xl font-semibold text-gray-800 mb-3">${location}</h2>
+                    <h2 class="font-display text-2xl sm:text-3xl uppercase tracking-[0.08em] text-white border-b border-white/15 pb-3 mb-4 pl-4 border-l-4 ${st.h2}">${location}</h2>
                     <div class="space-y-2">
                         ${locationEvents.map(event => {
                             const isSelected = window.selectedEvents.has(event.id);
-                            
+                            const rowBg = isSelected ? st.cardSel : st.cardDef;
                             return `
-                            <div class="p-4 rounded-md transition-colors cursor-pointer border-2 ${isSelected ? 'bg-indigo-50 border-indigo-500' : 'bg-gray-50 border-transparent hover:bg-gray-100'}"
+                            <div class="p-4 rounded-sm transition-all cursor-pointer border ${rowBg}"
                                  onclick="toggleEventSelection('${event.id}')">
-                                <div class="flex justify-between items-start">
-                                    <div class="flex items-start space-x-3">
+                                <div class="flex justify-between items-start gap-3">
+                                    <div class="flex items-start gap-3 min-w-0">
                                         <input type="checkbox" 
-                                               class="mt-1 h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300 rounded cursor-pointer"
+                                               class="mt-1 h-4 w-4 shrink-0 rounded-sm cursor-pointer ${st.chk}"
                                                ${isSelected ? 'checked' : ''}
                                                onclick="event.stopPropagation()"
                                                onchange="toggleEventSelection('${event.id}')">
-                                        <div>
-                                            <h3 class="font-medium text-gray-900">${event.summary}</h3>
-                                            <p class="text-sm text-gray-600">${formatDate(event.startTime)}</p>
+                                        <div class="min-w-0">
+                                            <h3 class="font-semibold text-white leading-snug">${event.summary}</h3>
+                                            <p class="text-sm text-white/65 mt-0.5">${formatDate(event.startTime)}</p>
                                         </div>
                                     </div>
-                                    <span class="text-sm text-gray-500">${formatDuration(event.duration)}</span>
+                                    <span class="text-xs font-semibold uppercase tracking-wider text-white/55 shrink-0">${formatDuration(event.duration)}</span>
                                 </div>
                             </div>`;
                         }).join('')}
@@ -492,21 +670,21 @@ END:VCALENDAR`;
             stageStatsContainer.innerHTML = `
                 <div class="space-y-4">
                     <div>
-                        <h4 class="text-white font-medium mb-2">By Stage</h4>
+                        <h4 class="font-display text-lg uppercase tracking-[0.12em] text-white mb-3">By stage</h4>
                         ${Object.entries(stageStats)
                             .map(([stage, stats]) => `
-                                <div class="flex justify-between items-center">
-                                    <span class="text-white">${stage}</span>
-                                    <div class="text-sm text-gray-400">
-                                        <span>${stats.count} events</span>
-                                        <span class="mx-2">•</span>
-                                        <span>${stats.duration.toFixed(1)} hours</span>
+                                <div class="flex justify-between items-center gap-4 text-sm">
+                                    <span class="text-white font-medium">${stage}</span>
+                                    <div class="text-white/60 font-medium tabular-nums">
+                                        <span>${stats.count} sets</span>
+                                        <span class="mx-2 text-white/30">·</span>
+                                        <span>${stats.duration.toFixed(1)} h</span>
                                     </div>
                                 </div>
                             `).join('')}
                     </div>
-                    <div class="border-t border-gray-700 pt-4">
-                        <h4 class="text-white font-medium mb-2">By Day</h4>
+                    <div class="border-t border-white/15 pt-4">
+                        <h4 class="font-display text-lg uppercase tracking-[0.12em] text-white mb-3">By day</h4>
                         ${sortedDates
                             .map(date => {
                                 const stats = dailyStats[date];
@@ -516,12 +694,12 @@ END:VCALENDAR`;
                                     day: 'numeric'
                                 });
                                 return `
-                                    <div class="flex justify-between items-center">
-                                        <span class="text-white">${formattedDate}</span>
-                                        <div class="text-sm text-gray-400">
-                                            <span>${stats.count} events</span>
-                                            <span class="mx-2">•</span>
-                                            <span>${stats.duration.toFixed(1)} hours</span>
+                                    <div class="flex justify-between items-center gap-4 text-sm">
+                                        <span class="text-white font-medium">${formattedDate}</span>
+                                        <div class="text-white/60 font-medium tabular-nums">
+                                            <span>${stats.count} sets</span>
+                                            <span class="mx-2 text-white/30">·</span>
+                                            <span>${stats.duration.toFixed(1)} h</span>
                                         </div>
                                     </div>
                                 `;
@@ -543,14 +721,14 @@ END:VCALENDAR`;
             // Show a temporary success message
             const saveButton = document.getElementById('saveSelections');
             const originalText = saveButton.innerHTML;
-            saveButton.innerHTML = '<i class="fas fa-check mr-2"></i>Saved!';
-            saveButton.classList.remove('bg-blue-600', 'hover:bg-blue-700');
-            saveButton.classList.add('bg-green-600', 'hover:bg-green-700');
+            saveButton.innerHTML = '<i class="fas fa-check mr-2"></i>Saved';
+            saveButton.classList.remove('border', 'border-white/55', 'text-white', 'bg-transparent', 'hover:bg-white/10');
+            saveButton.classList.add('bg-white', 'text-neutral-900', 'border', 'border-white', 'hover:bg-neutral-200');
             
             setTimeout(() => {
                 saveButton.innerHTML = originalText;
-                saveButton.classList.remove('bg-green-600', 'hover:bg-green-700');
-                saveButton.classList.add('bg-blue-600', 'hover:bg-blue-700');
+                saveButton.classList.add('border', 'border-white/55', 'text-white', 'bg-transparent', 'hover:bg-white/10');
+                saveButton.classList.remove('bg-white', 'text-neutral-900', 'border-white', 'hover:bg-neutral-200');
             }, 2000);
 
             updateDownloadButton(); // Update button states after saving

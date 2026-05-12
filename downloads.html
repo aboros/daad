@@ -3,100 +3,223 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>DAAD Gathering 2025 - Downloads</title>
+    <meta name="theme-color" content="#581c87">
+    <title>DAAD Gathering 2026 — Downloads</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Barlow:ital,wght@0,400;0,500;0,600;0,700;1,400&family=Bebas+Neue&display=swap" rel="stylesheet">
     <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        daad: {
+                            ink: '#fafaf7',
+                            night: '#0c0808',
+                            line: 'rgba(255, 255, 255, 0.18)',
+                        },
+                    },
+                    fontFamily: {
+                        display: ['"Bebas Neue"', 'sans-serif'],
+                        sans: ['Barlow', 'system-ui', 'sans-serif'],
+                    },
+                    boxShadow: {
+                        daad: '0 0 0 1px rgba(255, 255, 255, 0.12), 0 22px 48px rgba(0, 0, 0, 0.55)',
+                    },
+                },
+            },
+        };
+    </script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        body.daad-poster {
+            position: relative;
+            color: #fafaf7;
+            background: #07050a;
+            isolation: isolate;
+        }
+        body.daad-poster::before {
+            content: '';
+            position: fixed;
+            left: 50%;
+            top: 50%;
+            width: 200vmax;
+            height: 200vmax;
+            margin-left: -100vmax;
+            margin-top: -100vmax;
+            z-index: -2;
+            transform-origin: 50% 50%;
+            background: linear-gradient(
+                115deg,
+                #3d0a12 0%,
+                #dc2626 14%,
+                #c026d3 38%,
+                #7c3aed 58%,
+                #312e81 78%,
+                #0f172a 100%
+            );
+            opacity: 0.9;
+            animation: daad-aurora-rotate 100s linear infinite;
+        }
+        @keyframes daad-aurora-rotate {
+            from {
+                transform: rotate(0deg);
+            }
+            to {
+                transform: rotate(360deg);
+            }
+        }
+        body.daad-poster::after {
+            content: '';
+            position: fixed;
+            inset: 0;
+            z-index: -1;
+            pointer-events: none;
+            background:
+                radial-gradient(ellipse 85% 55% at 25% 10%, rgba(251, 113, 133, 0.18), transparent 52%),
+                radial-gradient(ellipse 65% 70% at 88% 35%, rgba(196, 181, 253, 0.16), transparent 45%),
+                radial-gradient(ellipse 50% 45% at 55% 85%, rgba(52, 211, 153, 0.06), transparent 50%),
+                radial-gradient(ellipse 130% 95% at 50% 110%, rgba(0, 0, 0, 0.45), transparent 42%),
+                radial-gradient(ellipse 120% 100% at 50% 50%, transparent 0%, rgba(4, 2, 8, 0.82) 100%);
+        }
+        @media (prefers-reduced-motion: reduce) {
+            body.daad-poster::before {
+                animation: none;
+            }
+        }
+        .daad-frame {
+            position: relative;
+            --daad-corn: rgba(255, 255, 255, 0.7);
+            --daad-len: 20px;
+            --daad-th: 2px;
+            --daad-inset: 12px;
+        }
+        .daad-frame::before {
+            content: '';
+            position: absolute;
+            inset: var(--daad-inset);
+            pointer-events: none;
+            z-index: 0;
+            background:
+                linear-gradient(var(--daad-corn), var(--daad-corn)) top left / var(--daad-len) var(--daad-th) no-repeat,
+                linear-gradient(var(--daad-corn), var(--daad-corn)) top left / var(--daad-th) var(--daad-len) no-repeat,
+                linear-gradient(var(--daad-corn), var(--daad-corn)) top right / var(--daad-len) var(--daad-th) no-repeat,
+                linear-gradient(var(--daad-corn), var(--daad-corn)) top right / var(--daad-th) var(--daad-len) no-repeat,
+                linear-gradient(var(--daad-corn), var(--daad-corn)) bottom left / var(--daad-len) var(--daad-th) no-repeat,
+                linear-gradient(var(--daad-corn), var(--daad-corn)) bottom left / var(--daad-th) var(--daad-len) no-repeat,
+                linear-gradient(var(--daad-corn), var(--daad-corn)) bottom right / var(--daad-len) var(--daad-th) no-repeat,
+                linear-gradient(var(--daad-corn), var(--daad-corn)) bottom right / var(--daad-th) var(--daad-len) no-repeat;
+        }
+        .daad-frame > * {
+            position: relative;
+            z-index: 1;
+        }
+        ::-webkit-scrollbar {
+            width: 10px;
+        }
+        ::-webkit-scrollbar-track {
+            background: rgba(0, 0, 0, 0.25);
+        }
+        ::-webkit-scrollbar-thumb {
+            background: rgba(255, 255, 255, 0.45);
+            border-radius: 0;
+        }
+        ::selection {
+            background: #fef3c7;
+            color: #1c1917;
+        }
+    </style>
 </head>
-<body class="bg-gray-100 min-h-screen">
-    <!-- Header with Navigation -->
-    <header class="bg-indigo-600 text-white shadow-lg">
+<body class="daad-poster min-h-screen text-daad-ink antialiased font-sans">
+    <header class="border-b border-white/15 bg-black/35 backdrop-blur-md sticky top-0 z-20">
         <div class="container mx-auto px-4">
-            <div class="flex justify-between items-center py-4">
-                <div class="flex items-center space-x-4">
-                    <h1 class="text-2xl font-bold">DAAD Gathering 2025</h1>
-                </div>
-                <nav>
-                    <ul class="flex space-x-6">
-                        <li><a href="index.html" class="hover:text-indigo-200 transition-colors">Browse</a></li>
-                        <li><a href="downloads.html" class="hover:text-indigo-200 transition-colors">Download</a></li>
+            <div class="flex justify-between items-center py-4 gap-4 flex-wrap">
+                <h1 class="font-display text-3xl sm:text-4xl tracking-[0.04em] uppercase leading-none text-white">
+                    DAAD Gathering <span class="text-white/65 font-display">2026</span>
+                </h1>
+                <nav aria-label="Main">
+                    <ul class="flex gap-6 font-sans text-xs uppercase tracking-[0.14em] font-semibold">
+                        <li><a href="index.html" class="text-white hover:text-white/80 transition-colors">Browse</a></li>
+                        <li><a href="downloads.html" class="text-white hover:text-white/80 transition-colors">Download</a></li>
                     </ul>
                 </nav>
             </div>
         </div>
     </header>
 
-    <div class="container mx-auto px-4 py-8">
-        <div class="mb-8">
-            <h2 class="text-3xl font-bold text-gray-800 mb-2">Download Calendar Files</h2>
-            <p class="text-gray-600">Download individual venue schedules or the complete event calendar</p>
+    <div class="container mx-auto px-4 py-8 pb-16 relative z-10">
+        <div class="mb-10">
+            <h2 class="font-display text-4xl sm:text-5xl uppercase tracking-[0.06em] text-white mb-3">Calendar files</h2>
+            <p class="text-white/75 max-w-2xl text-sm sm:text-base leading-relaxed font-medium">
+                Official vibe from <a href="https://2026.daad.hu/" class="text-white underline decoration-white/35 underline-offset-2 hover:decoration-white">2026.daad.hu</a> — download full or per-venue schedules as ICS.
+            </p>
         </div>
 
-        <div class="bg-white rounded-lg shadow-md p-6">
-            <div class="grid gap-6">
-                <!-- All Events -->
-                <div class="border-b pb-4">
-                    <h3 class="text-xl font-semibold text-gray-800 mb-2">Complete Schedule</h3>
-                    <p class="text-gray-600 mb-3">Download the complete DAAD Gathering 2025 schedule including all venues and events.</p>
-                    <a href="ics/daad-2025-full-schedule.ics" class="inline-flex items-center px-4 py-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-700 transition-colors">
+        <div class="daad-frame bg-black/45 backdrop-blur-sm border border-white/15 shadow-daad p-6 sm:p-8 rounded-sm">
+            <div class="grid gap-8">
+                <div class="border-b border-white/15 pb-8">
+                    <h3 class="font-display text-2xl uppercase tracking-[0.1em] text-white mb-2">Complete schedule</h3>
+                    <p class="text-white/65 text-sm mb-4 max-w-xl leading-relaxed">All venues in one calendar file.</p>
+                    <a href="ics/daad-2025-full-schedule.ics" class="inline-flex items-center font-sans text-xs font-bold uppercase tracking-[0.12em] px-4 py-2.5 rounded-sm bg-white text-neutral-900 hover:bg-neutral-200 transition-colors">
                         <i class="fas fa-download mr-2"></i>
-                        Download All Events
+                        Download all events
                     </a>
                 </div>
 
-                <!-- Individual Venues -->
                 <div>
-                    <h3 class="text-xl font-semibold text-gray-800 mb-4">Venue Schedules</h3>
-                    <div class="grid gap-4">
-                        <div class="flex items-center justify-between p-4 bg-gray-50 rounded-md">
+                    <h3 class="font-display text-2xl uppercase tracking-[0.1em] text-white mb-4">Venue schedules</h3>
+                    <div class="grid gap-3">
+                        <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 p-4 pl-5 bg-black/40 border border-white/10 rounded-sm hover:border-white/25 transition-colors border-l-4 border-l-sky-400">
                             <div>
-                                <h4 class="font-medium text-gray-900">AM Beach</h4>
-                                <p class="text-sm text-gray-600">Events at AM Beach venue</p>
+                                <h4 class="font-semibold text-white">AM Beach</h4>
+                                <p class="text-sm text-white/55 mt-0.5">AM Beach stage</p>
                             </div>
-                            <a href="ics/daad-2025-am-beach.ics" class="inline-flex items-center px-3 py-1.5 bg-indigo-600 text-white rounded-md hover:bg-indigo-700 transition-colors text-sm">
+                            <a href="ics/daad-2025-am-beach.ics" class="inline-flex items-center justify-center font-sans text-xs font-bold uppercase tracking-[0.12em] px-3 py-2 rounded-sm bg-white text-neutral-900 hover:bg-neutral-200 transition-colors shrink-0">
                                 <i class="fas fa-download mr-1.5"></i>
                                 Download
                             </a>
                         </div>
 
-                        <div class="flex items-center justify-between p-4 bg-gray-50 rounded-md">
+                        <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 p-4 pl-5 bg-black/40 border border-white/10 rounded-sm hover:border-white/25 transition-colors border-l-4 border-l-amber-400">
                             <div>
-                                <h4 class="font-medium text-gray-900">Cooking Groove</h4>
-                                <p class="text-sm text-gray-600">Events at Cooking Groove venue</p>
+                                <h4 class="font-semibold text-white">Cooking Groove</h4>
+                                <p class="text-sm text-white/55 mt-0.5">Cooking Groove</p>
                             </div>
-                            <a href="ics/daad-2025-cooking-groove.ics" class="inline-flex items-center px-3 py-1.5 bg-indigo-600 text-white rounded-md hover:bg-indigo-700 transition-colors text-sm">
+                            <a href="ics/daad-2025-cooking-groove.ics" class="inline-flex items-center justify-center font-sans text-xs font-bold uppercase tracking-[0.12em] px-3 py-2 rounded-sm bg-white text-neutral-900 hover:bg-neutral-200 transition-colors shrink-0">
                                 <i class="fas fa-download mr-1.5"></i>
                                 Download
                             </a>
                         </div>
 
-                        <div class="flex items-center justify-between p-4 bg-gray-50 rounded-md">
+                        <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 p-4 pl-5 bg-black/40 border border-white/10 rounded-sm hover:border-white/25 transition-colors border-l-4 border-l-emerald-400">
                             <div>
-                                <h4 class="font-medium text-gray-900">Dragon Nest</h4>
-                                <p class="text-sm text-gray-600">Events at Dragon Nest venue</p>
+                                <h4 class="font-semibold text-white">Dragon Nest</h4>
+                                <p class="text-sm text-white/55 mt-0.5">Dragon Nest</p>
                             </div>
-                            <a href="ics/daad-2025-dragon-nest.ics" class="inline-flex items-center px-3 py-1.5 bg-indigo-600 text-white rounded-md hover:bg-indigo-700 transition-colors text-sm">
+                            <a href="ics/daad-2025-dragon-nest.ics" class="inline-flex items-center justify-center font-sans text-xs font-bold uppercase tracking-[0.12em] px-3 py-2 rounded-sm bg-white text-neutral-900 hover:bg-neutral-200 transition-colors shrink-0">
                                 <i class="fas fa-download mr-1.5"></i>
                                 Download
                             </a>
                         </div>
 
-                        <div class="flex items-center justify-between p-4 bg-gray-50 rounded-md">
+                        <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 p-4 pl-5 bg-black/40 border border-white/10 rounded-sm hover:border-white/25 transition-colors border-l-4 border-l-orange-500">
                             <div>
-                                <h4 class="font-medium text-gray-900">The Dome</h4>
-                                <p class="text-sm text-gray-600">Events at The Dome venue</p>
+                                <h4 class="font-semibold text-white">The Dome</h4>
+                                <p class="text-sm text-white/55 mt-0.5">The Dome</p>
                             </div>
-                            <a href="ics/daad-2025-the-dome.ics" class="inline-flex items-center px-3 py-1.5 bg-indigo-600 text-white rounded-md hover:bg-indigo-700 transition-colors text-sm">
+                            <a href="ics/daad-2025-the-dome.ics" class="inline-flex items-center justify-center font-sans text-xs font-bold uppercase tracking-[0.12em] px-3 py-2 rounded-sm bg-white text-neutral-900 hover:bg-neutral-200 transition-colors shrink-0">
                                 <i class="fas fa-download mr-1.5"></i>
                                 Download
                             </a>
                         </div>
 
-                        <div class="flex items-center justify-between p-4 bg-gray-50 rounded-md">
+                        <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 p-4 pl-5 bg-black/40 border border-white/10 rounded-sm hover:border-white/25 transition-colors border-l-4 border-l-fuchsia-500">
                             <div>
-                                <h4 class="font-medium text-gray-900">DAAD Stage</h4>
-                                <p class="text-sm text-gray-600">Events at DAAD Stage venue</p>
+                                <h4 class="font-semibold text-white">DAAD Stage</h4>
+                                <p class="text-sm text-white/55 mt-0.5">DAAD Stage</p>
                             </div>
-                            <a href="ics/daad-2025-daad-stage.ics" class="inline-flex items-center px-3 py-1.5 bg-indigo-600 text-white rounded-md hover:bg-indigo-700 transition-colors text-sm">
+                            <a href="ics/daad-2025-daad-stage.ics" class="inline-flex items-center justify-center font-sans text-xs font-bold uppercase tracking-[0.12em] px-3 py-2 rounded-sm bg-white text-neutral-900 hover:bg-neutral-200 transition-colors shrink-0">
                                 <i class="fas fa-download mr-1.5"></i>
                                 Download
                             </a>
@@ -106,7 +229,6 @@
             </div>
         </div>
     </div>
-    <!-- 100% privacy-first analytics -->
     <script async src="https://scripts.simpleanalyticscdn.com/latest.js"></script>
 </body>
-</html> 
+</html>
