@@ -1,0 +1,37 @@
+---
+description: DAAD Gathering schedule site — purpose, stack, and where logic lives
+alwaysApply: true
+---
+
+# DAAD Gathering schedule (this repo)
+
+## What it is
+
+Static **event schedule viewer** for **DAAD Gathering** (currently titled “2026” in `index.html`). Users browse lineup by day/stage, filter (date, stage, artist, tags, etc.), open sample-set links, and **download `.ics`** for selections or full schedule. No app backend in production: same behavior as **GitHub Pages** (HTML + client-side JS only).
+
+## Stack & run locally
+
+- **UI**: single-page `index.html` — Tailwind via CDN, custom “poster” CSS, Font Awesome, Google fonts (Barlow / Bebas Neue).
+- **Companion page**: `downloads.html` (same visual language; downloads / links).
+- **Dev server**: `server.py` — minimal `SimpleHTTPRequestHandler`, `/` → `index.html`, CORS `*` + no-store headers. Run: `python server.py` (default port **5500**).
+
+## Data source (critical)
+
+- Live schedule is loaded in the browser from a **public Google Spreadsheet** as CSV via the **GViz** endpoint:  
+  `https://docs.google.com/spreadsheets/d/{SPREADSHEET_ID}/gviz/tq?tqx=out:csv` (+ optional `&gid=`).  
+  **Do not** switch to `/export?format=csv` for browser `fetch` — redirects break CORS on GitHub Pages.
+- Constants in `index.html`: `SPREADSHEET_ID`, `SPREADSHEET_GID`, `EVENT_TIMEZONE` (`Europe/Budapest`), `DEFAULT_SLOT_HOURS` (default **2h** last slot on a stage/day).
+- **`data/events.json`** / **`data/events_2025.json`**: legacy or snapshot data; **`fetchEvents()` does not load them** after the Sheet migration. Use/update the Sheet or adjust CSV parsing if the canonical source changes.
+- **`ics/*.ics`**: bundled calendar files (older or partial exports); client-side **`generateIcsContent()`** in `index.html` is the in-app export path.
+
+## Implementation map (`index.html` script)
+
+| Concern | Functions / notes |
+|--------|-------------------|
+| Fetch + parse | `fetchScheduleCsvText`, `parseCsv`, `resolveColumnIndices` (headers: stage, band, date, time; optional tags; sample URL column matched with typo tolerance `samlpe`) |
+| Times | `utcMillisForWallClock` / `toLocalIsoFromUtcMs` — wall-clock in `EVENT_TIMEZONE` |
+| Stages | `normalizeStageName` → **uppercase** keys must align with **`STAGE_STYLES`** for colors |
+| End times | `deriveEndsAndDuration` — next slot start per stage+day, else default duration |
+| UI | Filter/render helpers, tag filter, cards with `sampleSetUrl`, loading overlay + error banner |
+
+When adding stages or sheet columns, update **normalization**, **`STAGE_STYLES`**, and **CSV column resolution** together.
