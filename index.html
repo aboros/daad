@@ -261,9 +261,6 @@
                         <button id="downloadIcs" type="button" class="inline-flex items-center font-sans text-xs font-bold uppercase tracking-[0.12em] px-4 py-2.5 rounded-sm bg-white text-neutral-900 hover:bg-neutral-200 transition-colors disabled:opacity-40 disabled:cursor-not-allowed" disabled>
                             <i class="fas fa-download mr-2"></i>Download ICS
                         </button>
-                        <button id="saveSelections" type="button" class="inline-flex items-center font-sans text-xs font-bold uppercase tracking-[0.12em] px-4 py-2.5 rounded-sm border border-white/55 text-white bg-transparent hover:bg-white/10 transition-colors disabled:opacity-40 disabled:cursor-not-allowed" disabled>
-                            <i class="fas fa-save mr-2"></i>Save selections
-                        </button>
                     </div>
                 </div>
             </div>
@@ -785,7 +782,6 @@
             // Initialize selected events set from localStorage or create new Set
             const savedSelections = localStorage.getItem('daadSelectedEvents');
             window.selectedEvents = new Set(savedSelections ? JSON.parse(savedSelections) : []);
-            window.lastSavedState = new Set(window.selectedEvents); // Track last saved state
             window.allEvents = events; // Store all events for reference
 
             // Show selection overview panel and enable buttons if there are saved selections
@@ -851,7 +847,6 @@
             document.getElementById('tagFilter').addEventListener('change', () => filterEvents(events, 'tagFilter'));
             document.getElementById('downloadIcs').addEventListener('click', () => downloadSelectedEvents(events));
             document.getElementById('addToCalendar').addEventListener('click', () => addToCalendar(events));
-            document.getElementById('saveSelections').addEventListener('click', () => saveSelections());
             
             // Add toggle details event listener
             document.getElementById('toggleDetails').addEventListener('click', () => {
@@ -903,22 +898,9 @@
         function updateDownloadButton() {
             const downloadButton = document.getElementById('downloadIcs');
             const addToCalendarButton = document.getElementById('addToCalendar');
-            const saveButton = document.getElementById('saveSelections');
             const hasSelections = window.selectedEvents.size > 0;
-            const hasUnsavedChanges = !areSetsEqual(window.selectedEvents, window.lastSavedState);
-            
             downloadButton.disabled = !hasSelections;
             addToCalendarButton.disabled = !hasSelections;
-            saveButton.disabled = !hasUnsavedChanges;
-        }
-
-        // Helper function to compare two Sets
-        function areSetsEqual(set1, set2) {
-            if (set1.size !== set2.size) return false;
-            for (const item of set1) {
-                if (!set2.has(item)) return false;
-            }
-            return true;
         }
 
         // Update selection overview
@@ -983,7 +965,8 @@
                 window.sa_event('addArtist', artist_metadata);
                 window.sa_event('addAtStage', stage_metadata);
             }
-            
+
+            persistSelectionsToStorage();
             updateDownloadButton();
             updateSelectionOverview(window.allEvents);
             
@@ -1204,29 +1187,10 @@ END:VCALENDAR`;
             `;
         }
 
-        // Save selections to localStorage
-        function saveSelections() {
-            const metadata = {
-                total_events: window.selectedEvents.size
-            }
-            window.sa_event('save_selections', metadata);
-            localStorage.setItem('daadSelectedEvents', JSON.stringify([...window.selectedEvents]));
-            window.lastSavedState = new Set(window.selectedEvents); // Update last saved state
-            
-            // Show a temporary success message
-            const saveButton = document.getElementById('saveSelections');
-            const originalText = saveButton.innerHTML;
-            saveButton.innerHTML = '<i class="fas fa-check mr-2"></i>Saved';
-            saveButton.classList.remove('border', 'border-white/55', 'text-white', 'bg-transparent', 'hover:bg-white/10');
-            saveButton.classList.add('bg-white', 'text-neutral-900', 'border', 'border-white', 'hover:bg-neutral-200');
-            
-            setTimeout(() => {
-                saveButton.innerHTML = originalText;
-                saveButton.classList.add('border', 'border-white/55', 'text-white', 'bg-transparent', 'hover:bg-white/10');
-                saveButton.classList.remove('bg-white', 'text-neutral-900', 'border-white', 'hover:bg-neutral-200');
-            }, 2000);
-
-            updateDownloadButton(); // Update button states after saving
+        function persistSelectionsToStorage() {
+            try {
+                localStorage.setItem('daadSelectedEvents', JSON.stringify([...window.selectedEvents]));
+            } catch (e) {}
         }
 
         // Initialize the application when the page loads
