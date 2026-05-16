@@ -116,6 +116,20 @@
             position: relative;
             z-index: 1;
         }
+
+        .daad-sticky-heading {
+            transition: background-color 0.22s ease-out, -webkit-backdrop-filter 0.22s ease-out, backdrop-filter 0.22s ease-out;
+            background-color: transparent;
+            -webkit-backdrop-filter: none;
+            backdrop-filter: none;
+        }
+        .daad-sticky-heading.is-stuck {
+            background-color: rgba(0, 0, 0, 0.4);
+            -webkit-backdrop-filter: blur(48px);
+            backdrop-filter: blur(48px);
+            box-shadow: 0 1px 0 rgba(255, 255, 255, 0.08);
+        }
+
         ::-webkit-scrollbar {
             width: 10px;
             height: 10px;
@@ -284,7 +298,7 @@
     </div>
 
     <!-- Header -->
-    <header class="border-b border-white/15 bg-black/35 backdrop-blur-md sticky top-0 z-20">
+    <header id="daadSiteHeader" class="border-b border-white/15 bg-black/35 backdrop-blur-md sticky top-0 z-20">
         <div class="container mx-auto px-4">
             <div class="flex items-center py-4 gap-4 flex-wrap">
                 <div class="flex items-center gap-3">
@@ -340,6 +354,12 @@
                             <label class="block text-xs font-bold uppercase tracking-[0.12em] text-white/85 mb-2">Artist</label>
                             <input type="text" id="artistFilter" placeholder="Search artist…" class="daad-field w-full rounded-sm border border-white/20 bg-black/40 px-3 py-2.5 text-sm text-white placeholder:text-white/40 focus:border-white/60 focus:ring-1 focus:ring-white/40 outline-none transition-shadow">
                         </div>
+                    </div>
+                    <div class="mt-4 flex justify-end border-t border-white/15 pt-4">
+                        <button type="button" id="clearFiltersBtn"
+                            class="tab-daad font-sans text-xs font-bold uppercase tracking-[0.12em] px-4 py-2 rounded-sm border transition-colors border-white/35 text-white/90 bg-transparent hover:bg-white/10 focus:outline-none focus-visible:ring-2 focus-visible:ring-white/50">
+                            Clear filters
+                        </button>
                     </div>
                 </details>
             </div>
@@ -402,30 +422,35 @@
                 cardDef: 'bg-black/40 border-white/10 hover:border-white/25',
                 cardSel: 'bg-fuchsia-950/45 border-fuchsia-400/85 ring-1 ring-fuchsia-400/50',
                 chk: 'accent-fuchsia-400 border-white/35 bg-black/50',
+                metaLabel: 'text-fuchsia-400/85',
             },
             'THE DOME': {
                 h2: 'border-l-orange-500',
                 cardDef: 'bg-black/40 border-white/10 hover:border-white/25',
                 cardSel: 'bg-orange-950/40 border-orange-400/85 ring-1 ring-orange-400/50',
                 chk: 'accent-orange-400 border-white/35 bg-black/50',
+                metaLabel: 'text-orange-400/85',
             },
             'DRAGON NEST': {
                 h2: 'border-l-emerald-400',
                 cardDef: 'bg-black/40 border-white/10 hover:border-white/25',
                 cardSel: 'bg-emerald-950/45 border-emerald-400/85 ring-1 ring-emerald-400/50',
                 chk: 'accent-emerald-400 border-white/35 bg-black/50',
+                metaLabel: 'text-emerald-400/85',
             },
             'COOKING GROOVE': {
                 h2: 'border-l-amber-400',
                 cardDef: 'bg-black/40 border-white/10 hover:border-white/25',
                 cardSel: 'bg-amber-950/40 border-amber-400/85 ring-1 ring-amber-400/50',
                 chk: 'accent-amber-300 border-white/35 bg-black/50',
+                metaLabel: 'text-amber-400/85',
             },
             'AM/BEACH': {
                 h2: 'border-l-sky-400',
                 cardDef: 'bg-black/40 border-white/10 hover:border-white/25',
                 cardSel: 'bg-sky-950/45 border-sky-400/85 ring-1 ring-sky-400/50',
                 chk: 'accent-sky-400 border-white/35 bg-black/50',
+                metaLabel: 'text-sky-400/85',
             },
         };
 
@@ -435,6 +460,7 @@
                 cardDef: 'bg-black/40 border-white/10 hover:border-white/25',
                 cardSel: 'bg-white/12 border-white ring-1 ring-white/45',
                 chk: 'accent-white border-white/35 bg-black/50',
+                metaLabel: 'text-white',
             };
         }
 
@@ -972,12 +998,16 @@
             const isSelected = window.selectedEvents.has(event.id);
             const rowBg = isSelected ? st.cardSel : st.cardDef;
             const scheduleSlot = !!options.scheduleSlot;
-            const sublineInner = scheduleSlot
-                ? `<p class="text-sm text-white/65 min-w-0"><span class="text-white/55 uppercase tracking-wider text-xs font-semibold">${escapeHtml(event.location)}</span></p>`
-                : buildStageListSublineHtml(event);
-            const durationHtml = `<span class="text-xs font-semibold uppercase tracking-wider text-white/55 whitespace-nowrap shrink-0">${formatDuration(event.duration)}</span>`;
-            const metaRowChunks = scheduleSlot ? `${sublineInner}${durationHtml}` : sublineInner;
-            const metaRowHtml = `<div class="mt-0.5 flex flex-wrap items-baseline justify-between gap-x-3 gap-y-0.5">${metaRowChunks}</div>`;
+            let metaRowHtml;
+            if (scheduleSlot) {
+                metaRowHtml = `<div class="mt-0.5 space-y-0.5 min-w-0">
+                            <p class="text-sm min-w-0"><span class="uppercase tracking-wider text-xs font-semibold ${st.metaLabel}">${escapeHtml(event.location)}</span></p>
+                            <p class="text-xs font-semibold uppercase tracking-wider text-white/55">${formatDuration(event.duration)}</p>
+                        </div>`;
+            } else {
+                const sublineInner = buildStageListSublineHtml(event);
+                metaRowHtml = `<div class="mt-0.5 flex flex-wrap items-baseline justify-between gap-x-3 gap-y-0.5">${sublineInner}</div>`;
+            }
             const tagsHtml =
                 event.tags && event.tags.length
                     ? `<div class="mt-2 flex flex-wrap gap-1.5">${event.tags
@@ -1040,12 +1070,46 @@
         let moreFiltersResizeTimer;
         window.addEventListener('resize', () => {
             clearTimeout(moreFiltersResizeTimer);
-            moreFiltersResizeTimer = setTimeout(syncMoreFiltersDetailsOpen, 150);
+            moreFiltersResizeTimer = setTimeout(() => {
+                syncMoreFiltersDetailsOpen();
+                syncDaadStickyTop();
+                updateStickyHeadingStates();
+            }, 150);
         });
+
+        function syncDaadStickyTop() {
+            const header = document.getElementById('daadSiteHeader');
+            if (!header) return;
+            document.documentElement.style.setProperty('--daad-sticky-top', `${header.offsetHeight}px`);
+        }
+
+        function updateStickyHeadingStates() {
+            const raw = getComputedStyle(document.documentElement).getPropertyValue('--daad-sticky-top').trim();
+            let stickyTop = parseFloat(raw);
+            if (!Number.isFinite(stickyTop)) stickyTop = 72;
+            document.querySelectorAll('.daad-sticky-heading').forEach((el) => {
+                const rect = el.getBoundingClientRect();
+                const pinned = rect.top <= stickyTop + 0.75 && rect.bottom > stickyTop + 8;
+                el.classList.toggle('is-stuck', pinned);
+            });
+        }
+
+        let stickyHeadingScrollAttached = false;
+        function ensureStickyHeadingScrollListener() {
+            if (stickyHeadingScrollAttached) return;
+            stickyHeadingScrollAttached = true;
+            window.addEventListener('scroll', updateStickyHeadingStates, { passive: true });
+        }
 
         // Initialize the application
         async function init() {
             syncMoreFiltersDetailsOpen();
+            syncDaadStickyTop();
+            ensureStickyHeadingScrollListener();
+            try {
+                if (document.fonts && document.fonts.ready) await document.fonts.ready;
+            } catch (e) {}
+            syncDaadStickyTop();
             const events = await fetchEvents();
             const uniqueDates = [...new Set(events.map((event) => event.dayKey))];
             const uniqueLocations = [...new Set(events.map(event => event.location))];
@@ -1118,6 +1182,7 @@
             document.getElementById('artistFilter').addEventListener('input', () => filterEvents(events));
             document.getElementById('selectionFilter').addEventListener('change', () => filterEvents(events));
             document.getElementById('tagFilter').addEventListener('change', () => filterEvents(events));
+            document.getElementById('clearFiltersBtn').addEventListener('click', clearFilters);
 
             // Add toggle details event listener
             document.getElementById('toggleDetails').addEventListener('click', () => {
@@ -1131,6 +1196,15 @@
                     toggleIcon.classList.remove('rotate-180');
                 }
             });
+        }
+
+        function clearFilters() {
+            document.getElementById('dateFilter').value = '';
+            document.getElementById('locationFilter').value = '';
+            document.getElementById('tagFilter').value = '';
+            document.getElementById('artistFilter').value = '';
+            document.getElementById('selectionFilter').value = 'all';
+            if (Array.isArray(window.allEvents)) filterEvents(window.allEvents);
         }
 
         // Filter events based on selected criteria
@@ -1230,6 +1304,7 @@
             hydrateSoundCloudSampleCovers(schedulePanel);
             hydrateYouTubeMicrolinkThumbs(stagePanel);
             hydrateYouTubeMicrolinkThumbs(schedulePanel);
+            updateStickyHeadingStates();
         }
 
         // Display events grouped by stage / venue
@@ -1247,7 +1322,7 @@
                 const locationSection = document.createElement('div');
                 locationSection.className = 'mb-6';
                 locationSection.innerHTML = `
-                    <h2 class="font-display text-2xl sm:text-3xl uppercase tracking-[0.08em] text-white border-b border-white/15 pb-3 mb-4 pl-4 border-l-4 ${st.h2}">${location}</h2>
+                    <h2 class="daad-sticky-heading sticky top-[var(--daad-sticky-top,4.5rem)] z-[15] border-b border-white/15 font-display text-2xl sm:text-3xl uppercase tracking-[0.08em] text-white pb-3 mb-4 border-l-4 ${st.h2} transition-colors duration-200 ease-out -mx-4 min-w-0 sm:-mx-6 px-4 sm:px-6">${location}</h2>
                     <div class="space-y-2">
                         ${locationEvents.map((event) => renderEventCard(event)).join('')}
                     </div>
@@ -1267,7 +1342,7 @@
                 .map(
                     (day) => `
                 <section class="mb-10 last:mb-2">
-                    <h2 class="font-display text-2xl sm:text-3xl uppercase tracking-[0.08em] text-white border-b border-white/15 pb-3 mb-5">${formatDayHeading(day.dateKey)}</h2>
+                    <h2 class="daad-sticky-heading sticky top-[var(--daad-sticky-top,4.5rem)] z-[15] border-b border-white/15 font-display text-2xl sm:text-3xl uppercase tracking-[0.08em] text-white pb-3 mb-5 transition-colors duration-200 ease-out -mx-4 min-w-0 sm:-mx-6 px-4 sm:px-6">${formatDayHeading(day.dateKey)}</h2>
                     ${day.slots
                         .map((slot) => {
                             const conflict = slot.events.length > 1;
