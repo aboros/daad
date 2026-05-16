@@ -284,6 +284,52 @@
             outline: 2px solid rgba(255, 255, 255, 0.6);
             outline-offset: 2px;
         }
+
+        /* Back to top (narrow screens): floats above lineup + selection strip */
+        #daadBackToTop {
+            position: fixed;
+            right: max(1rem, env(safe-area-inset-right));
+            bottom: calc(max(1rem, env(safe-area-inset-bottom) + 0.25rem) + var(--daad-back-to-top-extra, 0px));
+            z-index: 40;
+            width: 3rem;
+            height: 3rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 9999px;
+            border: 1px solid rgba(255, 255, 255, 0.25);
+            background: rgba(0, 0, 0, 0.72);
+            color: #fafaf7;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.45);
+            -webkit-backdrop-filter: blur(12px);
+            backdrop-filter: blur(12px);
+            cursor: pointer;
+            opacity: 0;
+            visibility: hidden;
+            pointer-events: none;
+            transform: translateY(0.5rem);
+            transition: opacity 0.2s ease, visibility 0.2s ease, transform 0.2s ease;
+        }
+        #daadBackToTop.daad-back-to-top--visible {
+            opacity: 1;
+            visibility: visible;
+            pointer-events: auto;
+            transform: translateY(0);
+        }
+        #daadBackToTop:focus-visible {
+            outline: 2px solid rgba(255, 255, 255, 0.55);
+            outline-offset: 3px;
+        }
+        @media (min-width: 768px) {
+            #daadBackToTop {
+                display: none;
+            }
+        }
+        @media (prefers-reduced-motion: reduce) {
+            #daadBackToTop {
+                transition-duration: 0.05s;
+            }
+        }
     </style>
 </head>
 <body class="daad-poster min-h-screen text-daad-ink antialiased font-sans">
@@ -414,6 +460,10 @@
             </div>
         </div>
     </div>
+
+    <button type="button" id="daadBackToTop" class="daad-back-to-top text-lg" aria-label="Back to top" aria-hidden="true">
+        <i class="fas fa-arrow-up" aria-hidden="true"></i>
+    </button>
 
     <script>
         const STAGE_STYLES = {
@@ -1073,6 +1123,7 @@
             moreFiltersResizeTimer = setTimeout(() => {
                 syncMoreFiltersDetailsOpen();
                 syncDaadStickyTop();
+                syncBackToTopOffset();
                 updateStickyHeadingStates();
             }, 150);
         });
@@ -1081,6 +1132,32 @@
             const header = document.getElementById('daadSiteHeader');
             if (!header) return;
             document.documentElement.style.setProperty('--daad-sticky-top', `${header.offsetHeight}px`);
+        }
+
+        function syncBackToTopOffset() {
+            const btn = document.getElementById('daadBackToTop');
+            const overview = document.getElementById('selectionOverview');
+            if (!btn) return;
+            let extra = 0;
+            if (overview && !overview.classList.contains('translate-y-full')) {
+                extra = Math.round(overview.getBoundingClientRect().height) + 12;
+            }
+            btn.style.setProperty('--daad-back-to-top-extra', `${extra}px`);
+        }
+
+        function updateBackToTopButton() {
+            const btn = document.getElementById('daadBackToTop');
+            if (!btn) return;
+            if (window.matchMedia('(min-width: 768px)').matches) {
+                btn.classList.remove('daad-back-to-top--visible');
+                btn.setAttribute('aria-hidden', 'true');
+                return;
+            }
+            const threshold = window.innerHeight * 2;
+            const y = window.scrollY || document.documentElement.scrollTop || 0;
+            const show = y > threshold;
+            btn.classList.toggle('daad-back-to-top--visible', show);
+            btn.setAttribute('aria-hidden', show ? 'false' : 'true');
         }
 
         function updateStickyHeadingStates() {
@@ -1092,6 +1169,7 @@
                 const pinned = rect.top <= stickyTop + 0.75 && rect.bottom > stickyTop + 8;
                 el.classList.toggle('is-stuck', pinned);
             });
+            updateBackToTopButton();
         }
 
         let stickyHeadingScrollAttached = false;
@@ -1101,11 +1179,31 @@
             window.addEventListener('scroll', updateStickyHeadingStates, { passive: true });
         }
 
+        let backToTopSetupDone = false;
+        function ensureBackToTopControl() {
+            if (backToTopSetupDone) return;
+            const btn = document.getElementById('daadBackToTop');
+            if (!btn) return;
+            backToTopSetupDone = true;
+            btn.addEventListener('click', () => {
+                const instant = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+                window.scrollTo({ top: 0, behavior: instant ? 'auto' : 'smooth' });
+            });
+            const overview = document.getElementById('selectionOverview');
+            if (overview && typeof ResizeObserver !== 'undefined') {
+                const ro = new ResizeObserver(() => syncBackToTopOffset());
+                ro.observe(overview);
+            }
+        }
+
         // Initialize the application
         async function init() {
             syncMoreFiltersDetailsOpen();
             syncDaadStickyTop();
+            ensureBackToTopControl();
+            syncBackToTopOffset();
             ensureStickyHeadingScrollListener();
+            updateBackToTopButton();
             try {
                 if (document.fonts && document.fonts.ready) await document.fonts.ready;
             } catch (e) {}
@@ -1273,6 +1371,7 @@
             
             document.getElementById('totalEvents').textContent = totalEvents;
             document.getElementById('totalDuration').textContent = `${totalDuration.toFixed(1)} hours`;
+            syncBackToTopOffset();
         }
 
         // Toggle event selection
