@@ -253,7 +253,7 @@
     <div id="scheduleLoadingOverlay" class="daad-schedule-loading-overlay fixed inset-0 z-[100] flex items-center justify-center px-4" aria-hidden="true">
         <div class="absolute inset-0 bg-black/60 backdrop-blur-[12px]" aria-hidden="true"></div>
         <div class="relative z-[1] w-full max-w-sm rounded-sm border border-white/18 bg-black/72 px-8 py-9 text-center shadow-daad backdrop-blur-md">
-            <span class="sr-only">Loading schedule from Google Sheets</span>
+            <span class="sr-only">Loading schedule</span>
             <div class="daad-loading-spinner mx-auto mb-5 flex h-14 w-14 items-center justify-center rounded-full border-[3px] border-white/15 border-t-white/85 animate-spin [animation-duration:950ms]" aria-hidden="true"></div>
             <p class="font-display text-2xl uppercase tracking-[0.14em] text-white">Loading lineup</p>
             <p class="mt-2 text-sm font-medium text-white/60">Fetching and parsing schedule…</p>
@@ -265,8 +265,8 @@
         <div class="container mx-auto px-4">
             <div class="flex items-center py-4 gap-4 flex-wrap">
                 <div class="flex items-center gap-3">
-                    <h1 class="font-display text-3xl sm:text-4xl tracking-[0.04em] uppercase leading-none text-white">
-                        DAAD <span class="text-white/65 font-display">2026</span>
+                    <h1 class="font-display text-3xl sm:text-4xl tracking-[0.04em] uppercase leading-none text-white/65"><span class="text-white">Personal</span> Lineup DAAD 
+                        <span class="text-white font-display">2026</span>
                     </h1>
                 </div>
             </div>
@@ -277,10 +277,10 @@
         <div id="scheduleLoadError" class="hidden mb-6 rounded-sm border border-amber-400/50 bg-amber-950/40 px-4 py-3 text-sm text-amber-100/95" role="alert"></div>
 
         <div class="mb-10">
-            <h2 class="font-display text-4xl sm:text-5xl uppercase tracking-[0.06em] text-white mb-3">Personal lineup</h2>
+            <p>
+                Build your own lineup. Your selections are automatically saved for offline use on this device.
+            </p>
             <p class="text-white/75 max-w-2xl text-sm sm:text-base leading-relaxed font-medium">
-                Browse and filter every set. Tap rows to build your lineup — selections are saved on this device. <br>
-                Install the app for full offline access to the schedule. <br>
                 Official website: <a href="https://2026.daad.hu/" class="text-white underline decoration-white/35 underline-offset-2 hover:decoration-white">2026.daad.hu</a>.
             </p>
         </div>
@@ -288,10 +288,10 @@
         <!-- Filters and Controls -->
         <div class="mb-6">
             <div class="daad-frame bg-black/45 backdrop-blur-sm border border-white/15 shadow-daad p-5 rounded-sm">
-                <p class="mb-3 hidden md:block text-xs font-bold uppercase tracking-[0.12em] text-white/85">More filters</p>
+                <p class="mb-3 hidden md:block text-xs font-bold uppercase tracking-[0.12em] text-white/85">Filters</p>
                 <details id="moreFilters" class="group [&_summary::-webkit-details-marker]:hidden">
                     <summary class="flex cursor-pointer list-none items-center justify-between gap-3 rounded-sm border border-white/20 bg-black/40 px-3 py-2.5 text-white md:hidden">
-                        <span class="text-xs font-bold uppercase tracking-[0.12em] text-white/85">More filters</span>
+                        <span class="text-xs font-bold uppercase tracking-[0.12em] text-white/85">Filters</span>
                         <i class="fas fa-chevron-down text-sm text-white/60 transition-transform duration-200 group-open:rotate-180" aria-hidden="true"></i>
                     </summary>
                     <div class="mt-3 grid grid-cols-1 gap-4 sm:grid-cols-2 md:mt-0 md:gap-4 lg:mt-0 lg:grid lg:grid-cols-4 lg:gap-4">
@@ -353,7 +353,7 @@
                     </button>
                     <button type="button" id="tab-by-schedule" role="tab" aria-selected="false" aria-controls="panel-by-schedule"
                         class="tab-daad font-sans text-xs font-bold uppercase tracking-[0.12em] px-4 py-2 rounded-sm border transition-colors border-white/35 text-white/90 bg-transparent hover:bg-white/10">
-                        By day &amp; time
+                        By time
                     </button>
                 </div>
                 <select id="selectionFilter" aria-label="Show"
