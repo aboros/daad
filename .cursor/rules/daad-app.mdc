@@ -32,7 +32,6 @@ Static **event schedule viewer** for **DAAD Gathering** (currently titled “202
 - Full checklist: **`.cursor/plans/pwa-implementation.md`** (manifest, `sw.js`, precache **`index.html`** shell + assets + `events.json`, iOS hint). **PWA ships only after** vendored **`assets/`** (Tailwind, Font Awesome, fonts).
 - **`start_url` / `scope`** in **`manifest.json`** use **`./`** so the same artifact works locally and under **`aboros.github.io/daad/`**; service worker **`./sw.js`** registration matches.
 - **`downloads.html`**: omit from service worker precache; do **not** register SW there.
-- **Analytics** (if present): optional online-only; **not** in precache.
 
 ## Implementation map (`index.html` script)
 

@@ -620,11 +620,11 @@
             document.getElementById('tab-by-schedule').addEventListener('click', () => setActiveScheduleTab('schedule'));
 
             // Add event listeners
-            document.getElementById('dateFilter').addEventListener('change', () => filterEvents(events, 'dateFilter'));
-            document.getElementById('locationFilter').addEventListener('change', () => filterEvents(events, 'locationFilter'));
-            document.getElementById('artistFilter').addEventListener('input', () => filterEvents(events, 'artistFilter'));
-            document.getElementById('selectionFilter').addEventListener('change', () => filterEvents(events, 'selectionFilter'));
-            document.getElementById('tagFilter').addEventListener('change', () => filterEvents(events, 'tagFilter'));
+            document.getElementById('dateFilter').addEventListener('change', () => filterEvents(events));
+            document.getElementById('locationFilter').addEventListener('change', () => filterEvents(events));
+            document.getElementById('artistFilter').addEventListener('input', () => filterEvents(events));
+            document.getElementById('selectionFilter').addEventListener('change', () => filterEvents(events));
+            document.getElementById('tagFilter').addEventListener('change', () => filterEvents(events));
             document.getElementById('downloadIcs').addEventListener('click', () => downloadSelectedEvents(events));
             document.getElementById('addToCalendar').addEventListener('click', () => addToCalendar(events));
             
@@ -633,11 +633,9 @@
                 const detailsSection = document.getElementById('stageDetails');
                 const toggleIcon = document.querySelector('#toggleDetails i');
                 if (detailsSection.classList.contains('hidden')) {
-                    window.sa_event('selection_details_opened');
                     detailsSection.classList.remove('hidden');
                     toggleIcon.classList.add('rotate-180');
                 } else {
-                    window.sa_event('selection_details_closed');
                     detailsSection.classList.add('hidden');
                     toggleIcon.classList.remove('rotate-180');
                 }
@@ -645,13 +643,7 @@
         }
 
         // Filter events based on selected criteria
-        function filterEvents(events, clickedFilterName) {
-            if (clickedFilterName) {
-                filter_value = document.getElementById(clickedFilterName).value;
-                window.sa_event(clickedFilterName, {
-                    filter_value: filter_value
-                });
-            }
+        function filterEvents(events) {
             const dateFilter = document.getElementById('dateFilter').value;
             const locationFilter = document.getElementById('locationFilter').value;
             const artistFilter = document.getElementById('artistFilter').value.toLowerCase();
@@ -733,20 +725,10 @@
             if (!Number.isInteger(idNum)) return;
             const event = window.allEvents.find((e) => e.id === idNum);
             if (!event) return;
-            const artist_metadata = {
-                artist: event.summary,
-            }
-            const stage_metadata = {
-                stage: event.location,
-            }
             if (window.selectedEvents.has(idNum)) {
                 window.selectedEvents.delete(idNum);
-                window.sa_event('removeArtist', artist_metadata);
-                window.sa_event('removeAtStage', stage_metadata);
             } else {
                 window.selectedEvents.add(idNum);
-                window.sa_event('addArtist', artist_metadata);
-                window.sa_event('addAtStage', stage_metadata);
             }
 
             persistSelectionsToStorage();
@@ -784,11 +766,6 @@ END:VCALENDAR`;
 
         // Download selected events as ICS file
         function downloadSelectedEvents(events) {
-            const metadata = {
-                total_events: events.length,
-                total_duration: events.reduce((sum, event) => sum + parseInt(event.duration.replace('PT', '').replace('H', '')), 0)
-            }
-            window.sa_event('download_ics', metadata);
             const icsContent = generateIcsContent(events);
             const blob = new Blob([icsContent], { type: 'text/calendar;charset=utf-8' });
             const link = document.createElement('a');
@@ -801,11 +778,6 @@ END:VCALENDAR`;
 
         // Add selected events directly to calendar
         function addToCalendar(events) {
-            const metadata = {
-                total_events: events.length,
-                total_duration: events.reduce((sum, event) => sum + parseInt(event.duration.replace('PT', '').replace('H', '')), 0)
-            }
-            window.sa_event('add_to_calendar', metadata);
             const icsContent = generateIcsContent(events);
             const blob = new Blob([icsContent], { type: 'text/calendar;charset=utf-8' });
             const url = URL.createObjectURL(blob);
@@ -1028,7 +1000,5 @@ END:VCALENDAR`;
             }
         })();
     </script>
-    <!-- 100% privacy-first analytics -->
-    <script async src="https://scripts.simpleanalyticscdn.com/latest.js"></script>
 </body>
 </html> 
