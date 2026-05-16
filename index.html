@@ -126,6 +126,31 @@
             background-color: #000;
             box-shadow: 0 1px 0 rgba(255, 255, 255, 0.08);
         }
+        /* Below #daadLineupToolbar (not generated in Tailwind: class only appears in JS templates). */
+        .daad-sticky-section-heading {
+            top: var(--daad-sticky-under-toolbar-top, var(--daad-sticky-top, 4.5rem));
+        }
+        /*
+         * Stacking: lineup toolbar must sit above tab panels — cards use transform on thumbs (composite)
+         * and panels follow the toolbar in DOM, so ties paint the panel last. Tailwind arbitrary
+         * z-[17] may be absent from a stale app.css bundle; shell CSS keeps this reliable offline.
+         * Stay below global UI: site header z-20, overlays z-45+ live outside this subtree.
+         */
+        #daadLineupToolbar {
+            z-index: 25;
+        }
+        #daadLineupToolbar.is-stuck {
+            border-bottom-color: transparent;
+            box-shadow: none;
+        }
+        /* Tab switch: scrollIntoView leaves this gap so content clears the sticky header + lineup toolbar. */
+        #panel-by-stage,
+        #panel-by-schedule {
+            scroll-margin-top: var(
+                --daad-sticky-under-toolbar-top,
+                calc(var(--daad-sticky-top, 5rem) + 3.5rem)
+            );
+        }
 
         ::-webkit-scrollbar {
             width: 10px;
@@ -486,30 +511,33 @@
         </div>
 
         <!-- Events Display: tabs (by stage | by day & time) -->
-        <div class="daad-frame bg-black/45 backdrop-blur-sm border border-white/15 shadow-daad p-4 sm:p-6 mb-24 rounded-sm">
-            <div class="flex flex-wrap items-center justify-between gap-2 gap-y-3 border-b border-white/15 pb-3 mb-5">
-                <div class="flex flex-wrap gap-2" role="tablist" aria-label="Lineup layout">
-                    <button type="button" id="tab-by-stage" role="tab" aria-selected="true" aria-controls="panel-by-stage"
-                        class="tab-daad font-sans text-xs font-bold uppercase tracking-[0.12em] px-4 py-2 rounded-sm border transition-colors border-white bg-white text-neutral-900 hover:bg-neutral-100">
-                        By stage
-                    </button>
-                    <button type="button" id="tab-by-schedule" role="tab" aria-selected="false" aria-controls="panel-by-schedule"
-                        class="tab-daad font-sans text-xs font-bold uppercase tracking-[0.12em] px-4 py-2 rounded-sm border transition-colors border-white/35 text-white/90 bg-transparent hover:bg-white/10">
-                        By time
-                    </button>
+        <div class="daad-frame bg-black/45 backdrop-blur-sm border border-white/15 shadow-daad mb-24 rounded-sm">
+            <div class="min-w-0 p-4 sm:p-6">
+                <div id="daadLineupToolbar" role="toolbar" aria-label="Lineup layout and filters"
+                    class="daad-sticky-heading sticky top-[var(--daad-sticky-top,4.5rem)] flex flex-wrap items-center justify-between gap-2 gap-y-3 border-b border-white/15 pb-3 mb-5 -mx-4 min-w-0 sm:-mx-6 px-4 sm:px-6 transition-colors duration-200 ease-out">
+                    <div class="flex flex-wrap gap-2" role="tablist" aria-label="Lineup layout">
+                        <button type="button" id="tab-by-stage" role="tab" aria-selected="true" aria-controls="panel-by-stage"
+                            class="tab-daad font-sans text-xs font-bold uppercase tracking-[0.12em] px-4 py-2 rounded-sm border transition-colors border-white bg-white text-neutral-900 hover:bg-neutral-100">
+                            By stage
+                        </button>
+                        <button type="button" id="tab-by-schedule" role="tab" aria-selected="false" aria-controls="panel-by-schedule"
+                            class="tab-daad font-sans text-xs font-bold uppercase tracking-[0.12em] px-4 py-2 rounded-sm border transition-colors border-white/35 text-white/90 bg-transparent hover:bg-white/10">
+                            By time
+                        </button>
+                    </div>
+                    <select id="selectionFilter" aria-label="Show"
+                        class="daad-field w-full max-w-full shrink-0 rounded-sm border border-white/20 bg-black/40 px-3 py-2.5 text-sm text-white focus:border-white/60 focus:ring-1 focus:ring-white/40 outline-none transition-shadow sm:w-72">
+                        <option value="all">All sets</option>
+                        <option value="selected">In my lineup</option>
+                        <option value="unselected">Not in my lineup</option>
+                    </select>
                 </div>
-                <select id="selectionFilter" aria-label="Show"
-                    class="daad-field w-full max-w-full shrink-0 rounded-sm border border-white/20 bg-black/40 px-3 py-2.5 text-sm text-white focus:border-white/60 focus:ring-1 focus:ring-white/40 outline-none transition-shadow sm:w-72">
-                    <option value="all">All sets</option>
-                    <option value="selected">In my lineup</option>
-                    <option value="unselected">Not in my lineup</option>
-                </select>
-            </div>
-            <div id="panel-by-stage" role="tabpanel" aria-labelledby="tab-by-stage" class="tab-panel">
-                <!-- stage grouping -->
-            </div>
-            <div id="panel-by-schedule" role="tabpanel" aria-labelledby="tab-by-schedule" class="tab-panel hidden">
-                <!-- day / time-slot grouping -->
+                <div id="panel-by-stage" role="tabpanel" aria-labelledby="tab-by-stage" class="tab-panel">
+                    <!-- stage grouping -->
+                </div>
+                <div id="panel-by-schedule" role="tabpanel" aria-labelledby="tab-by-schedule" class="tab-panel hidden">
+                    <!-- day / time-slot grouping -->
+                </div>
             </div>
         </div>
     </div>
@@ -1210,6 +1238,27 @@
             } catch (e) {}
         }
 
+        function scrollDaadViewportToTop() {
+            const instant = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+            window.scrollTo({ top: 0, behavior: instant ? 'auto' : 'smooth' });
+        }
+
+        /** Scroll active tab panel to the top of the viewport under the sticky header + lineup toolbar. */
+        function scrollDaadViewportToLineupToolbarStuck() {
+            syncDaadStickyTop();
+            const instant = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+            const stageSelected =
+                document.getElementById('tab-by-stage')?.getAttribute('aria-selected') === 'true';
+            const panel = document.getElementById(stageSelected ? 'panel-by-stage' : 'panel-by-schedule');
+            if (!panel) {
+                scrollDaadViewportToTop();
+                return;
+            }
+            requestAnimationFrame(() => {
+                panel.scrollIntoView({ behavior: instant ? 'auto' : 'smooth', block: 'start' });
+            });
+        }
+
         let daadResizeDebounceTimer;
         window.addEventListener('resize', () => {
             clearTimeout(daadResizeDebounceTimer);
@@ -1224,7 +1273,11 @@
         function syncDaadStickyTop() {
             const header = document.getElementById('daadSiteHeader');
             if (!header) return;
-            document.documentElement.style.setProperty('--daad-sticky-top', `${header.offsetHeight}px`);
+            const headerPx = header.offsetHeight;
+            document.documentElement.style.setProperty('--daad-sticky-top', `${headerPx}px`);
+            const toolbar = document.getElementById('daadLineupToolbar');
+            const toolbarPx = toolbar ? toolbar.offsetHeight : 0;
+            document.documentElement.style.setProperty('--daad-sticky-under-toolbar-top', `${headerPx + toolbarPx}px`);
         }
 
         function syncBackToTopOffset() {
@@ -1311,13 +1364,32 @@
             btn.setAttribute('aria-hidden', show ? 'false' : 'true');
         }
 
+        function daadParseStickyTopPx(cssValue, fallback) {
+            const n = parseFloat(String(cssValue || '').trim());
+            return Number.isFinite(n) ? n : fallback;
+        }
+
         function updateStickyHeadingStates() {
-            const raw = getComputedStyle(document.documentElement).getPropertyValue('--daad-sticky-top').trim();
-            let stickyTop = parseFloat(raw);
-            if (!Number.isFinite(stickyTop)) stickyTop = 72;
-            document.querySelectorAll('.daad-sticky-heading').forEach((el) => {
+            const rootStyle = getComputedStyle(document.documentElement);
+            let toolbarSticky = daadParseStickyTopPx(rootStyle.getPropertyValue('--daad-sticky-top'), 72);
+            let sectionSticky = daadParseStickyTopPx(
+                rootStyle.getPropertyValue('--daad-sticky-under-toolbar-top'),
+                toolbarSticky,
+            );
+            if (!(sectionSticky > toolbarSticky)) sectionSticky = toolbarSticky;
+
+            const toolbarEl = document.getElementById('daadLineupToolbar');
+            if (toolbarEl && toolbarEl.classList.contains('daad-sticky-heading')) {
+                const rect = toolbarEl.getBoundingClientRect();
+                const pinned =
+                    rect.top <= toolbarSticky + 0.75 && rect.bottom > toolbarSticky + 8;
+                toolbarEl.classList.toggle('is-stuck', pinned);
+            }
+
+            document.querySelectorAll('.daad-sticky-heading:not(#daadLineupToolbar)').forEach((el) => {
                 const rect = el.getBoundingClientRect();
-                const pinned = rect.top <= stickyTop + 0.75 && rect.bottom > stickyTop + 8;
+                const pinned =
+                    rect.top <= sectionSticky + 0.75 && rect.bottom > sectionSticky + 8;
                 el.classList.toggle('is-stuck', pinned);
             });
             updateBackToTopButton();
@@ -1330,6 +1402,19 @@
             window.addEventListener('scroll', updateStickyHeadingStates, { passive: true });
         }
 
+        let lineupToolbarStickyResizeObserved = false;
+        function ensureLineupToolbarStickyOffsets() {
+            if (lineupToolbarStickyResizeObserved) return;
+            const toolbar = document.getElementById('daadLineupToolbar');
+            if (!toolbar || typeof ResizeObserver === 'undefined') return;
+            lineupToolbarStickyResizeObserved = true;
+            const ro = new ResizeObserver(() => {
+                syncDaadStickyTop();
+                updateStickyHeadingStates();
+            });
+            ro.observe(toolbar);
+        }
+
         let backToTopSetupDone = false;
         function ensureBackToTopControl() {
             if (backToTopSetupDone) return;
@@ -1337,8 +1422,7 @@
             if (!btn) return;
             backToTopSetupDone = true;
             btn.addEventListener('click', () => {
-                const instant = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-                window.scrollTo({ top: 0, behavior: instant ? 'auto' : 'smooth' });
+                scrollDaadViewportToTop();
             });
             const overview = document.getElementById('selectionOverview');
             if (overview && typeof ResizeObserver !== 'undefined') {
@@ -1352,6 +1436,7 @@
             syncDaadStickyTop();
             ensureFiltersDrawerControls();
             ensureBackToTopControl();
+            ensureLineupToolbarStickyOffsets();
             syncBackToTopOffset();
             ensureStickyHeadingScrollListener();
             updateBackToTopButton();
@@ -1422,8 +1507,14 @@
                 }
             } catch (e) {}
 
-            document.getElementById('tab-by-stage').addEventListener('click', () => setActiveScheduleTab('stage'));
-            document.getElementById('tab-by-schedule').addEventListener('click', () => setActiveScheduleTab('schedule'));
+            document.getElementById('tab-by-stage').addEventListener('click', () => {
+                setActiveScheduleTab('stage');
+                scrollDaadViewportToLineupToolbarStuck();
+            });
+            document.getElementById('tab-by-schedule').addEventListener('click', () => {
+                setActiveScheduleTab('schedule');
+                scrollDaadViewportToLineupToolbarStuck();
+            });
 
             // Add event listeners
             document.getElementById('dateFilter').addEventListener('change', () => filterEvents(events));
@@ -1572,7 +1663,7 @@
                 const locationSection = document.createElement('div');
                 locationSection.className = 'mb-6';
                 locationSection.innerHTML = `
-                    <h2 class="daad-sticky-heading sticky top-[var(--daad-sticky-top,4.5rem)] z-[15] border-b border-white/15 font-display text-2xl sm:text-3xl uppercase tracking-[0.08em] text-white pb-3 mb-4 border-l-4 ${st.h2} transition-colors duration-200 ease-out -mx-4 min-w-0 sm:-mx-6 px-4 sm:px-6">${location}</h2>
+                    <h2 class="daad-sticky-heading daad-sticky-section-heading sticky z-[15] border-b border-white/15 font-display text-2xl sm:text-3xl uppercase tracking-[0.08em] text-white pb-3 mb-4 border-l-4 ${st.h2} transition-colors duration-200 ease-out -mx-4 min-w-0 sm:-mx-6 px-4 sm:px-6">${location}</h2>
                     <div class="space-y-2">
                         ${locationEvents.map((event) => renderEventCard(event)).join('')}
                     </div>
@@ -1592,7 +1683,7 @@
                 .map(
                     (day) => `
                 <section class="mb-10 last:mb-2">
-                    <h2 class="daad-sticky-heading sticky top-[var(--daad-sticky-top,4.5rem)] z-[15] border-b border-white/15 font-display text-2xl sm:text-3xl uppercase tracking-[0.08em] text-white pb-3 mb-5 transition-colors duration-200 ease-out -mx-4 min-w-0 sm:-mx-6 px-4 sm:px-6">${formatDayHeading(day.dateKey)}</h2>
+                    <h2 class="daad-sticky-heading daad-sticky-section-heading sticky z-[15] border-b border-white/15 font-display text-2xl sm:text-3xl uppercase tracking-[0.08em] text-white pb-3 mb-5 transition-colors duration-200 ease-out -mx-4 min-w-0 sm:-mx-6 px-4 sm:px-6">${formatDayHeading(day.dateKey)}</h2>
                     ${day.slots
                         .map((slot) => {
                             const conflict = slot.events.length > 1;
