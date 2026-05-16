@@ -7,12 +7,11 @@ alwaysApply: true
 
 ## What it is
 
-Static **event schedule viewer** for **DAAD Gathering** (currently titled “2026” in `index.html`). Users browse lineup by day/stage, filter (date, stage, artist, tags, etc.), open sample-set links, and **download `.ics`** for selections or full schedule. No app backend in production: same behavior as **GitHub Pages** (HTML + client-side JS only).
+Static **event schedule viewer** for **DAAD Gathering** (currently titled “2026” in `index.html`). Users browse lineup by day/stage, filter (date, stage, artist, tags, etc.), open sample-set links, and save a **personal lineup** in the browser. The **PWA** precaches the shell and schedule so the app works **fully offline** after install. No app backend in production: same behavior as **GitHub Pages** (HTML + client-side JS only).
 
 ## Stack & run locally
 
 - **UI**: single-page `index.html` — Tailwind + theme tokens compiled to **`assets/app.css`** (run `npm run build:css` after changing markup / config), Font Awesome **`assets/fontawesome/`**, fonts **`assets/fonts/`** baked into **`assets/tailwind-input.css`** pipeline.
-- **Companion page**: `downloads.html` (same visual language; **online-only** — no service worker; **not** part of PWA offline scope).
 - **Dev server**: `server.py` — minimal `SimpleHTTPRequestHandler`, `/` → `index.html`, CORS `*` + no-store headers. Run: `python server.py` (default port **5500**).
 
 ## Data source (critical)
@@ -25,19 +24,17 @@ Static **event schedule viewer** for **DAAD Gathering** (currently titled “202
 - **GViz** URL (`.../gviz/tq?tqx=out:csv`) and “do not use `/export?format=csv` in **browser** `fetch`” apply only to **legacy or tooling** if anything still requests the Sheet from JS. Prefer **`events.json`** as the single runtime path once migration is done.
 - Constants in `index.html`: **`EVENT_TIMEZONE`** (`Europe/Budapest`). **End times in JSON** come from **start + `duration`** in **`csv_to_events.py`** (remove or stop using **`DEFAULT_SLOT_HOURS`** / next-slot inference in the app if no longer needed).
 - **`data/events_2025.json`**: legacy snapshot only.
-- **`ics/*.ics`**: bundled calendar files (older partial exports); in-app export uses **`generateIcsContent()`** in `index.html`.
 
 ## PWA / GitHub Pages
 
 - Full checklist: **`.cursor/plans/pwa-implementation.md`** (manifest, `sw.js`, precache **`index.html`** shell + assets + `events.json`, iOS hint). **PWA ships only after** vendored **`assets/`** (Tailwind, Font Awesome, fonts).
 - **`start_url` / `scope`** in **`manifest.json`** use **`./`** so the same artifact works locally and under **`aboros.github.io/daad/`**; service worker **`./sw.js`** registration matches.
-- **`downloads.html`**: omit from service worker precache; do **not** register SW there.
 
 ## Implementation map (`index.html` script)
 
 | Concern | Functions / notes |
 |--------|-------------------|
-| Fetch + events | **`fetchEvents`** → **`data/events.json`** (array). Objects include **`id`**, fields needed for schedule/ICS/cards (`summary`, `location`, `startUtcMs`, `endUtcMs`, `dayKey`, `duration`, `startTime`, `endTime`, `sampleSetUrl`, `tags`, …). |
+| Fetch + events | **`fetchEvents`** → **`data/events.json`** (array). Objects include **`id`**, fields needed for schedule/cards (`summary`, `location`, `startUtcMs`, `endUtcMs`, `dayKey`, `duration`, `startTime`, `endTime`, `sampleSetUrl`, `tags`, …). |
 | Times | Wall-clock semantics align with **`EVENT_TIMEZONE`**; producer is **`csv_to_events.py`**. |
 | Stages | `normalizeStageName` → **uppercase** keys must align with **`STAGE_STYLES`** for colors |
 | End times | **Defined in JSON** from CSV **`duration`** (plus start) in the script; app consumes **`endUtcMs` / `duration`** from loaded events. |

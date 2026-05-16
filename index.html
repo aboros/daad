@@ -146,21 +146,15 @@
         </div>
     </div>
 
-    <!-- Header with Navigation -->
+    <!-- Header -->
     <header class="border-b border-white/15 bg-black/35 backdrop-blur-md sticky top-0 z-20">
         <div class="container mx-auto px-4">
-            <div class="flex justify-between items-center py-4 gap-4 flex-wrap">
+            <div class="flex items-center py-4 gap-4 flex-wrap">
                 <div class="flex items-center gap-3">
                     <h1 class="font-display text-3xl sm:text-4xl tracking-[0.04em] uppercase leading-none text-white">
                         DAAD <span class="text-white/65 font-display">2026</span>
                     </h1>
                 </div>
-                <nav aria-label="Main">
-                    <ul class="flex gap-6 font-sans text-xs uppercase tracking-[0.14em] font-semibold">
-                        <li><a href="index.html" class="text-white hover:text-white/80 transition-colors">Personal lineup</a></li>
-                        <li><a href="downloads.html" class="text-white hover:text-white/80 transition-colors">Full downloads</a></li>
-                    </ul>
-                </nav>
             </div>
         </div>
     </header>
@@ -171,8 +165,8 @@
         <div class="mb-10">
             <h2 class="font-display text-4xl sm:text-5xl uppercase tracking-[0.06em] text-white mb-3">Personal lineup</h2>
             <p class="text-white/75 max-w-2xl text-sm sm:text-base leading-relaxed font-medium">
-                Browse and filter every set. Tap rows to build your lineup. <br>
-                Save for later or add to your calendar app to have it with you offline. <br>
+                Browse and filter every set. Tap rows to build your lineup — selections are saved on this device. <br>
+                Install the app for full offline access to the schedule. <br>
                 Official website: <a href="https://2026.daad.hu/" class="text-white underline decoration-white/35 underline-offset-2 hover:decoration-white">2026.daad.hu</a>.
             </p>
         </div>
@@ -229,14 +223,6 @@
                                 </div>
                             </div>
                         </div>
-                    </div>
-                    <div class="flex flex-wrap gap-3">
-                        <button id="addToCalendar" type="button" class="inline-flex items-center font-sans text-xs font-bold uppercase tracking-[0.12em] px-4 py-2.5 rounded-sm bg-white text-neutral-900 hover:bg-neutral-200 transition-colors disabled:opacity-40 disabled:cursor-not-allowed" disabled>
-                            <i class="fas fa-calendar-plus mr-2"></i>Add to calendar
-                        </button>
-                        <button id="downloadIcs" type="button" class="inline-flex items-center font-sans text-xs font-bold uppercase tracking-[0.12em] px-4 py-2.5 rounded-sm bg-white text-neutral-900 hover:bg-neutral-200 transition-colors disabled:opacity-40 disabled:cursor-not-allowed" disabled>
-                            <i class="fas fa-download mr-2"></i>Download ICS
-                        </button>
                     </div>
                 </div>
             </div>
@@ -564,12 +550,11 @@
             window.selectedEvents = new Set(saneIds ? parsedSelections.map(Number) : []);
             window.allEvents = events; // Store all events for reference
 
-            // Show selection overview panel and enable buttons if there are saved selections
+            // Show selection overview panel if there are saved selections
             if (window.selectedEvents.size > 0) {
                 const overviewPanel = document.getElementById('selectionOverview');
                 overviewPanel.classList.remove('translate-y-full');
                 updateSelectionOverview(events);
-                updateDownloadButton();
             }
 
             // Populate date filter
@@ -625,9 +610,7 @@
             document.getElementById('artistFilter').addEventListener('input', () => filterEvents(events));
             document.getElementById('selectionFilter').addEventListener('change', () => filterEvents(events));
             document.getElementById('tagFilter').addEventListener('change', () => filterEvents(events));
-            document.getElementById('downloadIcs').addEventListener('click', () => downloadSelectedEvents(events));
-            document.getElementById('addToCalendar').addEventListener('click', () => addToCalendar(events));
-            
+
             // Add toggle details event listener
             document.getElementById('toggleDetails').addEventListener('click', () => {
                 const detailsSection = document.getElementById('stageDetails');
@@ -664,15 +647,6 @@
 
             
             displayEvents(filteredEvents);
-        }
-
-        // Update download button state
-        function updateDownloadButton() {
-            const downloadButton = document.getElementById('downloadIcs');
-            const addToCalendarButton = document.getElementById('addToCalendar');
-            const hasSelections = window.selectedEvents.size > 0;
-            downloadButton.disabled = !hasSelections;
-            addToCalendarButton.disabled = !hasSelections;
         }
 
         // Update selection overview
@@ -732,62 +706,10 @@
             }
 
             persistSelectionsToStorage();
-            updateDownloadButton();
             updateSelectionOverview(window.allEvents);
             
             // Re-filter events to update the view
             filterEvents(window.allEvents);
-        }
-
-        // Generate ICS content for selected events
-        function generateIcsContent(events) {
-            const selectedEvents = events.filter(event => window.selectedEvents.has(event.id));
-            const icsEvents = selectedEvents.map(event => {
-                const start = new Date(event.startUtcMs).toISOString().replace(/[-:]/g, '').split('.')[0];
-                const end = new Date(event.endUtcMs).toISOString().replace(/[-:]/g, '').split('.')[0];
-                
-                return `BEGIN:VEVENT
-DTSTART:${start}
-DTEND:${end}
-SUMMARY:[${event.location}] - ${event.summary}
-LOCATION:${event.location}
-DESCRIPTION:${event.description || ''}
-END:VEVENT`;
-            }).join('\n');
-
-            return `BEGIN:VCALENDAR
-VERSION:2.0
-PRODID:-//DAAD Gathering 2026//EN
-X-WR-CALNAME:DAAD Gathering 2026
-X-WR-TIMEZONE:Europe/Budapest
-${icsEvents}
-END:VCALENDAR`;
-        }
-
-        // Download selected events as ICS file
-        function downloadSelectedEvents(events) {
-            const icsContent = generateIcsContent(events);
-            const blob = new Blob([icsContent], { type: 'text/calendar;charset=utf-8' });
-            const link = document.createElement('a');
-            link.href = URL.createObjectURL(blob);
-            link.download = 'daad-gathering-2026-selected-events.ics';
-            document.body.appendChild(link);
-            link.click();
-            document.body.removeChild(link);
-        }
-
-        // Add selected events directly to calendar
-        function addToCalendar(events) {
-            const icsContent = generateIcsContent(events);
-            const blob = new Blob([icsContent], { type: 'text/calendar;charset=utf-8' });
-            const url = URL.createObjectURL(blob);
-            const link = document.createElement('a');
-            link.href = url;
-            link.setAttribute('type', 'text/calendar');
-            document.body.appendChild(link);
-            link.click();
-            document.body.removeChild(link);
-            URL.revokeObjectURL(url);
         }
 
         // Display events in both tab panels

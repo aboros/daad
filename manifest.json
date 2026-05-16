@@ -1,7 +1,7 @@
 {
   "name": "DAAD Gathering — Schedule",
   "short_name": "DAAD",
-  "description": "Browse the DAAD Gathering lineup offline and export your lineup to ICS.",
+  "description": "Browse the DAAD Gathering lineup and build your personal schedule — works offline once installed.",
   "display": "standalone",
   "start_url": "./",
   "scope": "./",

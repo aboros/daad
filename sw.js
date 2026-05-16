@@ -1,4 +1,4 @@
-/* Offline shell for DAAD Gathering schedule viewer (omit downloads.html). Bump when assets or shell change. */
+/* Offline shell for DAAD Gathering schedule viewer. Bump when assets or shell change. */
 
 const CACHE_NAME = 'daad-schedule-2026-v1';
 
