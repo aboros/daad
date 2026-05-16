@@ -1,7 +1,7 @@
 {
-  "name": "DAAD Gathering — Schedule",
-  "short_name": "DAAD",
-  "description": "Browse the DAAD Gathering lineup and build your personal schedule — works offline once installed.",
+  "name": "Personal lineup DAAD 2026",
+  "short_name": "DAAD2026",
+  "description": "Unofficial app to build _your_ lineup and access it offline. Built with love for all gatherlings.",
   "display": "standalone",
   "start_url": "./",
   "scope": "./",

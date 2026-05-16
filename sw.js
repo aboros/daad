@@ -1,6 +1,6 @@
 /* Offline shell for DAAD Gathering schedule viewer. Bump when assets or shell change. */
 
-const CACHE_NAME = 'daad-schedule-2026-v2';
+const CACHE_NAME = 'daad-schedule-2026-v3';
 
 const PRECACHE_URLS = [
   './index.html',
