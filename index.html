@@ -478,6 +478,109 @@
             return /^https?:\/\/.+/i.test(String(u || '').trim());
         }
 
+        /** HTTPS SoundCloud permalinks / share links (valid for oEmbed thumbnail lookup). */
+        function isSoundCloudEmbedUrl(u) {
+            try {
+                const parsed = new URL(String(u || '').trim());
+                if (!(parsed.protocol === 'http:' || parsed.protocol === 'https:')) return false;
+                const host = parsed.hostname.replace(/^www\./i, '').toLowerCase();
+                return (
+                    host === 'soundcloud.com' ||
+                    host.endsWith('.soundcloud.com')
+                );
+            } catch (_) {
+                return false;
+            }
+        }
+
+        /** Caches oEmbed JSON promises (dedupes network for same URL across cards / re-filters). */
+        const soundCloudOembedJsonByUrl = new Map();
+
+        /** @see https://developers.soundcloud.com/docs/oembed */
+        function fetchSoundCloudOembedJson(trackUrl) {
+            const key = String(trackUrl || '').trim();
+            if (!key) return Promise.reject(new Error('empty SoundCloud URL'));
+            if (soundCloudOembedJsonByUrl.has(key)) return soundCloudOembedJsonByUrl.get(key);
+            const task = (async () => {
+                const o = new URL('https://soundcloud.com/oembed');
+                o.searchParams.set('format', 'json');
+                o.searchParams.set('url', key);
+                const res = await fetch(o, { credentials: 'omit', mode: 'cors' });
+                if (!res.ok) throw new Error(`SoundCloud oEmbed HTTP ${res.status}`);
+                const data = await res.json();
+                if (!data || typeof data !== 'object') throw new Error('invalid oEmbed response');
+                return data;
+            })();
+            soundCloudOembedJsonByUrl.set(key, task);
+            return task;
+        }
+
+        function hydrateSoundCloudSampleCovers(root) {
+            if (!root || typeof root.querySelectorAll !== 'function') return;
+            root.querySelectorAll('[data-soundcloud-track-url]').forEach((slot) => {
+                const trackUrl = slot.getAttribute('data-soundcloud-track-url');
+                if (!trackUrl) return;
+                slot.removeAttribute('data-soundcloud-track-url');
+                fetchSoundCloudOembedJson(trackUrl)
+                    .then((data) => {
+                        const thumb = data && data.thumbnail_url;
+                        if (!thumb) throw new Error('no thumbnail_url');
+                        const title = String((data && data.title) || 'SoundCloud').trim() || 'SoundCloud';
+                        slot.removeAttribute('aria-busy');
+                        slot.className =
+                            'soundcloud-oembed-cover flex aspect-square max-h-[5lh] w-[min(5lh,100%)] shrink-0 items-center justify-center overflow-hidden rounded-sm border border-white/10 bg-black/25';
+                        const a = document.createElement('a');
+                        a.href = trackUrl;
+                        a.target = '_blank';
+                        a.rel = 'noopener noreferrer';
+                        a.className =
+                            'flex h-full w-full items-center justify-center outline-none ring-sky-400/0 focus-visible:ring-2 focus-visible:ring-sky-400/80';
+                        a.addEventListener('click', (e) => e.stopPropagation());
+                        const img = document.createElement('img');
+                        img.src = thumb;
+                        img.alt = title;
+                        img.loading = 'lazy';
+                        img.decoding = 'async';
+                        img.className = 'h-full w-full object-cover';
+                        a.appendChild(img);
+                        slot.replaceChildren(a);
+                    })
+                    .catch(() => {
+                        slot.removeAttribute('aria-busy');
+                        slot.classList.add('hidden');
+                        slot.replaceChildren();
+                    });
+            });
+        }
+
+        /** Right column: SoundCloud thumbnail + links (shared layout with plain sample aside). */
+        function buildSoundCloudSampleAsideInner(sampleSetUrl) {
+            const href = escapeHtml(sampleSetUrl);
+            const openSoundCloud = `<a href="${href}" onclick="event.stopPropagation()" target="_blank" rel="noopener noreferrer" class="text-[11px] font-semibold text-sky-300/95 hover:text-sky-200 underline decoration-sky-400/50 underline-offset-2">Open on SoundCloud</a>`;
+            return `
+                    <div class="soundcloud-oembed-cover flex aspect-square max-h-[5lh] w-[min(5lh,100%)] shrink-0 items-center justify-center overflow-hidden rounded-sm border border-white/10 bg-black/25 text-[10px] leading-tight text-white/40" data-soundcloud-track-url="${href}" aria-busy="true">Loading…</div>
+                    <p class="max-w-[min(22ch,calc(5lh+8ch))] text-white/50">${openSoundCloud}</p>`;
+        }
+
+        /** Plain http sample: same aside shell as SoundCloud minus artwork. */
+        function buildPlainSampleAsideInner(sampleSetUrl) {
+            const href = escapeHtml(sampleSetUrl);
+            const linkClass =
+                'text-[11px] font-semibold text-sky-300/95 hover:text-sky-200 underline decoration-sky-400/50 underline-offset-2';
+            return `<p class="max-w-[min(22ch,calc(5lh+8ch))] pt-0.5"><a href="${href}" onclick="event.stopPropagation()" target="_blank" rel="noopener noreferrer" class="${linkClass}">Sample set</a></p>`;
+        }
+
+        function buildSampleAsideColumn(sampleSetUrl) {
+            const trimmed = String(sampleSetUrl || '').trim();
+            if (!isHttpUrl(trimmed)) return '';
+            const label =
+                '<p class="text-[10px] font-semibold uppercase tracking-[0.12em] leading-tight text-white/55">Sample set</p>';
+            const body = isSoundCloudEmbedUrl(trimmed)
+                ? buildSoundCloudSampleAsideInner(trimmed)
+                : buildPlainSampleAsideInner(trimmed);
+            return `<aside class="pointer-events-auto flex max-w-[min(calc(5lh+8ch),42%)] shrink-0 flex-col items-end gap-1 self-start pl-3 text-right text-xs leading-normal sm:pl-4" onclick="event.stopPropagation()">${label}${body}</aside>`;
+        }
+
         function syncDaadBodyScrollLock() {
             const loadingOverlay = document.getElementById('scheduleLoadingOverlay');
             const loadingActive =
@@ -549,22 +652,9 @@
             }
         }
 
-        // Format date for display
-        function formatDate(utcMillis) {
-            return new Date(utcMillis).toLocaleString('en-US', {
-                timeZone: EVENT_TIMEZONE,
-                weekday: 'short',
-                month: 'short',
-                day: 'numeric',
-                hour: '2-digit',
-                minute: '2-digit',
-            });
-        }
-
-        // Format duration
         function formatDuration(duration) {
-            const hoursMatch = duration.match(/(\d+)H/);
-            const minutesMatch = duration.match(/(\d+)M/);
+            const hoursMatch = duration.match(/(\d+)H/i);
+            const minutesMatch = duration.match(/(\d+)M/i);
             const hours = hoursMatch ? parseInt(hoursMatch[1]) : 0;
             const minutes = minutesMatch ? parseInt(minutesMatch[1]) : 0;
             
@@ -575,6 +665,46 @@
             } else {
                 return `${hours} hour${hours !== 1 ? 's' : ''} ${minutes} minute${minutes !== 1 ? 's' : ''}`;
             }
+        }
+
+        /** e.g. PT1H30M → `1h30m`; PT45M → `45m` */
+        function formatCompactHmDuration(isoDur) {
+            const hoursMatch = String(isoDur || '').match(/(\d+)H/i);
+            const minutesMatch = String(isoDur || '').match(/(\d+)M/i);
+            const hours = hoursMatch ? parseInt(hoursMatch[1], 10) : 0;
+            const minutes = minutesMatch ? parseInt(minutesMatch[1], 10) : 0;
+            if (hours <= 0 && minutes <= 0) return '';
+            let s = '';
+            if (hours > 0) s += `${hours}h`;
+            if (minutes > 0) s += `${minutes}m`;
+            return s;
+        }
+
+        /** 12-hour clock squeezed for subtitles, e.g. `8:00PM` */
+        function formatStageCardClockLabel(utcMillis) {
+            const raw = new Date(utcMillis).toLocaleTimeString('en-US', {
+                timeZone: EVENT_TIMEZONE,
+                hour: 'numeric',
+                minute: '2-digit',
+                hour12: true,
+            });
+            return raw.replace(/[\u202f\s]+/g, '');
+        }
+
+        /** By-stage tab: line 1 = weekday + start; line 2 = compact duration (Budapest wall time). */
+        function buildStageListSublineHtml(event) {
+            const weekday = new Date(event.startUtcMs).toLocaleDateString('en-US', {
+                weekday: 'long',
+                timeZone: EVENT_TIMEZONE,
+            });
+            const clock = formatStageCardClockLabel(event.startUtcMs);
+            const line1 =
+                `<span class="font-semibold text-white">${escapeHtml(weekday)}</span><span class="font-medium text-white/55">,</span> <span class="font-semibold text-white tabular-nums">${escapeHtml(clock)}</span>`;
+            const hm = formatCompactHmDuration(event.duration);
+            if (!hm) {
+                return `<p class="min-w-0 text-sm leading-snug text-white/65">${line1}</p>`;
+            }
+            return `<div class="min-w-0 space-y-0.5 text-sm leading-snug text-white/65"><div>${line1}</div><div class="text-xs font-medium tabular-nums tracking-tight text-white/80">${escapeHtml(hm)}</div></div>`;
         }
 
         function formatDayHeading(dateKey) {
@@ -624,9 +754,13 @@
             const st = stageRowStyle(event.location);
             const isSelected = window.selectedEvents.has(event.id);
             const rowBg = isSelected ? st.cardSel : st.cardDef;
-            const sublineHtml = options.scheduleSlot
-                ? `<p class="text-sm text-white/65 mt-0.5"><span class="text-white/55 uppercase tracking-wider text-xs font-semibold">${escapeHtml(event.location)}</span></p>`
-                : `<p class="text-sm text-white/65 mt-0.5">${formatDate(event.startUtcMs)}</p>`;
+            const scheduleSlot = !!options.scheduleSlot;
+            const sublineInner = scheduleSlot
+                ? `<p class="text-sm text-white/65 min-w-0"><span class="text-white/55 uppercase tracking-wider text-xs font-semibold">${escapeHtml(event.location)}</span></p>`
+                : buildStageListSublineHtml(event);
+            const durationHtml = `<span class="text-xs font-semibold uppercase tracking-wider text-white/55 whitespace-nowrap shrink-0">${formatDuration(event.duration)}</span>`;
+            const metaRowChunks = scheduleSlot ? `${sublineInner}${durationHtml}` : sublineInner;
+            const metaRowHtml = `<div class="mt-0.5 flex flex-wrap items-baseline justify-between gap-x-3 gap-y-0.5">${metaRowChunks}</div>`;
             const tagsHtml =
                 event.tags && event.tags.length
                     ? `<div class="mt-2 flex flex-wrap gap-1.5">${event.tags
@@ -636,27 +770,23 @@
                           )
                           .join('')}</div>`
                     : '';
-            const sampleHtml = isHttpUrl(event.sampleSetUrl)
-                ? `<p class="mt-1.5"><a href="${escapeHtml(event.sampleSetUrl.trim())}" onclick="event.stopPropagation()" target="_blank" rel="noopener noreferrer" class="text-xs font-semibold text-sky-300/95 hover:text-sky-200 underline decoration-sky-400/50 underline-offset-2">Sample set</a></p>`
-                : '';
+            const trimmedSample = String(event.sampleSetUrl || '').trim();
+            const sampleAsideHtml = buildSampleAsideColumn(trimmedSample);
             return `
-                            <div class="p-4 rounded-sm transition-all cursor-pointer border ${rowBg}"
+                            <div class="rounded-sm transition-all cursor-pointer border p-4 ${rowBg}"
                                  onclick="toggleEventSelection(${event.id})">
-                                <div class="flex justify-between items-start gap-3">
-                                    <div class="flex items-start gap-3 min-w-0">
+                                <div class="flex min-w-0 items-start gap-3">
                                         <input type="checkbox" 
                                                class="mt-1 h-4 w-4 shrink-0 rounded-sm cursor-pointer ${st.chk}"
                                                ${isSelected ? 'checked' : ''}
                                                onclick="event.stopPropagation()"
                                                onchange="toggleEventSelection(${event.id})">
-                                        <div class="min-w-0">
-                                            <h3 class="font-semibold text-white leading-snug">${escapeHtml(event.summary)}</h3>
-                                            ${sublineHtml}
-                                            ${sampleHtml}
+                                        <div class="min-w-0 flex-1">
+                                            <h3 class="font-semibold leading-snug text-white">${escapeHtml(event.summary)}</h3>
+                                            ${metaRowHtml}
                                             ${tagsHtml}
                                         </div>
-                                    </div>
-                                    <span class="text-xs font-semibold uppercase tracking-wider text-white/55 shrink-0">${formatDuration(event.duration)}</span>
+                                        ${sampleAsideHtml}
                                 </div>
                             </div>`;
         }
@@ -879,6 +1009,8 @@
             const schedulePanel = document.getElementById('panel-by-schedule');
             displayListView(events, stagePanel);
             displayScheduleView(events, schedulePanel);
+            hydrateSoundCloudSampleCovers(stagePanel);
+            hydrateSoundCloudSampleCovers(schedulePanel);
         }
 
         // Display events grouped by stage / venue
