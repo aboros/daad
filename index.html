@@ -5,34 +5,10 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="theme-color" content="#581c87">
     <title>DAAD Gathering 2026 — Schedule</title>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Barlow:ital,wght@0,400;0,500;0,600;0,700;1,400&family=Bebas+Neue&display=swap" rel="stylesheet">
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script>
-        tailwind.config = {
-            theme: {
-                extend: {
-                    colors: {
-                        daad: {
-                            ink: '#fafaf7',
-                            night: '#0c0808',
-                            panel: 'rgba(12, 8, 8, 0.72)',
-                            line: 'rgba(255, 255, 255, 0.18)',
-                        },
-                    },
-                    fontFamily: {
-                        display: ['"Bebas Neue"', 'sans-serif'],
-                        sans: ['Barlow', 'system-ui', 'sans-serif'],
-                    },
-                    boxShadow: {
-                        daad: '0 0 0 1px rgba(255, 255, 255, 0.12), 0 22px 48px rgba(0, 0, 0, 0.55)',
-                    },
-                },
-            },
-        };
-    </script>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="manifest" href="manifest.json">
+    <link rel="apple-touch-icon" href="assets/icons/icon-192.png">
+    <link rel="stylesheet" href="assets/app.css">
+    <link rel="stylesheet" href="assets/fontawesome/css/all.min.css">
     <style>
         /* Atmospheric BG: oversized rotating wash + soft vignette (no grid) */
         body.daad-poster {
@@ -330,88 +306,7 @@
             };
         }
 
-        const SPREADSHEET_ID = '1hrvRIKI55gMI-JnQ4Hjb3yyAnCbC_Q2H_dZUwvGes5g';
-        /**
-         * Tab id (gid) if the lineup is not on the first sheet. From the sheet URL: gid=123456789.
-         * Loaded via the GViz endpoint so the response is same-origin CORS from docs.google.com (the
-         * /export?format=csv URL redirects through a 307 without CORS headers and fails in browsers).
-         */
-        const SPREADSHEET_GID = '';
         const EVENT_TIMEZONE = 'Europe/Budapest';
-        const DEFAULT_SLOT_HOURS = 2;
-
-        function sheetCsvUrl() {
-            let u = `https://docs.google.com/spreadsheets/d/${SPREADSHEET_ID}/gviz/tq?tqx=out:csv`;
-            if (SPREADSHEET_GID !== '' && SPREADSHEET_GID != null) u += `&gid=${SPREADSHEET_GID}`;
-            return u + '&t=' + Date.now();
-        }
-
-        /** GViz CSV; works on GitHub Pages (CORS). Do not use /export?format=csv (browser CORS breaks on redirect). */
-        async function fetchScheduleCsvText() {
-            const url = sheetCsvUrl();
-            const response = await fetch(url, { cache: 'no-store', mode: 'cors', credentials: 'omit' });
-            if (!response.ok) throw new Error(`HTTP ${response.status}`);
-            const text = await response.text();
-            const head = text.slice(0, 2500).toLowerCase();
-            if (!text.trim() || head.includes('<!doctype') || head.includes('<html')) {
-                throw new Error('Response was not CSV (check spreadsheet is shared for viewing)');
-            }
-            const rows = parseCsv(text);
-            if (!rows.length) throw new Error('Empty CSV');
-            const { stageI, bandI, dateI, timeI } = resolveColumnIndices(rows[0]);
-            if (stageI < 0 || bandI < 0 || dateI < 0 || timeI < 0) {
-                throw new Error('CSV headers must include stage, band, date, time');
-            }
-            return text;
-        }
-
-        function parseCsv(text) {
-            const rows = [];
-            let i = 0;
-            const n = text.length;
-            while (i < n) {
-                const row = [];
-                while (i < n) {
-                    let cell = '';
-                    if (text[i] === '"') {
-                        i++;
-                        while (i < n) {
-                            if (text[i] === '"') {
-                                if (text[i + 1] === '"') {
-                                    cell += '"';
-                                    i += 2;
-                                } else {
-                                    i++;
-                                    break;
-                                }
-                            } else {
-                                cell += text[i++];
-                            }
-                        }
-                    } else {
-                        while (i < n && text[i] !== ',' && text[i] !== '\n' && text[i] !== '\r') cell += text[i++];
-                    }
-                    row.push(cell);
-                    if (i < n && text[i] === ',') {
-                        i++;
-                        continue;
-                    }
-                    break;
-                }
-                if (i < n && text[i] === '\r') i++;
-                if (i < n && text[i] === '\n') i++;
-                rows.push(row);
-                if (row.length === 1 && row[0] === '' && (i >= n || text[i - 1] === '\n')) break;
-            }
-            return rows.filter((r) => r.some((c) => String(c).trim() !== ''));
-        }
-
-        function normHeader(h) {
-            return String(h || '')
-                .replace(/^\uFEFF/, '')
-                .trim()
-                .toLowerCase();
-        }
 
         function normalizeStageName(raw) {
             const s = String(raw || '').trim().replace(/\s+/g, ' ');
@@ -419,125 +314,47 @@
             return s.toUpperCase();
         }
 
-        function parseSheetDateDots(s) {
-            const parts = String(s || '')
-                .split(/[.\-/]/)
-                .map((x) => x.trim())
-                .filter(Boolean);
-            if (parts.length < 3) return null;
-            const y = parseInt(parts[0], 10);
-            const mo = parseInt(parts[1], 10);
-            const d = parseInt(parts[2], 10);
-            if (!y || !mo || !d) return null;
-            return { y, mo, d, key: `${y}-${String(mo).padStart(2, '0')}-${String(d).padStart(2, '0')}` };
-        }
+        function normalizeFetchedEvent(raw) {
+            const idNum = Number(raw.id);
+            if (!Number.isInteger(idNum)) throw new Error('Invalid or missing integer id');
 
-        function parseTimeHm(s) {
-            const t = String(s || '').trim();
-            const m = t.match(/^(\d{1,2}):(\d{2})\s*$/);
-            if (!m) return null;
-            const h = parseInt(m[1], 10);
-            const mi = parseInt(m[2], 10);
-            if (h > 23 || mi > 59) return null;
-            return { h, mi };
-        }
-
-        function zonedWallClockParts(utcMillis, tz) {
-            const f = new Intl.DateTimeFormat('en-US', {
-                timeZone: tz,
-                year: 'numeric',
-                month: '2-digit',
-                day: '2-digit',
-                hour: '2-digit',
-                minute: '2-digit',
-                hour12: false,
-            });
-            const o = {};
-            for (const p of f.formatToParts(new Date(utcMillis))) {
-                if (p.type !== 'literal') o[p.type] = p.value;
+            const startUtcMs = Number(raw.startUtcMs);
+            const endUtcMs = Number(raw.endUtcMs);
+            if (!Number.isFinite(startUtcMs) || !Number.isFinite(endUtcMs) || endUtcMs < startUtcMs) {
+                throw new Error('Invalid startUtcMs / endUtcMs');
             }
+            const dayKey = String(raw.dayKey || '').trim();
+            if (!/^\d{4}-\d{2}-\d{2}$/.test(dayKey)) throw new Error('Invalid dayKey');
+
+            const summary = String(raw.summary || '').trim();
+            if (!summary) throw new Error('Missing summary');
+
+            const duration = String(raw.duration || '').trim();
+            if (!/^PT/i.test(duration)) throw new Error('Invalid duration ISO string');
+
+            const tagsIn = raw.tags;
+            const tags =
+                Array.isArray(tagsIn) ? tagsIn.map((t) => String(t || '').trim().toLowerCase()).filter(Boolean) : [];
+
+            const loc = normalizeStageName(raw.location || '');
+            if (!loc) throw new Error('Missing location');
+
+            const sampleSetUrl = String(raw.sampleSetUrl || '').trim();
+
             return {
-                y: Number(o.year),
-                mo: Number(o.month),
-                d: Number(o.day),
-                h: Number(o.hour),
-                mi: Number(o.minute),
+                id: idNum,
+                summary,
+                location: loc,
+                startUtcMs,
+                endUtcMs,
+                dayKey,
+                duration,
+                startTime: String(raw.startTime || ''),
+                endTime: String(raw.endTime || ''),
+                description: raw.description === undefined ? '' : String(raw.description),
+                sampleSetUrl,
+                tags,
             };
-        }
-
-        function utcMillisForWallClock(y, mo, d, h, mi, tz) {
-            const start = Date.UTC(y, mo - 1, d, 0, 0) - 8 * 3600000;
-            const end = Date.UTC(y, mo - 1, d, 23, 59) + 10 * 3600000;
-            for (let t = start; t <= end; t += 60000) {
-                const p = zonedWallClockParts(t, tz);
-                if (p.y === y && p.mo === mo && p.d === d && p.h === h && p.mi === mi) return t;
-            }
-            return Date.UTC(y, mo - 1, d, h - 2, mi);
-        }
-
-        function toLocalIsoFromUtcMs(ms, tz) {
-            const p = zonedWallClockParts(ms, tz);
-            const pad = (x) => String(x).padStart(2, '0');
-            return `${p.y}-${pad(p.mo)}-${pad(p.d)}T${pad(p.h)}:${pad(p.mi)}:00`;
-        }
-
-        function parseTagsCell(cell) {
-            return String(cell || '')
-                .split(',')
-                .map((t) => t.trim().toLowerCase())
-                .filter(Boolean);
-        }
-
-        function findColumnIndex(headers, predicate) {
-            for (let i = 0; i < headers.length; i++) if (predicate(normHeader(headers[i]))) return i;
-            return -1;
-        }
-
-        function resolveColumnIndices(headerRow) {
-            const stageI = findColumnIndex(headerRow, (h) => h === 'stage');
-            const bandI = findColumnIndex(headerRow, (h) => h === 'band');
-            const dateI = findColumnIndex(headerRow, (h) => h === 'date');
-            const timeI = findColumnIndex(headerRow, (h) => h === 'time');
-            const tagsI = findColumnIndex(headerRow, (h) => h === 'tags');
-            let sampleI = findColumnIndex(headerRow, (h) => h.includes('sample') && h.includes('url'));
-            if (sampleI < 0) sampleI = findColumnIndex(headerRow, (h) => h.includes('samlpe') && h.includes('url'));
-            if (sampleI < 0)
-                sampleI = findColumnIndex(headerRow, (h) => h.includes('sample') || h.includes('samlpe'));
-            return { stageI, bandI, dateI, timeI, tagsI, sampleI };
-        }
-
-        function isoDurationBetweenMs(msA, msB) {
-            const mins = Math.max(0, Math.round((msB - msA) / 60000));
-            const h = Math.floor(mins / 60);
-            const m = mins % 60;
-            let s = 'PT';
-            if (h) s += h + 'H';
-            if (m) s += m + 'M';
-            return s || 'PT0M';
-        }
-
-        function deriveEndsAndDuration(events) {
-            const DEFAULT_MS = DEFAULT_SLOT_HOURS * 3600000;
-            const groups = {};
-            for (const e of events) {
-                const key = `${e.location}\x00${e._sheetDateKey}`;
-                (groups[key] ||= []).push(e);
-            }
-            for (const key of Object.keys(groups)) {
-                const arr = groups[key].slice().sort((a, b) => a._startUtcMs - b._startUtcMs);
-                for (let i = 0; i < arr.length; i++) {
-                    const cur = arr[i];
-                    const next = arr[i + 1];
-                    cur.startUtcMs = cur._startUtcMs;
-                    delete cur._startUtcMs;
-                    if (next) cur.endUtcMs = next._startUtcMs;
-                    else cur.endUtcMs = cur.startUtcMs + DEFAULT_MS;
-                    cur.startTime = toLocalIsoFromUtcMs(cur.startUtcMs, EVENT_TIMEZONE);
-                    cur.endTime = toLocalIsoFromUtcMs(cur.endUtcMs, EVENT_TIMEZONE);
-                    cur.duration = isoDurationBetweenMs(cur.startUtcMs, cur.endUtcMs);
-                    delete cur._sheetDateKey;
-                }
-            }
         }
 
         function escapeHtml(s) {
@@ -550,46 +367,6 @@
 
         function isHttpUrl(u) {
             return /^https?:\/\/.+/i.test(String(u || '').trim());
-        }
-
-        function sheetRowsToEvents(rows) {
-            if (!rows.length) return [];
-            const headerRow = rows[0];
-            const { stageI, bandI, dateI, timeI, tagsI, sampleI } = resolveColumnIndices(headerRow);
-            if (stageI < 0 || bandI < 0 || dateI < 0 || timeI < 0) return [];
-            const out = [];
-            for (let r = 1; r < rows.length; r++) {
-                const row = rows[r];
-                const band = String(row[bandI] || '').trim();
-                if (!band) continue;
-                const dateParsed = parseSheetDateDots(row[dateI]);
-                const timeParsed = parseTimeHm(row[timeI]);
-                if (!dateParsed || !timeParsed) continue;
-                const locRaw = String(row[stageI] || '').trim();
-                if (!locRaw) continue;
-                const ms = utcMillisForWallClock(
-                    dateParsed.y,
-                    dateParsed.mo,
-                    dateParsed.d,
-                    timeParsed.h,
-                    timeParsed.mi,
-                    EVENT_TIMEZONE
-                );
-                const sampleSetUrl = sampleI >= 0 ? String(row[sampleI] || '').trim() : '';
-                const tags = tagsI >= 0 ? parseTagsCell(row[tagsI]) : [];
-                out.push({
-                    summary: band,
-                    location: normalizeStageName(locRaw),
-                    description: '',
-                    sampleSetUrl,
-                    tags,
-                    dayKey: dateParsed.key,
-                    _sheetDateKey: dateParsed.key,
-                    _startUtcMs: ms,
-                });
-            }
-            deriveEndsAndDuration(out);
-            return out;
         }
 
         async function fetchEvents() {
@@ -607,10 +384,15 @@
                 banner.textContent = '';
             }
             try {
-                const text = await fetchScheduleCsvText();
-                const rows = parseCsv(text);
-                let events = sheetRowsToEvents(rows);
-                if (!events.length) throw new Error('No data rows parsed (check date/time cells).');
+                const response = await fetch('./data/events.json', {
+                    credentials: 'same-origin',
+                    cache: 'no-store',
+                });
+                if (!response.ok) throw new Error(`HTTP ${response.status}`);
+                const parsed = await response.json();
+                if (!Array.isArray(parsed)) throw new Error('Schedule data must be a JSON array');
+                if (!parsed.length) throw new Error('Schedule has no events');
+                const events = parsed.map(normalizeFetchedEvent);
                 events.forEach((event) => {
                     event.clean_title = event.summary
                         .toLowerCase()
@@ -621,12 +403,11 @@
                 return events;
             } catch (err) {
                 if (banner) {
-                    banner.textContent =
-                        'Could not load the schedule from Google Sheets (GitHub Pages uses this fetch only — no backend). ';
+                    banner.textContent = 'Could not load data/events.json (static schedule file). ';
                     banner.textContent +=
                         err && err.message
                             ? `Details: ${err.message}`
-                            : 'Open the developer console or check network requests to docs.google.com.';
+                            : 'Open the developer console or check Network for ./data/events.json.';
                     banner.classList.remove('hidden');
                 }
                 console.error('fetchEvents:', err);
@@ -728,14 +509,14 @@
                 : '';
             return `
                             <div class="p-4 rounded-sm transition-all cursor-pointer border ${rowBg}"
-                                 onclick="toggleEventSelection('${event.id}')">
+                                 onclick="toggleEventSelection(${event.id})">
                                 <div class="flex justify-between items-start gap-3">
                                     <div class="flex items-start gap-3 min-w-0">
                                         <input type="checkbox" 
                                                class="mt-1 h-4 w-4 shrink-0 rounded-sm cursor-pointer ${st.chk}"
                                                ${isSelected ? 'checked' : ''}
                                                onclick="event.stopPropagation()"
-                                               onchange="toggleEventSelection('${event.id}')">
+                                               onchange="toggleEventSelection(${event.id})">
                                         <div class="min-w-0">
                                             <h3 class="font-semibold text-white leading-snug">${escapeHtml(event.summary)}</h3>
                                             ${sublineHtml}
@@ -772,16 +553,15 @@
         // Initialize the application
         async function init() {
             const events = await fetchEvents();
-            // Add unique IDs to events
-            events.forEach((event, index) => {
-                event.id = `${event.startUtcMs}-${event.location}-${event.summary}`.replace(/[^a-zA-Z0-9-]/g, '-');
-            });
             const uniqueDates = [...new Set(events.map((event) => event.dayKey))];
             const uniqueLocations = [...new Set(events.map(event => event.location))];
 
-            // Initialize selected events set from localStorage or create new Set
             const savedSelections = localStorage.getItem('daadSelectedEvents');
-            window.selectedEvents = new Set(savedSelections ? JSON.parse(savedSelections) : []);
+            const parsedSelections = savedSelections ? JSON.parse(savedSelections) : [];
+            const saneIds =
+                Array.isArray(parsedSelections) &&
+                parsedSelections.map((id) => Number(id)).every((id) => Number.isInteger(id));
+            window.selectedEvents = new Set(saneIds ? parsedSelections.map(Number) : []);
             window.allEvents = events; // Store all events for reference
 
             // Show selection overview panel and enable buttons if there are saved selections
@@ -949,19 +729,22 @@
 
         // Toggle event selection
         function toggleEventSelection(eventId) {
-            const event = window.allEvents.find(event => event.id === eventId);
+            const idNum = Number(eventId);
+            if (!Number.isInteger(idNum)) return;
+            const event = window.allEvents.find((e) => e.id === idNum);
+            if (!event) return;
             const artist_metadata = {
                 artist: event.summary,
             }
             const stage_metadata = {
                 stage: event.location,
             }
-            if (window.selectedEvents.has(eventId)) {
-                window.selectedEvents.delete(eventId);
+            if (window.selectedEvents.has(idNum)) {
+                window.selectedEvents.delete(idNum);
                 window.sa_event('removeArtist', artist_metadata);
                 window.sa_event('removeAtStage', stage_metadata);
             } else {
-                window.selectedEvents.add(eventId);
+                window.selectedEvents.add(idNum);
                 window.sa_event('addArtist', artist_metadata);
                 window.sa_event('addAtStage', stage_metadata);
             }
@@ -992,9 +775,9 @@ END:VEVENT`;
 
             return `BEGIN:VCALENDAR
 VERSION:2.0
-PRODID:-//DAAD Gathering 2025//EN
-X-WR-CALNAME:DAAD Gathering 2025
-X-WR-TIMEZONE:Europe/Berlin
+PRODID:-//DAAD Gathering 2026//EN
+X-WR-CALNAME:DAAD Gathering 2026
+X-WR-TIMEZONE:Europe/Budapest
 ${icsEvents}
 END:VCALENDAR`;
         }
@@ -1010,7 +793,7 @@ END:VCALENDAR`;
             const blob = new Blob([icsContent], { type: 'text/calendar;charset=utf-8' });
             const link = document.createElement('a');
             link.href = URL.createObjectURL(blob);
-            link.download = 'daad-gathering-2025-selected-events.ics';
+            link.download = 'daad-gathering-2026-selected-events.ics';
             document.body.appendChild(link);
             link.click();
             document.body.removeChild(link);
@@ -1195,6 +978,55 @@ END:VCALENDAR`;
 
         // Initialize the application when the page loads
         document.addEventListener('DOMContentLoaded', init);
+
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker
+                    .register('./sw.js')
+                    .catch((err) => console.warn('SW registration failed:', err));
+            });
+        }
+
+        (function setupIosInstallHint() {
+            const dismissedKey = 'daadIosInstallHintDismissed';
+            let dismissed = false;
+            try {
+                dismissed = localStorage.getItem(dismissedKey) === '1';
+            } catch (e) {}
+            const isIos =
+                /iPad|iPhone|iPod/.test(navigator.userAgent) ||
+                (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+            const isStandalone =
+                window.matchMedia('(display-mode: standalone)').matches ||
+                window.navigator.standalone === true;
+            if (!isIos || isStandalone || dismissed) return;
+
+            function show() {
+                const bar = document.createElement('div');
+                bar.setAttribute('role', 'status');
+                bar.className =
+                    'fixed bottom-0 left-0 right-0 z-40 border-t border-white/20 bg-black/90 px-4 py-3 text-center text-sm text-white shadow-[0_-8px_32px_rgba(0,0,0,0.55)] backdrop-blur-md';
+                bar.innerHTML = `
+                    <p class="font-sans font-semibold text-white/95">Add this schedule to your Home Screen for quick offline access.</p>
+                    <p class="mt-1 text-xs text-white/70">Tap <span class="font-bold text-white/90">Share</span>, then <span class="font-bold text-white/90">Add to Home Screen</span>.</p>
+                    <button type="button" class="mt-3 font-sans text-xs font-bold uppercase tracking-[0.12em] text-white/80 underline decoration-white/40 underline-offset-2">Dismiss</button>
+                `;
+                const btn = bar.querySelector('button');
+                btn.addEventListener('click', () => {
+                    try {
+                        localStorage.setItem(dismissedKey, '1');
+                    } catch (e) {}
+                    bar.remove();
+                });
+                document.body.appendChild(bar);
+            }
+
+            if (document.readyState === 'loading') {
+                document.addEventListener('DOMContentLoaded', show);
+            } else {
+                show();
+            }
+        })();
     </script>
     <!-- 100% privacy-first analytics -->
     <script async src="https://scripts.simpleanalyticscdn.com/latest.js"></script>

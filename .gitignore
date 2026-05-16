@@ -1,4 +1,7 @@
 *.py
+!scripts/**/*.py
+node_modules/
+
 requirements.txt
 venv/
 testing/

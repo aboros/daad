@@ -11,15 +11,16 @@ Static **event schedule viewer** for **DAAD Gathering** (currently titled “202
 
 ## Stack & run locally
 
-- **UI**: single-page `index.html` — Tailwind via CDN (or self-hosted `assets/app.css` after vendoring), custom “poster” CSS, Font Awesome, Google fonts (Barlow / Bebas Neue).
+- **UI**: single-page `index.html` — Tailwind + theme tokens compiled to **`assets/app.css`** (run `npm run build:css` after changing markup / config), Font Awesome **`assets/fontawesome/`**, fonts **`assets/fonts/`** baked into **`assets/tailwind-input.css`** pipeline.
 - **Companion page**: `downloads.html` (same visual language; **online-only** — no service worker; **not** part of PWA offline scope).
 - **Dev server**: `server.py` — minimal `SimpleHTTPRequestHandler`, `/` → `index.html`, CORS `*` + no-store headers. Run: `python server.py` (default port **5500**).
 
 ## Data source (critical)
 
 - **Canonical runtime data** is **`data/events.json`**: a **top-level JSON array** of event objects. **`fetchEvents()`** loads it with `fetch('./data/events.json')` — **no CSV** and **no live Sheet fetch** in the shipped app.
-- **Authoring** happens in **Google Sheets**. Export **CSV**, then run **`scripts/csv_to_events.py`** manually (e.g. `python3 scripts/csv_to_events.py /path/to/export.csv`) to regenerate **`data/events.json`**. Script uses **`Europe/Budapest`** (`zoneinfo`), same wall-clock semantics as **`EVENT_TIMEZONE`** in `index.html`.
-- **Export contract — required on every row (all non-empty):** **`id`** (integer), **`stage`**, **`band`**, **`date`** (e.g. `2026.06.18.`), **`time`** (12h), **`duration`** (`H:MM:SS`). **Optional columns only:** **`tags`**, sample-set URL (header matched with typo tolerance **`samlpe`**, like legacy CSV). Script must **fail fast** if any required column or cell is missing.
+- **Authoring**: maintain **`data/events.csv`** as the checklist source in-repo. **`data/events.json`** is **generated only** via **`python3 scripts/csv_to_events.py`** (no args → reads **`data/events.csv`**, writes **`data/events.json`**). You may pass another CSV path; output defaults to **`data/events.json`** unless `--out`. Script uses **`Europe/Budapest`** (`zoneinfo`), same wall-clock semantics as **`EVENT_TIMEZONE`** in `index.html`.
+- **CSV contract:** required headers **`id`** (integer), **`stage`**, **`band`**, **`date`**, **`time`** (12h), **`duration`**. **`duration`** column must exist on every row, but cells may be **blank** — the script substitutes **`1:00:00`** and prints a **`stderr`** line noting the row **`id`**.
+- **Optional columns only:** sample-set URL column (matched with typo tolerance **`samlpe`**, same as legacy), **`tags`**. Fail fast if any required field is missing (`id`/stage/band/date/time cells), **`duration` is invalid when present**, **`id`** is not an integer / duplicates IDs, **`id`/time/date** parse failures.
 - **`event.id`** in the app is the **integer `id` from CSV** (not derived from time + stage + title). Selections in **`localStorage`** use that id.
 - **GViz** URL (`.../gviz/tq?tqx=out:csv`) and “do not use `/export?format=csv` in **browser** `fetch`” apply only to **legacy or tooling** if anything still requests the Sheet from JS. Prefer **`events.json`** as the single runtime path once migration is done.
 - Constants in `index.html`: **`EVENT_TIMEZONE`** (`Europe/Budapest`). **End times in JSON** come from **start + `duration`** in **`csv_to_events.py`** (remove or stop using **`DEFAULT_SLOT_HOURS`** / next-slot inference in the app if no longer needed).
@@ -29,7 +30,7 @@ Static **event schedule viewer** for **DAAD Gathering** (currently titled “202
 ## PWA / GitHub Pages
 
 - Full checklist: **`.cursor/plans/pwa-implementation.md`** (manifest, `sw.js`, precache **`index.html`** shell + assets + `events.json`, iOS hint). **PWA ships only after** vendored **`assets/`** (Tailwind, Font Awesome, fonts).
-- **`start_url` / `scope` / service worker** use **`/daad/`** on **`aboros.github.io/daad/`**; local dev may omit that prefix.
+- **`start_url` / `scope`** in **`manifest.json`** use **`./`** so the same artifact works locally and under **`aboros.github.io/daad/`**; service worker **`./sw.js`** registration matches.
 - **`downloads.html`**: omit from service worker precache; do **not** register SW there.
 - **Analytics** (if present): optional online-only; **not** in precache.
 

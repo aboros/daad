@@ -1,684 +1,1450 @@
-{
-  "events": [
-    {
-      "startTime": "2026-06-18T09:00:00",
-      "endTime": "2026-06-18T11:00:00",
-      "duration": "PT2H",
-      "summary": "Lutum",
-      "location": "AM/BEACH",
-      "description": ""
-    },
-    {
-      "startTime": "2026-06-18T11:00:00",
-      "endTime": "2026-06-18T13:00:00",
-      "duration": "PT2H",
-      "summary": "Liro",
-      "location": "AM/BEACH",
-      "description": ""
-    },
-    {
-      "startTime": "2026-06-18T13:00:00",
-      "endTime": "2026-06-18T15:00:00",
-      "duration": "PT2H",
-      "summary": "KRICS & PARTS UNKNOWN",
-      "location": "AM/BEACH",
-      "description": ""
-    },
-    {
-      "startTime": "2026-06-18T15:00:00",
-      "endTime": "2026-06-18T16:30:00",
-      "duration": "PT1H30M",
-      "summary": "Peter Bernath",
-      "location": "AM/BEACH",
-      "description": ""
-    },
-    {
-      "startTime": "2026-06-18T16:30:00",
-      "endTime": "2026-06-18T18:30:00",
-      "duration": "PT2H",
-      "summary": "Ion Ludwig",
-      "location": "AM/BEACH",
-      "description": ""
-    },
-    {
-      "startTime": "2026-06-19T09:00:00",
-      "endTime": "2026-06-19T12:00:00",
-      "duration": "PT3H",
-      "summary": "Moonbase Patel Disco",
-      "location": "AM/BEACH",
-      "description": ""
-    },
-    {
-      "startTime": "2026-06-19T12:00:00",
-      "endTime": "2026-06-19T14:00:00",
-      "duration": "PT2H",
-      "summary": "Ruenge",
-      "location": "AM/BEACH",
-      "description": ""
-    },
-    {
-      "startTime": "2026-06-19T14:00:00",
-      "endTime": "2026-06-19T16:00:00",
-      "duration": "PT2H",
-      "summary": "Dj Syncbutton",
-      "location": "AM/BEACH",
-      "description": ""
-    },
-    {
-      "startTime": "2026-06-19T16:00:00",
-      "endTime": "2026-06-19T18:00:00",
-      "duration": "PT2H",
-      "summary": "Galactic Jackson",
-      "location": "AM/BEACH",
-      "description": ""
-    },
-    {
-      "startTime": "2026-06-19T18:00:00",
-      "endTime": "2026-06-19T20:00:00",
-      "duration": "PT2H",
-      "summary": "Mind Enterprises",
-      "location": "AM/BEACH",
-      "description": ""
-    },
-    {
-      "startTime": "2026-06-20T09:00:00",
-      "endTime": "2026-06-20T11:30:00",
-      "duration": "PT2H30M",
-      "summary": "Kele",
-      "location": "AM/BEACH",
-      "description": ""
-    },
-    {
-      "startTime": "2026-06-20T11:30:00",
-      "endTime": "2026-06-20T14:00:00",
-      "duration": "PT2H30M",
-      "summary": "Knoll & Stark",
-      "location": "AM/BEACH",
-      "description": ""
-    },
-    {
-      "startTime": "2026-06-20T14:00:00",
-      "endTime": "2026-06-20T16:00:00",
-      "duration": "PT2H",
-      "summary": "Octile",
-      "location": "AM/BEACH",
-      "description": ""
-    },
-    {
-      "startTime": "2026-06-20T16:00:00",
-      "endTime": "2026-06-20T18:00:00",
-      "duration": "PT2H",
-      "summary": "Switch Nollie & Tsu",
-      "location": "AM/BEACH",
-      "description": ""
-    },
-    {
-      "startTime": "2026-06-20T18:00:00",
-      "endTime": "2026-06-20T20:00:00",
-      "duration": "PT2H",
-      "summary": "Anunaku",
-      "location": "AM/BEACH",
-      "description": ""
-    },
-    {
-      "startTime": "2026-06-21T09:00:00",
-      "endTime": "2026-06-21T12:00:00",
-      "duration": "PT3H",
-      "summary": "Jaffa Surfa",
-      "location": "AM/BEACH",
-      "description": ""
-    },
-    {
-      "startTime": "2026-06-21T12:00:00",
-      "endTime": "2026-06-21T14:00:00",
-      "duration": "PT2H",
-      "summary": "Budai",
-      "location": "AM/BEACH",
-      "description": ""
-    },
-    {
-      "startTime": "2026-06-17T21:00:00",
-      "endTime": "2026-06-17T23:00:00",
-      "duration": "PT2H",
-      "summary": "Vedat Akda\u011f",
-      "location": "COOKING GROOVE",
-      "description": ""
-    },
-    {
-      "startTime": "2026-06-17T23:00:00",
-      "endTime": "2026-06-18T02:00:00",
-      "duration": "PT3H",
-      "summary": "Pachanga Boys",
-      "location": "COOKING GROOVE",
-      "description": ""
-    },
-    {
-      "startTime": "2026-06-18T02:00:00",
-      "endTime": "2026-06-18T04:00:00",
-      "duration": "PT2H",
-      "summary": "Radio Slave",
-      "location": "COOKING GROOVE",
-      "description": ""
-    },
-    {
-      "startTime": "2026-06-18T04:00:00",
-      "endTime": "2026-06-18T06:00:00",
-      "duration": "PT2H",
-      "summary": "Zvezda Beta",
-      "location": "COOKING GROOVE",
-      "description": ""
-    },
-    {
-      "startTime": "2026-06-18T10:00:00",
-      "endTime": "2026-06-18T12:00:00",
-      "duration": "PT2H",
-      "summary": "EFF:EK aka Zakhorov x Fluidum",
-      "location": "COOKING GROOVE",
-      "description": ""
-    },
-    {
-      "startTime": "2026-06-18T12:00:00",
-      "endTime": "2026-06-18T14:00:00",
-      "duration": "PT2H",
-      "summary": "Fury",
-      "location": "COOKING GROOVE",
-      "description": ""
-    },
-    {
-      "startTime": "2026-06-18T14:00:00",
-      "endTime": "2026-06-18T16:00:00",
-      "duration": "PT2H",
-      "summary": "F\u00e1ni B\u00e1csi",
-      "location": "COOKING GROOVE",
-      "description": ""
-    },
-    {
-      "startTime": "2026-06-19T10:00:00",
-      "endTime": "2026-06-19T12:00:00",
-      "duration": "PT2H",
-      "summary": "Yorgos",
-      "location": "COOKING GROOVE",
-      "description": ""
-    },
-    {
-      "startTime": "2026-06-19T12:00:00",
-      "endTime": "2026-06-19T14:00:00",
-      "duration": "PT2H",
-      "summary": "Daniel Santiago",
-      "location": "COOKING GROOVE",
-      "description": ""
-    },
-    {
-      "startTime": "2026-06-19T14:00:00",
-      "endTime": "2026-06-19T16:00:00",
-      "duration": "PT2H",
-      "summary": "Daniel Ban",
-      "location": "COOKING GROOVE",
-      "description": ""
-    },
-    {
-      "startTime": "2026-06-20T10:00:00",
-      "endTime": "2026-06-20T12:00:00",
-      "duration": "PT2H",
-      "summary": "Jess",
-      "location": "COOKING GROOVE",
-      "description": ""
-    },
-    {
-      "startTime": "2026-06-20T12:00:00",
-      "endTime": "2026-06-20T14:00:00",
-      "duration": "PT2H",
-      "summary": "Kornwall",
-      "location": "COOKING GROOVE",
-      "description": ""
-    },
-    {
-      "startTime": "2026-06-20T14:00:00",
-      "endTime": "2026-06-20T16:00:00",
-      "duration": "PT2H",
-      "summary": "Peter Makto",
-      "location": "COOKING GROOVE",
-      "description": ""
-    },
-    {
-      "startTime": "2026-06-18T19:30:00",
-      "endTime": "2026-06-18T20:00:00",
-      "duration": "PT30M",
-      "summary": "Opening Ceremony",
-      "location": "DAAD STAGE",
-      "description": ""
-    },
-    {
-      "startTime": "2026-06-18T20:00:00",
-      "endTime": "2026-06-18T21:30:00",
-      "duration": "PT1H30M",
-      "summary": "Charlotte De Witte",
-      "location": "DAAD STAGE",
-      "description": ""
-    },
-    {
-      "startTime": "2026-06-18T21:30:00",
-      "endTime": "2026-06-18T23:00:00",
-      "duration": "PT1H30M",
-      "summary": "Mode & Valens",
-      "location": "DAAD STAGE",
-      "description": ""
-    },
-    {
-      "startTime": "2026-06-18T23:00:00",
-      "endTime": "2026-06-19T01:00:00",
-      "duration": "PT2H",
-      "summary": "Dj Nobu & Dasha Rush",
-      "location": "DAAD STAGE",
-      "description": ""
-    },
-    {
-      "startTime": "2026-06-19T01:00:00",
-      "endTime": "2026-06-19T03:00:00",
-      "duration": "PT2H",
-      "summary": "Oscar Mulero",
-      "location": "DAAD STAGE",
-      "description": ""
-    },
-    {
-      "startTime": "2026-06-19T03:00:00",
-      "endTime": "2026-06-19T05:00:00",
-      "duration": "PT2H",
-      "summary": "Setaoc Mass",
-      "location": "DAAD STAGE",
-      "description": ""
-    },
-    {
-      "startTime": "2026-06-19T05:00:00",
-      "endTime": "2026-06-19T07:00:00",
-      "duration": "PT2H",
-      "summary": "Nastia",
-      "location": "DAAD STAGE",
-      "description": ""
-    },
-    {
-      "startTime": "2026-06-19T20:00:00",
-      "endTime": "2026-06-19T22:00:00",
-      "duration": "PT2H",
-      "summary": "Cari Lekebusch",
-      "location": "DAAD STAGE",
-      "description": ""
-    },
-    {
-      "startTime": "2026-06-19T22:00:00",
-      "endTime": "2026-06-19T23:30:00",
-      "duration": "PT1H30M",
-      "summary": "Cvrdwell",
-      "location": "DAAD STAGE",
-      "description": ""
-    },
-    {
-      "startTime": "2026-06-19T23:30:00",
-      "endTime": "2026-06-20T01:00:00",
-      "duration": "PT1H30M",
-      "summary": "Colin Benders",
-      "location": "DAAD STAGE",
-      "description": ""
-    },
-    {
-      "startTime": "2026-06-20T01:00:00",
-      "endTime": "2026-06-20T03:00:00",
-      "duration": "PT2H",
-      "summary": "Len Faki",
-      "location": "DAAD STAGE",
-      "description": ""
-    },
-    {
-      "startTime": "2026-06-20T03:00:00",
-      "endTime": "2026-06-20T05:00:00",
-      "duration": "PT2H",
-      "summary": "Blawan",
-      "location": "DAAD STAGE",
-      "description": ""
-    },
-    {
-      "startTime": "2026-06-20T05:00:00",
-      "endTime": "2026-06-20T07:00:00",
-      "duration": "PT2H",
-      "summary": "Hyperaktivist",
-      "location": "DAAD STAGE",
-      "description": ""
-    },
-    {
-      "startTime": "2026-06-20T20:00:00",
-      "endTime": "2026-06-20T22:00:00",
-      "duration": "PT2H",
-      "summary": "The Advent",
-      "location": "DAAD STAGE",
-      "description": ""
-    },
-    {
-      "startTime": "2026-06-20T22:00:00",
-      "endTime": "2026-06-20T23:30:00",
-      "duration": "PT1H30M",
-      "summary": "Aga2l",
-      "location": "DAAD STAGE",
-      "description": ""
-    },
-    {
-      "startTime": "2026-06-20T23:30:00",
-      "endTime": "2026-06-21T01:30:00",
-      "duration": "PT2H",
-      "summary": "Kangding Ray",
-      "location": "DAAD STAGE",
-      "description": ""
-    },
-    {
-      "startTime": "2026-06-21T01:30:00",
-      "endTime": "2026-06-21T03:30:00",
-      "duration": "PT2H",
-      "summary": "R\u00f8dh\u00e5d & Rene Wise",
-      "location": "DAAD STAGE",
-      "description": ""
-    },
-    {
-      "startTime": "2026-06-21T03:30:00",
-      "endTime": "2026-06-21T05:00:00",
-      "duration": "PT1H30M",
-      "summary": "Fadi Mohem",
-      "location": "DAAD STAGE",
-      "description": ""
-    },
-    {
-      "startTime": "2026-06-21T05:00:00",
-      "endTime": "2026-06-21T07:00:00",
-      "duration": "PT2H",
-      "summary": "Gigi FM",
-      "location": "DAAD STAGE",
-      "description": ""
-    },
-    {
-      "startTime": "2026-06-18T21:30:00",
-      "endTime": "2026-06-18T23:30:00",
-      "duration": "PT2H",
-      "summary": "Max Cooper",
-      "location": "DRAGON NEST",
-      "description": ""
-    },
-    {
-      "startTime": "2026-06-18T23:30:00",
-      "endTime": "2026-06-19T01:30:00",
-      "duration": "PT2H",
-      "summary": "Calibre",
-      "location": "DRAGON NEST",
-      "description": ""
-    },
-    {
-      "startTime": "2026-06-19T01:30:00",
-      "endTime": "2026-06-19T03:30:00",
-      "duration": "PT2H",
-      "summary": "Cadik",
-      "location": "DRAGON NEST",
-      "description": ""
-    },
-    {
-      "startTime": "2026-06-19T18:00:00",
-      "endTime": "2026-06-19T19:30:00",
-      "duration": "PT1H30M",
-      "summary": "Palo Canto",
-      "location": "DRAGON NEST",
-      "description": ""
-    },
-    {
-      "startTime": "2026-06-19T19:30:00",
-      "endTime": "2026-06-19T21:30:00",
-      "duration": "PT2H",
-      "summary": "Parallelle",
-      "location": "DRAGON NEST",
-      "description": ""
-    },
-    {
-      "startTime": "2026-06-19T21:30:00",
-      "endTime": "2026-06-19T23:30:00",
-      "duration": "PT2H",
-      "summary": "Deer Jade",
-      "location": "DRAGON NEST",
-      "description": ""
-    },
-    {
-      "startTime": "2026-06-19T23:30:00",
-      "endTime": "2026-06-20T01:30:00",
-      "duration": "PT2H",
-      "summary": "Be Svendsen",
-      "location": "DRAGON NEST",
-      "description": ""
-    },
-    {
-      "startTime": "2026-06-20T01:30:00",
-      "endTime": "2026-06-20T03:30:00",
-      "duration": "PT2H",
-      "summary": "Meo Culpa & Baladi",
-      "location": "DRAGON NEST",
-      "description": ""
-    },
-    {
-      "startTime": "2026-06-20T18:00:00",
-      "endTime": "2026-06-20T19:30:00",
-      "duration": "PT1H30M",
-      "summary": "Geopard Tourist",
-      "location": "DRAGON NEST",
-      "description": ""
-    },
-    {
-      "startTime": "2026-06-20T19:30:00",
-      "endTime": "2026-06-20T21:30:00",
-      "duration": "PT2H",
-      "summary": "Simple Symmetry",
-      "location": "DRAGON NEST",
-      "description": ""
-    },
-    {
-      "startTime": "2026-06-20T21:30:00",
-      "endTime": "2026-06-20T23:30:00",
-      "duration": "PT2H",
-      "summary": "Vizare",
-      "location": "DRAGON NEST",
-      "description": ""
-    },
-    {
-      "startTime": "2026-06-20T23:30:00",
-      "endTime": "2026-06-21T01:30:00",
-      "duration": "PT2H",
-      "summary": "Henrik Schwarz",
-      "location": "DRAGON NEST",
-      "description": ""
-    },
-    {
-      "startTime": "2026-06-21T01:30:00",
-      "endTime": "2026-06-21T03:30:00",
-      "duration": "PT2H",
-      "summary": "Daniel Moritz",
-      "location": "DRAGON NEST",
-      "description": ""
-    },
-    {
-      "startTime": "2026-06-21T19:30:00",
-      "endTime": "2026-06-21T21:30:00",
-      "duration": "PT2H",
-      "summary": "Dominik Eulberg",
-      "location": "DRAGON NEST",
-      "description": ""
-    },
-    {
-      "startTime": "2026-06-21T21:30:00",
-      "endTime": "2026-06-21T23:30:00",
-      "duration": "PT2H",
-      "summary": "GusGus",
-      "location": "DRAGON NEST",
-      "description": ""
-    },
-    {
-      "startTime": "2026-06-18T21:00:00",
-      "endTime": "2026-06-18T23:00:00",
-      "duration": "PT2H",
-      "summary": "Li & Baco",
-      "location": "THE DOME",
-      "description": ""
-    },
-    {
-      "startTime": "2026-06-18T23:00:00",
-      "endTime": "2026-06-19T00:30:00",
-      "duration": "PT1H30M",
-      "summary": "Satoshi Tomiie",
-      "location": "THE DOME",
-      "description": ""
-    },
-    {
-      "startTime": "2026-06-19T00:30:00",
-      "endTime": "2026-06-19T02:30:00",
-      "duration": "PT2H",
-      "summary": "Dj Hell",
-      "location": "THE DOME",
-      "description": ""
-    },
-    {
-      "startTime": "2026-06-19T02:30:00",
-      "endTime": "2026-06-19T04:30:00",
-      "duration": "PT2H",
-      "summary": "Dresden",
-      "location": "THE DOME",
-      "description": ""
-    },
-    {
-      "startTime": "2026-06-19T04:30:00",
-      "endTime": "2026-06-19T06:30:00",
-      "duration": "PT2H",
-      "summary": "Manek & Tom Select",
-      "location": "THE DOME",
-      "description": ""
-    },
-    {
-      "startTime": "2026-06-19T06:30:00",
-      "endTime": "2026-06-19T08:30:00",
-      "duration": "PT2H",
-      "summary": "Kirill & Kernel",
-      "location": "THE DOME",
-      "description": ""
-    },
-    {
-      "startTime": "2026-06-19T21:00:00",
-      "endTime": "2026-06-19T23:00:00",
-      "duration": "PT2H",
-      "summary": "Maron",
-      "location": "THE DOME",
-      "description": ""
-    },
-    {
-      "startTime": "2026-06-19T23:00:00",
-      "endTime": "2026-06-20T01:00:00",
-      "duration": "PT2H",
-      "summary": "Ben UFO",
-      "location": "THE DOME",
-      "description": ""
-    },
-    {
-      "startTime": "2026-06-20T01:00:00",
-      "endTime": "2026-06-20T02:30:00",
-      "duration": "PT1H30M",
-      "summary": "Sepehr",
-      "location": "THE DOME",
-      "description": ""
-    },
-    {
-      "startTime": "2026-06-20T02:30:00",
-      "endTime": "2026-06-20T04:30:00",
-      "duration": "PT2H",
-      "summary": "Daniel Avery",
-      "location": "THE DOME",
-      "description": ""
-    },
-    {
-      "startTime": "2026-06-20T04:30:00",
-      "endTime": "2026-06-20T06:30:00",
-      "duration": "PT2H",
-      "summary": "Vatsanah",
-      "location": "THE DOME",
-      "description": ""
-    },
-    {
-      "startTime": "2026-06-20T06:30:00",
-      "endTime": "2026-06-20T08:30:00",
-      "duration": "PT2H",
-      "summary": "Aurin",
-      "location": "THE DOME",
-      "description": ""
-    },
-    {
-      "startTime": "2026-06-20T21:00:00",
-      "endTime": "2026-06-20T22:00:00",
-      "duration": "PT1H",
-      "summary": "Kin Teal",
-      "location": "THE DOME",
-      "description": ""
-    },
-    {
-      "startTime": "2026-06-20T22:00:00",
-      "endTime": "2026-06-20T23:00:00",
-      "duration": "PT1H",
-      "summary": "Barker",
-      "location": "THE DOME",
-      "description": ""
-    },
-    {
-      "startTime": "2026-06-20T23:00:00",
-      "endTime": "2026-06-21T01:00:00",
-      "duration": "PT2H",
-      "summary": "Lau",
-      "location": "THE DOME",
-      "description": ""
-    },
-    {
-      "startTime": "2026-06-21T01:00:00",
-      "endTime": "2026-06-21T02:30:00",
-      "duration": "PT1H30M",
-      "summary": "JakoJako",
-      "location": "THE DOME",
-      "description": ""
-    },
-    {
-      "startTime": "2026-06-21T02:30:00",
-      "endTime": "2026-06-21T04:30:00",
-      "duration": "PT2H",
-      "summary": "Adiel",
-      "location": "THE DOME",
-      "description": ""
-    },
-    {
-      "startTime": "2026-06-21T04:30:00",
-      "endTime": "2026-06-21T06:30:00",
-      "duration": "PT2H",
-      "summary": "Isu",
-      "location": "THE DOME",
-      "description": ""
-    },
-    {
-      "startTime": "2026-06-21T06:30:00",
-      "endTime": "2026-06-21T08:30:00",
-      "duration": "PT2H",
-      "summary": "Zituli Space Project",
-      "location": "THE DOME",
-      "description": ""
-    },
-    {
-      "startTime": "2026-06-21T15:00:00",
-      "endTime": "2026-06-21T17:00:00",
-      "duration": "PT2H",
-      "summary": "Tolo & Falcao",
-      "location": "THE DOME",
-      "description": ""
-    },
-    {
-      "startTime": "2026-06-21T17:00:00",
-      "endTime": "2026-06-21T19:00:00",
-      "duration": "PT2H",
-      "summary": "Josh Wink",
-      "location": "THE DOME",
-      "description": ""
-    }
-  ]
-}
+[
+  {
+    "id": 1,
+    "summary": "Opening Ceremony",
+    "location": "DAAD STAGE",
+    "startUtcMs": 1781803800000,
+    "endUtcMs": 1781805600000,
+    "dayKey": "2026-06-18",
+    "duration": "PT30M",
+    "startTime": "2026-06-18T19:30:00",
+    "endTime": "2026-06-18T20:00:00",
+    "description": "",
+    "sampleSetUrl": "https://www.youtube.com/watch?v=GqkkEsMwq-c",
+    "tags": [
+      "community",
+      "walking",
+      "atmosphere"
+    ]
+  },
+  {
+    "id": 2,
+    "summary": "Charlotte de Witte",
+    "location": "DAAD STAGE",
+    "startUtcMs": 1781805600000,
+    "endUtcMs": 1781811000000,
+    "dayKey": "2026-06-18",
+    "duration": "PT1H30M",
+    "startTime": "2026-06-18T20:00:00",
+    "endTime": "2026-06-18T21:30:00",
+    "description": "",
+    "sampleSetUrl": "https://music.youtube.com/channel/UC-yOW3e6zBSo1JwLXq46Suw",
+    "tags": [
+      "techno",
+      "acid techno"
+    ]
+  },
+  {
+    "id": 3,
+    "summary": "Mode & Valens",
+    "location": "DAAD STAGE",
+    "startUtcMs": 1781811000000,
+    "endUtcMs": 1781816400000,
+    "dayKey": "2026-06-18",
+    "duration": "PT1H30M",
+    "startTime": "2026-06-18T21:30:00",
+    "endTime": "2026-06-18T23:00:00",
+    "description": "",
+    "sampleSetUrl": "https://soundcloud.com/technokunst/mode-valens-technokunst-supper-club-larm-20201010",
+    "tags": [
+      "techno"
+    ]
+  },
+  {
+    "id": 4,
+    "summary": "Dj Nobu & Dasha Rush",
+    "location": "DAAD STAGE",
+    "startUtcMs": 1781816400000,
+    "endUtcMs": 1781823600000,
+    "dayKey": "2026-06-18",
+    "duration": "PT2H",
+    "startTime": "2026-06-18T23:00:00",
+    "endTime": "2026-06-19T01:00:00",
+    "description": "",
+    "sampleSetUrl": "https://soundcloud.com/sounditbcn/soundit-sessions-05-dasha-rush-b2b-dj-nobu-soundit-festival-170725-parc-nou",
+    "tags": [
+      "techno",
+      "experimental"
+    ]
+  },
+  {
+    "id": 5,
+    "summary": "Oscar Mulero",
+    "location": "DAAD STAGE",
+    "startUtcMs": 1781823600000,
+    "endUtcMs": 1781830800000,
+    "dayKey": "2026-06-19",
+    "duration": "PT2H",
+    "startTime": "2026-06-19T01:00:00",
+    "endTime": "2026-06-19T03:00:00",
+    "description": "",
+    "sampleSetUrl": "https://music.youtube.com/channel/UCkYZXfq4GYGHS6iS3xQJVRg",
+    "tags": [
+      "techno",
+      "dark techno"
+    ]
+  },
+  {
+    "id": 6,
+    "summary": "Setaoc Mass",
+    "location": "DAAD STAGE",
+    "startUtcMs": 1781830800000,
+    "endUtcMs": 1781838000000,
+    "dayKey": "2026-06-19",
+    "duration": "PT2H",
+    "startTime": "2026-06-19T03:00:00",
+    "endTime": "2026-06-19T05:00:00",
+    "description": "",
+    "sampleSetUrl": "https://music.youtube.com/browse/MPREb_suFSRHbmjqv",
+    "tags": [
+      "techno"
+    ]
+  },
+  {
+    "id": 7,
+    "summary": "Nastia",
+    "location": "DAAD STAGE",
+    "startUtcMs": 1781838000000,
+    "endUtcMs": 1781841600000,
+    "dayKey": "2026-06-19",
+    "duration": "PT1H",
+    "startTime": "2026-06-19T05:00:00",
+    "endTime": "2026-06-19T06:00:00",
+    "description": "",
+    "sampleSetUrl": "https://soundcloud.com/nastia_ua/dj-nastia-techno-dj-set-in-the-october-palace",
+    "tags": [
+      "techno",
+      "minimal"
+    ]
+  },
+  {
+    "id": 8,
+    "summary": "Li & Baco",
+    "location": "THE DOME",
+    "startUtcMs": 1781809200000,
+    "endUtcMs": 1781816400000,
+    "dayKey": "2026-06-18",
+    "duration": "PT2H",
+    "startTime": "2026-06-18T21:00:00",
+    "endTime": "2026-06-18T23:00:00",
+    "description": "",
+    "sampleSetUrl": "https://on.soundcloud.com/y1BvKpcMnxSn8z2vF4",
+    "tags": [
+      "microhouse"
+    ]
+  },
+  {
+    "id": 9,
+    "summary": "Satoshi Tomiee (live)",
+    "location": "THE DOME",
+    "startUtcMs": 1781816400000,
+    "endUtcMs": 1781820000000,
+    "dayKey": "2026-06-18",
+    "duration": "PT1H",
+    "startTime": "2026-06-18T23:00:00",
+    "endTime": "2026-06-19T00:00:00",
+    "description": "",
+    "sampleSetUrl": "https://on.soundcloud.com/w75fL3ngtc2r4XDbKM",
+    "tags": [
+      "acid",
+      "dub",
+      "house",
+      "progressive"
+    ]
+  },
+  {
+    "id": 10,
+    "summary": "Dj Hell",
+    "location": "THE DOME",
+    "startUtcMs": 1781821800000,
+    "endUtcMs": 1781829000000,
+    "dayKey": "2026-06-19",
+    "duration": "PT2H",
+    "startTime": "2026-06-19T00:30:00",
+    "endTime": "2026-06-19T02:30:00",
+    "description": "",
+    "sampleSetUrl": "https://on.soundcloud.com/0dC1lgxFiuxfpgnxQr",
+    "tags": [
+      "techno",
+      "progressive",
+      "dark disco"
+    ]
+  },
+  {
+    "id": 11,
+    "summary": "Dresden",
+    "location": "THE DOME",
+    "startUtcMs": 1781829000000,
+    "endUtcMs": 1781836200000,
+    "dayKey": "2026-06-19",
+    "duration": "PT2H",
+    "startTime": "2026-06-19T02:30:00",
+    "endTime": "2026-06-19T04:30:00",
+    "description": "",
+    "sampleSetUrl": "https://on.soundcloud.com/5BijiJi7RDskk6Byf0",
+    "tags": [
+      "techno",
+      "house"
+    ]
+  },
+  {
+    "id": 12,
+    "summary": "Manek & Tom Select",
+    "location": "THE DOME",
+    "startUtcMs": 1781836200000,
+    "endUtcMs": 1781843400000,
+    "dayKey": "2026-06-19",
+    "duration": "PT2H",
+    "startTime": "2026-06-19T04:30:00",
+    "endTime": "2026-06-19T06:30:00",
+    "description": "",
+    "sampleSetUrl": "https://www.youtube.com/watch?v=KGdmdCokO0Q",
+    "tags": [
+      "house",
+      "minimal"
+    ]
+  },
+  {
+    "id": 13,
+    "summary": "Kirill & Kernel",
+    "location": "THE DOME",
+    "startUtcMs": 1781843400000,
+    "endUtcMs": 1781847000000,
+    "dayKey": "2026-06-19",
+    "duration": "PT1H",
+    "startTime": "2026-06-19T06:30:00",
+    "endTime": "2026-06-19T07:30:00",
+    "description": "",
+    "sampleSetUrl": "https://soundcloud.com/daadgathering/kirill-kernel-daad-gathering-2025-ambeach",
+    "tags": [
+      "minimal",
+      "techno"
+    ]
+  },
+  {
+    "id": 14,
+    "summary": "Max Cooper (live av)",
+    "location": "DRAGON NEST",
+    "startUtcMs": 1781811000000,
+    "endUtcMs": 1781818200000,
+    "dayKey": "2026-06-18",
+    "duration": "PT2H",
+    "startTime": "2026-06-18T21:30:00",
+    "endTime": "2026-06-18T23:30:00",
+    "description": "",
+    "sampleSetUrl": "https://soundcloud.com/max-cooper/maxcooperdjset-darkmatterberlin2024",
+    "tags": [
+      "ambient",
+      "electronica"
+    ]
+  },
+  {
+    "id": 15,
+    "summary": "Calibre",
+    "location": "DRAGON NEST",
+    "startUtcMs": 1781818200000,
+    "endUtcMs": 1781825400000,
+    "dayKey": "2026-06-18",
+    "duration": "PT2H",
+    "startTime": "2026-06-18T23:30:00",
+    "endTime": "2026-06-19T01:30:00",
+    "description": "",
+    "sampleSetUrl": "https://www.youtube.com/watch?v=mqxTO9UAkrY",
+    "tags": [
+      "drum and bass",
+      "liquid dnb"
+    ]
+  },
+  {
+    "id": 16,
+    "summary": "Cadik",
+    "location": "DRAGON NEST",
+    "startUtcMs": 1781825400000,
+    "endUtcMs": 1781829000000,
+    "dayKey": "2026-06-19",
+    "duration": "PT1H",
+    "startTime": "2026-06-19T01:30:00",
+    "endTime": "2026-06-19T02:30:00",
+    "description": "",
+    "sampleSetUrl": "https://soundcloud.com/cadik",
+    "tags": [
+      "dubstep",
+      "bass"
+    ]
+  },
+  {
+    "id": 17,
+    "summary": "Lutum",
+    "location": "AM/BEACH",
+    "startUtcMs": 1781766000000,
+    "endUtcMs": 1781773200000,
+    "dayKey": "2026-06-18",
+    "duration": "PT2H",
+    "startTime": "2026-06-18T09:00:00",
+    "endTime": "2026-06-18T11:00:00",
+    "description": "",
+    "sampleSetUrl": "https://www.youtube.com/watch?v=rmZ_4Av2gCA",
+    "tags": [
+      "house",
+      "electronic"
+    ]
+  },
+  {
+    "id": 18,
+    "summary": "Liro",
+    "location": "AM/BEACH",
+    "startUtcMs": 1781773200000,
+    "endUtcMs": 1781780400000,
+    "dayKey": "2026-06-18",
+    "duration": "PT2H",
+    "startTime": "2026-06-18T11:00:00",
+    "endTime": "2026-06-18T13:00:00",
+    "description": "",
+    "sampleSetUrl": "https://soundcloud.com/radiozora/liro-on-the-way-to-daad-2024?in=radiozora%2Fsets%2Fon-the-way-to-daad-gathering-2",
+    "tags": [
+      "house",
+      "electronic"
+    ]
+  },
+  {
+    "id": 19,
+    "summary": "Krics & Parts Unknown",
+    "location": "AM/BEACH",
+    "startUtcMs": 1781780400000,
+    "endUtcMs": 1781793000000,
+    "dayKey": "2026-06-18",
+    "duration": "PT3H30M",
+    "startTime": "2026-06-18T13:00:00",
+    "endTime": "2026-06-18T16:30:00",
+    "description": "",
+    "sampleSetUrl": "https://www.youtube.com/watch?v=muLh-LLMphw",
+    "tags": [
+      "house",
+      "minimal"
+    ]
+  },
+  {
+    "id": 20,
+    "summary": "Peter Bernath",
+    "location": "AM/BEACH",
+    "startUtcMs": 1781793000000,
+    "endUtcMs": 1781796600000,
+    "dayKey": "2026-06-18",
+    "duration": "PT1H",
+    "startTime": "2026-06-18T16:30:00",
+    "endTime": "2026-06-18T17:30:00",
+    "description": "",
+    "sampleSetUrl": "https://soundcloud.com/peterbernath",
+    "tags": [
+      "minimal",
+      "house"
+    ]
+  },
+  {
+    "id": 21,
+    "summary": "Vedat Akdag",
+    "location": "COOKING GROOVE",
+    "startUtcMs": 1781722800000,
+    "endUtcMs": 1781730000000,
+    "dayKey": "2026-06-17",
+    "duration": "PT2H",
+    "startTime": "2026-06-17T21:00:00",
+    "endTime": "2026-06-17T23:00:00",
+    "description": "",
+    "sampleSetUrl": "https://soundcloud.com/daadgathering/vedat-akdag-live-daad-gathering-2025-ambeach",
+    "tags": [
+      "house",
+      "techno"
+    ]
+  },
+  {
+    "id": 22,
+    "summary": "Pachanga Boys",
+    "location": "COOKING GROOVE",
+    "startUtcMs": 1781730000000,
+    "endUtcMs": 1781733600000,
+    "dayKey": "2026-06-17",
+    "duration": "PT1H",
+    "startTime": "2026-06-17T23:00:00",
+    "endTime": "2026-06-18T00:00:00",
+    "description": "",
+    "sampleSetUrl": "https://soundcloud.com/beyondafterlife/pachanga-boys-live-at-de",
+    "tags": [
+      "techno",
+      "house",
+      "minimal"
+    ]
+  },
+  {
+    "id": 23,
+    "summary": "Radio Slave",
+    "location": "COOKING GROOVE",
+    "startUtcMs": 1781740800000,
+    "endUtcMs": 1781748000000,
+    "dayKey": "2026-06-18",
+    "duration": "PT2H",
+    "startTime": "2026-06-18T02:00:00",
+    "endTime": "2026-06-18T04:00:00",
+    "description": "",
+    "sampleSetUrl": "https://www.youtube.com/@radioslaveofc",
+    "tags": [
+      "house",
+      "techno"
+    ]
+  },
+  {
+    "id": 24,
+    "summary": "Zvezda Beta",
+    "location": "COOKING GROOVE",
+    "startUtcMs": 1781748000000,
+    "endUtcMs": 1781751600000,
+    "dayKey": "2026-06-18",
+    "duration": "PT1H",
+    "startTime": "2026-06-18T04:00:00",
+    "endTime": "2026-06-18T05:00:00",
+    "description": "",
+    "sampleSetUrl": "https://soundcloud.com/zvezda/seed-feat-legal-pres-backstage",
+    "tags": [
+      "techno",
+      "minimal",
+      "progressive",
+      "dark house"
+    ]
+  },
+  {
+    "id": 25,
+    "summary": "Moonbase Patel Disco",
+    "location": "AM/BEACH",
+    "startUtcMs": 1781852400000,
+    "endUtcMs": 1781863200000,
+    "dayKey": "2026-06-19",
+    "duration": "PT3H",
+    "startTime": "2026-06-19T09:00:00",
+    "endTime": "2026-06-19T12:00:00",
+    "description": "",
+    "sampleSetUrl": "https://soundcloud.com/moonbasepateldisco",
+    "tags": [
+      "disco",
+      "house"
+    ]
+  },
+  {
+    "id": 26,
+    "summary": "Ruenge",
+    "location": "AM/BEACH",
+    "startUtcMs": 1781863200000,
+    "endUtcMs": 1781870400000,
+    "dayKey": "2026-06-19",
+    "duration": "PT2H",
+    "startTime": "2026-06-19T12:00:00",
+    "endTime": "2026-06-19T14:00:00",
+    "description": "",
+    "sampleSetUrl": "https://soundcloud.com/ruengeruenge",
+    "tags": [
+      "minimal",
+      "house"
+    ]
+  },
+  {
+    "id": 27,
+    "summary": "Dj Syncbutton",
+    "location": "AM/BEACH",
+    "startUtcMs": 1781870400000,
+    "endUtcMs": 1781877600000,
+    "dayKey": "2026-06-19",
+    "duration": "PT2H",
+    "startTime": "2026-06-19T14:00:00",
+    "endTime": "2026-06-19T16:00:00",
+    "description": "",
+    "sampleSetUrl": "https://www.youtube.com/watch?v=Kc8oHawZp6Q",
+    "tags": [
+      "house",
+      "minimal"
+    ]
+  },
+  {
+    "id": 28,
+    "summary": "Galactic Jackson",
+    "location": "AM/BEACH",
+    "startUtcMs": 1781877600000,
+    "endUtcMs": 1781884800000,
+    "dayKey": "2026-06-19",
+    "duration": "PT2H",
+    "startTime": "2026-06-19T16:00:00",
+    "endTime": "2026-06-19T18:00:00",
+    "description": "",
+    "sampleSetUrl": "https://soundcloud.com/galactic-jackson",
+    "tags": [
+      "minimal",
+      "house",
+      "synthwave"
+    ]
+  },
+  {
+    "id": 29,
+    "summary": "Mind Enterprises",
+    "location": "AM/BEACH",
+    "startUtcMs": 1781884800000,
+    "endUtcMs": 1781888400000,
+    "dayKey": "2026-06-19",
+    "duration": "PT1H",
+    "startTime": "2026-06-19T18:00:00",
+    "endTime": "2026-06-19T19:00:00",
+    "description": "",
+    "sampleSetUrl": "https://soundcloud.com/mndntrprss",
+    "tags": [
+      "italo disco",
+      "house",
+      "synthwave"
+    ]
+  },
+  {
+    "id": 30,
+    "summary": "EFF:EK aka Zakharov x Fluidum",
+    "location": "COOKING GROOVE",
+    "startUtcMs": 1781856000000,
+    "endUtcMs": 1781863200000,
+    "dayKey": "2026-06-19",
+    "duration": "PT2H",
+    "startTime": "2026-06-19T10:00:00",
+    "endTime": "2026-06-19T12:00:00",
+    "description": "",
+    "sampleSetUrl": "https://soundcloud.com/zakhorov/sets/zakhorov-mixes",
+    "tags": [
+      "techno",
+      "experimental"
+    ]
+  },
+  {
+    "id": 31,
+    "summary": "Fury",
+    "location": "COOKING GROOVE",
+    "startUtcMs": 1781863200000,
+    "endUtcMs": 1781870400000,
+    "dayKey": "2026-06-19",
+    "duration": "PT2H",
+    "startTime": "2026-06-19T12:00:00",
+    "endTime": "2026-06-19T14:00:00",
+    "description": "",
+    "sampleSetUrl": "https://www.youtube.com/watch?v=vl1HHzU3H-I",
+    "tags": [
+      "techno",
+      "house"
+    ]
+  },
+  {
+    "id": 32,
+    "summary": "Fáni Bácsi",
+    "location": "COOKING GROOVE",
+    "startUtcMs": 1781870400000,
+    "endUtcMs": 1781874000000,
+    "dayKey": "2026-06-19",
+    "duration": "PT1H",
+    "startTime": "2026-06-19T14:00:00",
+    "endTime": "2026-06-19T15:00:00",
+    "description": "",
+    "sampleSetUrl": "https://soundcloud.com/daadgathering/fani-bacsi-daad-gathering-2024-cooking-groove",
+    "tags": [
+      "psytech",
+      "techno",
+      "darkpsy"
+    ]
+  },
+  {
+    "id": 33,
+    "summary": "Cari Lekebusch",
+    "location": "DAAD STAGE",
+    "startUtcMs": 1781892000000,
+    "endUtcMs": 1781899200000,
+    "dayKey": "2026-06-19",
+    "duration": "PT2H",
+    "startTime": "2026-06-19T20:00:00",
+    "endTime": "2026-06-19T22:00:00",
+    "description": "",
+    "sampleSetUrl": "https://www.youtube.com/watch?v=AR52XysMrus",
+    "tags": [
+      "techno"
+    ]
+  },
+  {
+    "id": 34,
+    "summary": "Cvrdwell",
+    "location": "DAAD STAGE",
+    "startUtcMs": 1781899200000,
+    "endUtcMs": 1781904600000,
+    "dayKey": "2026-06-19",
+    "duration": "PT1H30M",
+    "startTime": "2026-06-19T22:00:00",
+    "endTime": "2026-06-19T23:30:00",
+    "description": "",
+    "sampleSetUrl": "https://www.youtube.com/watch?v=zmLOLA7qoPw",
+    "tags": [
+      "techno"
+    ]
+  },
+  {
+    "id": 35,
+    "summary": "Colin Benders (live)",
+    "location": "DAAD STAGE",
+    "startUtcMs": 1781904600000,
+    "endUtcMs": 1781908200000,
+    "dayKey": "2026-06-19",
+    "duration": "PT1H",
+    "startTime": "2026-06-19T23:30:00",
+    "endTime": "2026-06-20T00:30:00",
+    "description": "",
+    "sampleSetUrl": "https://www.youtube.com/watch?v=Jwz-xRu73bk",
+    "tags": [
+      "modular techno",
+      "live electronic"
+    ]
+  },
+  {
+    "id": 36,
+    "summary": "Len Faki",
+    "location": "DAAD STAGE",
+    "startUtcMs": 1781910000000,
+    "endUtcMs": 1781917200000,
+    "dayKey": "2026-06-20",
+    "duration": "PT2H",
+    "startTime": "2026-06-20T01:00:00",
+    "endTime": "2026-06-20T03:00:00",
+    "description": "",
+    "sampleSetUrl": "https://www.youtube.com/watch?v=w_5W9lazZi8",
+    "tags": [
+      "techno"
+    ]
+  },
+  {
+    "id": 37,
+    "summary": "Blawan",
+    "location": "DAAD STAGE",
+    "startUtcMs": 1781917200000,
+    "endUtcMs": 1781924400000,
+    "dayKey": "2026-06-20",
+    "duration": "PT2H",
+    "startTime": "2026-06-20T03:00:00",
+    "endTime": "2026-06-20T05:00:00",
+    "description": "",
+    "sampleSetUrl": "https://soundcloud.com/platform/blawan-dkmntl/sets",
+    "tags": [
+      "techno",
+      "industrial"
+    ]
+  },
+  {
+    "id": 38,
+    "summary": "Hyperaktivist",
+    "location": "DAAD STAGE",
+    "startUtcMs": 1781924400000,
+    "endUtcMs": 1781928000000,
+    "dayKey": "2026-06-20",
+    "duration": "PT1H",
+    "startTime": "2026-06-20T05:00:00",
+    "endTime": "2026-06-20T06:00:00",
+    "description": "",
+    "sampleSetUrl": "https://www.youtube.com/watch?v=hBxzvQPJadA",
+    "tags": [
+      "techno",
+      "trance"
+    ]
+  },
+  {
+    "id": 39,
+    "summary": "Maron",
+    "location": "THE DOME",
+    "startUtcMs": 1781895600000,
+    "endUtcMs": 1781902800000,
+    "dayKey": "2026-06-19",
+    "duration": "PT2H",
+    "startTime": "2026-06-19T21:00:00",
+    "endTime": "2026-06-19T23:00:00",
+    "description": "",
+    "sampleSetUrl": "https://www.youtube.com/watch?v=HngeU4OUbmI",
+    "tags": [
+      "house",
+      "minimal"
+    ]
+  },
+  {
+    "id": 40,
+    "summary": "Ben Ufo",
+    "location": "THE DOME",
+    "startUtcMs": 1781902800000,
+    "endUtcMs": 1781906400000,
+    "dayKey": "2026-06-19",
+    "duration": "PT1H",
+    "startTime": "2026-06-19T23:00:00",
+    "endTime": "2026-06-20T00:00:00",
+    "description": "",
+    "sampleSetUrl": "https://www.youtube.com/watch?v=FvtjyRHN-hk",
+    "tags": [
+      "bass",
+      "techno",
+      "house"
+    ]
+  },
+  {
+    "id": 41,
+    "summary": "Sepher (live)",
+    "location": "THE DOME",
+    "startUtcMs": 1781910000000,
+    "endUtcMs": 1781915400000,
+    "dayKey": "2026-06-20",
+    "duration": "PT1H30M",
+    "startTime": "2026-06-20T01:00:00",
+    "endTime": "2026-06-20T02:30:00",
+    "description": "",
+    "sampleSetUrl": "https://www.youtube.com/watch?v=I1-jdKq1OvA",
+    "tags": [
+      "techno",
+      "acid",
+      "electro"
+    ]
+  },
+  {
+    "id": 42,
+    "summary": "Daniel Avery",
+    "location": "THE DOME",
+    "startUtcMs": 1781915400000,
+    "endUtcMs": 1781922600000,
+    "dayKey": "2026-06-20",
+    "duration": "PT2H",
+    "startTime": "2026-06-20T02:30:00",
+    "endTime": "2026-06-20T04:30:00",
+    "description": "",
+    "sampleSetUrl": "https://www.youtube.com/watch?v=Qn5kChQr-eQ",
+    "tags": [
+      "techno"
+    ]
+  },
+  {
+    "id": 43,
+    "summary": "Vatsanah",
+    "location": "THE DOME",
+    "startUtcMs": 1781922600000,
+    "endUtcMs": 1781929800000,
+    "dayKey": "2026-06-20",
+    "duration": "PT2H",
+    "startTime": "2026-06-20T04:30:00",
+    "endTime": "2026-06-20T06:30:00",
+    "description": "",
+    "sampleSetUrl": "https://www.youtube.com/watch?v=Nb0Xbw3GFwk",
+    "tags": [
+      "techno",
+      "house"
+    ]
+  },
+  {
+    "id": 44,
+    "summary": "Aurin",
+    "location": "THE DOME",
+    "startUtcMs": 1781929800000,
+    "endUtcMs": 1781933400000,
+    "dayKey": "2026-06-20",
+    "duration": "PT1H",
+    "startTime": "2026-06-20T06:30:00",
+    "endTime": "2026-06-20T07:30:00",
+    "description": "",
+    "sampleSetUrl": "https://www.youtube.com/watch?v=u4-P7NQl5Oo",
+    "tags": [
+      "techno",
+      "ambient"
+    ]
+  },
+  {
+    "id": 45,
+    "summary": "Palo Canto",
+    "location": "DRAGON NEST",
+    "startUtcMs": 1781884800000,
+    "endUtcMs": 1781890200000,
+    "dayKey": "2026-06-19",
+    "duration": "PT1H30M",
+    "startTime": "2026-06-19T18:00:00",
+    "endTime": "2026-06-19T19:30:00",
+    "description": "",
+    "sampleSetUrl": "https://www.youtube.com/watch?v=4-8vA6Mi--E",
+    "tags": [
+      "organic house",
+      "downtempo"
+    ]
+  },
+  {
+    "id": 46,
+    "summary": "Parallelle",
+    "location": "DRAGON NEST",
+    "startUtcMs": 1781890200000,
+    "endUtcMs": 1781897400000,
+    "dayKey": "2026-06-19",
+    "duration": "PT2H",
+    "startTime": "2026-06-19T19:30:00",
+    "endTime": "2026-06-19T21:30:00",
+    "description": "",
+    "sampleSetUrl": "https://www.youtube.com/watch?v=9Y1vQRbg8fU",
+    "tags": [
+      "organic house",
+      "electronica"
+    ]
+  },
+  {
+    "id": 47,
+    "summary": "Deer Jade",
+    "location": "DRAGON NEST",
+    "startUtcMs": 1781897400000,
+    "endUtcMs": 1781904600000,
+    "dayKey": "2026-06-19",
+    "duration": "PT2H",
+    "startTime": "2026-06-19T21:30:00",
+    "endTime": "2026-06-19T23:30:00",
+    "description": "",
+    "sampleSetUrl": "https://www.youtube.com/watch?v=jxy-QTJYvU8",
+    "tags": [
+      "melodic house",
+      "organic house"
+    ]
+  },
+  {
+    "id": 48,
+    "summary": "Be Svendsen",
+    "location": "DRAGON NEST",
+    "startUtcMs": 1781904600000,
+    "endUtcMs": 1781911800000,
+    "dayKey": "2026-06-19",
+    "duration": "PT2H",
+    "startTime": "2026-06-19T23:30:00",
+    "endTime": "2026-06-20T01:30:00",
+    "description": "",
+    "sampleSetUrl": "https://www.youtube.com/watch?v=5mpafLYHVd0",
+    "tags": [
+      "organic house",
+      "downtempo"
+    ]
+  },
+  {
+    "id": 49,
+    "summary": "Meo Culpa & Baladi",
+    "location": "DRAGON NEST",
+    "startUtcMs": 1781911800000,
+    "endUtcMs": 1781915400000,
+    "dayKey": "2026-06-20",
+    "duration": "PT1H",
+    "startTime": "2026-06-20T01:30:00",
+    "endTime": "2026-06-20T02:30:00",
+    "description": "",
+    "sampleSetUrl": "https://soundcloud.com/ethnotech/meo-culpa-baladi-b2b-kassa",
+    "tags": [
+      "downtempo",
+      "organic house"
+    ]
+  },
+  {
+    "id": 50,
+    "summary": "Kele",
+    "location": "AM/BEACH",
+    "startUtcMs": 1781938800000,
+    "endUtcMs": 1781947800000,
+    "dayKey": "2026-06-20",
+    "duration": "PT2H30M",
+    "startTime": "2026-06-20T09:00:00",
+    "endTime": "2026-06-20T11:30:00",
+    "description": "",
+    "sampleSetUrl": "https://www.youtube.com/watch?v=QTNS3uAscL8",
+    "tags": [
+      "house",
+      "electronic"
+    ]
+  },
+  {
+    "id": 51,
+    "summary": "Knoll & Stark",
+    "location": "AM/BEACH",
+    "startUtcMs": 1781947800000,
+    "endUtcMs": 1781956800000,
+    "dayKey": "2026-06-20",
+    "duration": "PT2H30M",
+    "startTime": "2026-06-20T11:30:00",
+    "endTime": "2026-06-20T14:00:00",
+    "description": "",
+    "sampleSetUrl": "https://www.youtube.com/watch?v=9orBNKvHS30",
+    "tags": [
+      "techno",
+      "house"
+    ]
+  },
+  {
+    "id": 52,
+    "summary": "Octile",
+    "location": "AM/BEACH",
+    "startUtcMs": 1781956800000,
+    "endUtcMs": 1781964000000,
+    "dayKey": "2026-06-20",
+    "duration": "PT2H",
+    "startTime": "2026-06-20T14:00:00",
+    "endTime": "2026-06-20T16:00:00",
+    "description": "",
+    "sampleSetUrl": "https://www.youtube.com/watch?v=5v_uaj6znlc",
+    "tags": [
+      "house",
+      "minimal"
+    ]
+  },
+  {
+    "id": 53,
+    "summary": "Switch Nollie & TSU",
+    "location": "AM/BEACH",
+    "startUtcMs": 1781964000000,
+    "endUtcMs": 1781971200000,
+    "dayKey": "2026-06-20",
+    "duration": "PT2H",
+    "startTime": "2026-06-20T16:00:00",
+    "endTime": "2026-06-20T18:00:00",
+    "description": "",
+    "sampleSetUrl": "https://www.youtube.com/watch?v=wK47oRYZX7Y",
+    "tags": [
+      "house",
+      "techno"
+    ]
+  },
+  {
+    "id": 54,
+    "summary": "Anunaku",
+    "location": "AM/BEACH",
+    "startUtcMs": 1781971200000,
+    "endUtcMs": 1781974800000,
+    "dayKey": "2026-06-20",
+    "duration": "PT1H",
+    "startTime": "2026-06-20T18:00:00",
+    "endTime": "2026-06-20T19:00:00",
+    "description": "",
+    "sampleSetUrl": "https://www.youtube.com/watch?v=RcJ7PPqXFVM",
+    "tags": [
+      "bass",
+      "techno",
+      "club"
+    ]
+  },
+  {
+    "id": 55,
+    "summary": "Yorgos",
+    "location": "COOKING GROOVE",
+    "startUtcMs": 1781942400000,
+    "endUtcMs": 1781949600000,
+    "dayKey": "2026-06-20",
+    "duration": "PT2H",
+    "startTime": "2026-06-20T10:00:00",
+    "endTime": "2026-06-20T12:00:00",
+    "description": "",
+    "sampleSetUrl": "https://www.youtube.com/watch?v=q2iTtyAiOYs",
+    "tags": [
+      "house",
+      "minimal"
+    ]
+  },
+  {
+    "id": 56,
+    "summary": "Daniel Santiago",
+    "location": "COOKING GROOVE",
+    "startUtcMs": 1781949600000,
+    "endUtcMs": 1781956800000,
+    "dayKey": "2026-06-20",
+    "duration": "PT2H",
+    "startTime": "2026-06-20T12:00:00",
+    "endTime": "2026-06-20T14:00:00",
+    "description": "",
+    "sampleSetUrl": "https://soundcloud.com/daadgathering/daniel-ban-daniel-santiago",
+    "tags": [
+      "techno",
+      "house"
+    ]
+  },
+  {
+    "id": 57,
+    "summary": "Daniel Ban",
+    "location": "COOKING GROOVE",
+    "startUtcMs": 1781956800000,
+    "endUtcMs": 1781960400000,
+    "dayKey": "2026-06-20",
+    "duration": "PT1H",
+    "startTime": "2026-06-20T14:00:00",
+    "endTime": "2026-06-20T15:00:00",
+    "description": "",
+    "sampleSetUrl": "https://soundcloud.com/daadgathering/daniel-ban-daniel-santiago",
+    "tags": [
+      "house",
+      "minimal"
+    ]
+  },
+  {
+    "id": 58,
+    "summary": "Geopard Tourist",
+    "location": "DRAGON NEST",
+    "startUtcMs": 1781971200000,
+    "endUtcMs": 1781976600000,
+    "dayKey": "2026-06-20",
+    "duration": "PT1H30M",
+    "startTime": "2026-06-20T18:00:00",
+    "endTime": "2026-06-20T19:30:00",
+    "description": "",
+    "sampleSetUrl": "https://soundcloud.com/geopardtourist",
+    "tags": [
+      "electronica",
+      "downtempo"
+    ]
+  },
+  {
+    "id": 59,
+    "summary": "Simple Symmetry",
+    "location": "DRAGON NEST",
+    "startUtcMs": 1781976600000,
+    "endUtcMs": 1781983800000,
+    "dayKey": "2026-06-20",
+    "duration": "PT2H",
+    "startTime": "2026-06-20T19:30:00",
+    "endTime": "2026-06-20T21:30:00",
+    "description": "",
+    "sampleSetUrl": "https://soundcloud.com/simple-symmetry",
+    "tags": [
+      "indie dance",
+      "house"
+    ]
+  },
+  {
+    "id": 60,
+    "summary": "VIZARE Viken Arman & Cesar Merveille",
+    "location": "DRAGON NEST",
+    "startUtcMs": 1781983800000,
+    "endUtcMs": 1781991000000,
+    "dayKey": "2026-06-20",
+    "duration": "PT2H",
+    "startTime": "2026-06-20T21:30:00",
+    "endTime": "2026-06-20T23:30:00",
+    "description": "",
+    "sampleSetUrl": "https://www.youtube.com/watch?v=dI56-I9yZxM",
+    "tags": [
+      "minimal",
+      "organic house"
+    ]
+  },
+  {
+    "id": 61,
+    "summary": "Henrik Shcwarz (live)",
+    "location": "DRAGON NEST",
+    "startUtcMs": 1781991000000,
+    "endUtcMs": 1781998200000,
+    "dayKey": "2026-06-20",
+    "duration": "PT2H",
+    "startTime": "2026-06-20T23:30:00",
+    "endTime": "2026-06-21T01:30:00",
+    "description": "",
+    "sampleSetUrl": "https://www.youtube.com/watch?v=2_48LAvedjQ",
+    "tags": [
+      "house",
+      "techno"
+    ]
+  },
+  {
+    "id": 62,
+    "summary": "Daniel Moritz",
+    "location": "DRAGON NEST",
+    "startUtcMs": 1781998200000,
+    "endUtcMs": 1782001800000,
+    "dayKey": "2026-06-21",
+    "duration": "PT1H",
+    "startTime": "2026-06-21T01:30:00",
+    "endTime": "2026-06-21T02:30:00",
+    "description": "",
+    "sampleSetUrl": "https://soundcloud.com/danielxmoritz",
+    "tags": [
+      "minimal",
+      "house"
+    ]
+  },
+  {
+    "id": 63,
+    "summary": "The Advent",
+    "location": "DAAD STAGE",
+    "startUtcMs": 1781978400000,
+    "endUtcMs": 1781985600000,
+    "dayKey": "2026-06-20",
+    "duration": "PT2H",
+    "startTime": "2026-06-20T20:00:00",
+    "endTime": "2026-06-20T22:00:00",
+    "description": "",
+    "sampleSetUrl": "https://www.youtube.com/watch?v=YbeWaokPg70",
+    "tags": [
+      "techno",
+      "electro"
+    ]
+  },
+  {
+    "id": 64,
+    "summary": "Aga2L",
+    "location": "DAAD STAGE",
+    "startUtcMs": 1781985600000,
+    "endUtcMs": 1781991000000,
+    "dayKey": "2026-06-20",
+    "duration": "PT1H30M",
+    "startTime": "2026-06-20T22:00:00",
+    "endTime": "2026-06-20T23:30:00",
+    "description": "",
+    "sampleSetUrl": "https://www.youtube.com/watch?v=LBY8eUx9xuU",
+    "tags": [
+      "techno"
+    ]
+  },
+  {
+    "id": 65,
+    "summary": "Kangding Ray",
+    "location": "DAAD STAGE",
+    "startUtcMs": 1781991000000,
+    "endUtcMs": 1781998200000,
+    "dayKey": "2026-06-20",
+    "duration": "PT2H",
+    "startTime": "2026-06-20T23:30:00",
+    "endTime": "2026-06-21T01:30:00",
+    "description": "",
+    "sampleSetUrl": "https://www.youtube.com/watch?v=0QY3d9OqAs4",
+    "tags": [
+      "techno",
+      "experimental"
+    ]
+  },
+  {
+    "id": 66,
+    "summary": "Rodhad & Rene Wise",
+    "location": "DAAD STAGE",
+    "startUtcMs": 1781998200000,
+    "endUtcMs": 1782005400000,
+    "dayKey": "2026-06-21",
+    "duration": "PT2H",
+    "startTime": "2026-06-21T01:30:00",
+    "endTime": "2026-06-21T03:30:00",
+    "description": "",
+    "sampleSetUrl": "https://www.youtube.com/watch?v=QNS9RGB1GWg",
+    "tags": [
+      "techno",
+      "deep techno"
+    ]
+  },
+  {
+    "id": 67,
+    "summary": "Fadi Mohem",
+    "location": "DAAD STAGE",
+    "startUtcMs": 1782005400000,
+    "endUtcMs": 1782010800000,
+    "dayKey": "2026-06-21",
+    "duration": "PT1H30M",
+    "startTime": "2026-06-21T03:30:00",
+    "endTime": "2026-06-21T05:00:00",
+    "description": "",
+    "sampleSetUrl": "https://www.youtube.com/watch?v=rTtVMHFlwoM",
+    "tags": [
+      "techno"
+    ]
+  },
+  {
+    "id": 68,
+    "summary": "Gigi FM",
+    "location": "DAAD STAGE",
+    "startUtcMs": 1782010800000,
+    "endUtcMs": 1782014400000,
+    "dayKey": "2026-06-21",
+    "duration": "PT1H",
+    "startTime": "2026-06-21T05:00:00",
+    "endTime": "2026-06-21T06:00:00",
+    "description": "",
+    "sampleSetUrl": "https://www.youtube.com/watch?v=nm9ME64muCg",
+    "tags": [
+      "techno",
+      "bass"
+    ]
+  },
+  {
+    "id": 69,
+    "summary": "Kin Teal",
+    "location": "THE DOME",
+    "startUtcMs": 1781982000000,
+    "endUtcMs": 1781985600000,
+    "dayKey": "2026-06-20",
+    "duration": "PT1H",
+    "startTime": "2026-06-20T21:00:00",
+    "endTime": "2026-06-20T22:00:00",
+    "description": "",
+    "sampleSetUrl": "https://www.youtube.com/watch?v=dtt0lfboi3U",
+    "tags": [
+      "electronica",
+      "ambient"
+    ]
+  },
+  {
+    "id": 70,
+    "summary": "Barker (live)",
+    "location": "THE DOME",
+    "startUtcMs": 1781985600000,
+    "endUtcMs": 1781989200000,
+    "dayKey": "2026-06-20",
+    "duration": "PT1H",
+    "startTime": "2026-06-20T22:00:00",
+    "endTime": "2026-06-20T23:00:00",
+    "description": "",
+    "sampleSetUrl": "https://www.youtube.com/watch?v=mVwOdMsatKg",
+    "tags": [
+      "ambient techno",
+      "electronica"
+    ]
+  },
+  {
+    "id": 71,
+    "summary": "Lau",
+    "location": "THE DOME",
+    "startUtcMs": 1781989200000,
+    "endUtcMs": 1781996400000,
+    "dayKey": "2026-06-20",
+    "duration": "PT2H",
+    "startTime": "2026-06-20T23:00:00",
+    "endTime": "2026-06-21T01:00:00",
+    "description": "",
+    "sampleSetUrl": "https://www.youtube.com/watch?v=-YMG-mYKJ6o",
+    "tags": [
+      "techno",
+      "house"
+    ]
+  },
+  {
+    "id": 72,
+    "summary": "JakoJako (live)",
+    "location": "THE DOME",
+    "startUtcMs": 1781996400000,
+    "endUtcMs": 1782001800000,
+    "dayKey": "2026-06-21",
+    "duration": "PT1H30M",
+    "startTime": "2026-06-21T01:00:00",
+    "endTime": "2026-06-21T02:30:00",
+    "description": "",
+    "sampleSetUrl": "https://www.youtube.com/watch?v=JRB6qZ6hdLw",
+    "tags": [
+      "modular techno",
+      "ambient"
+    ]
+  },
+  {
+    "id": 73,
+    "summary": "Adiel",
+    "location": "THE DOME",
+    "startUtcMs": 1782001800000,
+    "endUtcMs": 1782009000000,
+    "dayKey": "2026-06-21",
+    "duration": "PT2H",
+    "startTime": "2026-06-21T02:30:00",
+    "endTime": "2026-06-21T04:30:00",
+    "description": "",
+    "sampleSetUrl": "https://www.youtube.com/watch?v=yz6eVxxyumc",
+    "tags": [
+      "techno",
+      "deep techno"
+    ]
+  },
+  {
+    "id": 74,
+    "summary": "Isu",
+    "location": "THE DOME",
+    "startUtcMs": 1782009000000,
+    "endUtcMs": 1782016200000,
+    "dayKey": "2026-06-21",
+    "duration": "PT2H",
+    "startTime": "2026-06-21T04:30:00",
+    "endTime": "2026-06-21T06:30:00",
+    "description": "",
+    "sampleSetUrl": "https://soundcloud.com/daadgathering/isu-daad-2025",
+    "tags": [
+      "techno",
+      "minimal"
+    ]
+  },
+  {
+    "id": 75,
+    "summary": "Zituli Space Project",
+    "location": "THE DOME",
+    "startUtcMs": 1782016200000,
+    "endUtcMs": 1782019800000,
+    "dayKey": "2026-06-21",
+    "duration": "PT1H",
+    "startTime": "2026-06-21T06:30:00",
+    "endTime": "2026-06-21T07:30:00",
+    "description": "",
+    "sampleSetUrl": "https://www.youtube.com/watch?v=oZ_jso_sWLY",
+    "tags": [
+      "ambient",
+      "chillout"
+    ]
+  },
+  {
+    "id": 76,
+    "summary": "Tolo & Falcao",
+    "location": "THE DOME",
+    "startUtcMs": 1782046800000,
+    "endUtcMs": 1782054000000,
+    "dayKey": "2026-06-21",
+    "duration": "PT2H",
+    "startTime": "2026-06-21T15:00:00",
+    "endTime": "2026-06-21T17:00:00",
+    "description": "",
+    "sampleSetUrl": "https://www.youtube.com/watch?v=a2RcSQMHQj4",
+    "tags": [
+      "house",
+      "minimal"
+    ]
+  },
+  {
+    "id": 77,
+    "summary": "Josh Wink",
+    "location": "THE DOME",
+    "startUtcMs": 1782054000000,
+    "endUtcMs": 1782063000000,
+    "dayKey": "2026-06-21",
+    "duration": "PT2H30M",
+    "startTime": "2026-06-21T17:00:00",
+    "endTime": "2026-06-21T19:30:00",
+    "description": "",
+    "sampleSetUrl": "https://www.youtube.com/watch?v=gsDuBAO4GSY",
+    "tags": [
+      "acid house",
+      "techno"
+    ]
+  },
+  {
+    "id": 78,
+    "summary": "Dominik Eulberg",
+    "location": "DRAGON NEST",
+    "startUtcMs": 1782063000000,
+    "endUtcMs": 1782070200000,
+    "dayKey": "2026-06-21",
+    "duration": "PT2H",
+    "startTime": "2026-06-21T19:30:00",
+    "endTime": "2026-06-21T21:30:00",
+    "description": "",
+    "sampleSetUrl": "https://www.youtube.com/watch?v=eX0Skh6tGlc",
+    "tags": [
+      "melodic techno",
+      "electronica"
+    ]
+  },
+  {
+    "id": 79,
+    "summary": "GusGus",
+    "location": "DRAGON NEST",
+    "startUtcMs": 1782070200000,
+    "endUtcMs": 1782073800000,
+    "dayKey": "2026-06-21",
+    "duration": "PT1H",
+    "startTime": "2026-06-21T21:30:00",
+    "endTime": "2026-06-21T22:30:00",
+    "description": "",
+    "sampleSetUrl": "https://www.youtube.com/watch?v=SAkezrDUxlk",
+    "tags": [
+      "techno"
+    ]
+  },
+  {
+    "id": 80,
+    "summary": "Jess",
+    "location": "COOKING GROOVE",
+    "startUtcMs": 1782028800000,
+    "endUtcMs": 1782036000000,
+    "dayKey": "2026-06-21",
+    "duration": "PT2H",
+    "startTime": "2026-06-21T10:00:00",
+    "endTime": "2026-06-21T12:00:00",
+    "description": "",
+    "sampleSetUrl": "https://www.youtube.com/watch?v=SGJbQA1UG_U",
+    "tags": [
+      "house",
+      "minimal"
+    ]
+  },
+  {
+    "id": 81,
+    "summary": "Kornwall",
+    "location": "COOKING GROOVE",
+    "startUtcMs": 1782036000000,
+    "endUtcMs": 1782043200000,
+    "dayKey": "2026-06-21",
+    "duration": "PT2H",
+    "startTime": "2026-06-21T12:00:00",
+    "endTime": "2026-06-21T14:00:00",
+    "description": "",
+    "sampleSetUrl": "https://www.youtube.com/watch?v=LhQCGFnowwU",
+    "tags": [
+      "techno",
+      "house"
+    ]
+  },
+  {
+    "id": 82,
+    "summary": "Peter Makto",
+    "location": "COOKING GROOVE",
+    "startUtcMs": 1782043200000,
+    "endUtcMs": 1782046800000,
+    "dayKey": "2026-06-21",
+    "duration": "PT1H",
+    "startTime": "2026-06-21T14:00:00",
+    "endTime": "2026-06-21T15:00:00",
+    "description": "",
+    "sampleSetUrl": "https://www.youtube.com/watch?v=U-6jETd3Mpg",
+    "tags": [
+      "deep house",
+      "melodic house"
+    ]
+  },
+  {
+    "id": 83,
+    "summary": "Jaffa Surfa",
+    "location": "AM/BEACH",
+    "startUtcMs": 1782025200000,
+    "endUtcMs": 1782036000000,
+    "dayKey": "2026-06-21",
+    "duration": "PT3H",
+    "startTime": "2026-06-21T09:00:00",
+    "endTime": "2026-06-21T12:00:00",
+    "description": "",
+    "sampleSetUrl": "https://www.youtube.com/watch?v=R2AyA3bTuJs",
+    "tags": [
+      "minimal",
+      "house"
+    ]
+  },
+  {
+    "id": 84,
+    "summary": "Budai",
+    "location": "AM/BEACH",
+    "startUtcMs": 1782036000000,
+    "endUtcMs": 1782039600000,
+    "dayKey": "2026-06-21",
+    "duration": "PT1H",
+    "startTime": "2026-06-21T12:00:00",
+    "endTime": "2026-06-21T13:00:00",
+    "description": "",
+    "sampleSetUrl": "https://www.youtube.com/watch?v=W30o_rB97Jg",
+    "tags": [
+      "techno",
+      "house"
+    ]
+  },
+  {
+    "id": 85,
+    "summary": "OVERCOOKING",
+    "location": "COOKING GROOVE",
+    "startUtcMs": 1782075600000,
+    "endUtcMs": 1782079200000,
+    "dayKey": "2026-06-21",
+    "duration": "PT1H",
+    "startTime": "2026-06-21T23:00:00",
+    "endTime": "2026-06-22T00:00:00",
+    "description": "",
+    "sampleSetUrl": "https://soundcloud.com/daadgathering",
+    "tags": [
+      "techno",
+      "house"
+    ]
+  }
+]
