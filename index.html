@@ -330,6 +330,97 @@
                 transition-duration: 0.05s;
             }
         }
+
+        /* Header: opens filters off-canvas (sole filter UI at all breakpoints) */
+        #daadHeaderFiltersBtn {
+            flex-shrink: 0;
+            margin-left: 0.75rem;
+            width: 2.75rem;
+            height: 2.75rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 9999px;
+            border: 1px solid rgba(255, 255, 255, 0.22);
+            background: rgba(0, 0, 0, 0.5);
+            color: #fafaf7;
+            cursor: pointer;
+            transition: background-color 0.18s ease, border-color 0.18s ease;
+        }
+        #daadHeaderFiltersBtn:hover {
+            background: rgba(255, 255, 255, 0.06);
+            border-color: rgba(255, 255, 255, 0.32);
+        }
+        #daadHeaderFiltersBtn:focus-visible {
+            outline: 2px solid rgba(255, 255, 255, 0.55);
+            outline-offset: 3px;
+        }
+        @media (prefers-reduced-motion: reduce) {
+            #daadHeaderFiltersBtn {
+                transition-duration: 0.05s;
+            }
+            #daadFiltersDrawer,
+            #daadFiltersDrawerPanel {
+                transition-duration: 0.05s;
+            }
+        }
+
+        /* Off-canvas filters (all viewports — single filtering surface) */
+        #daadFiltersDrawer {
+            position: fixed;
+            inset: 0;
+            z-index: 45;
+            display: block;
+            pointer-events: none;
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity 0.22s ease, visibility 0.22s ease;
+        }
+        #daadFiltersDrawer.daad-filters-drawer--open {
+            pointer-events: auto;
+            opacity: 1;
+            visibility: visible;
+        }
+        #daadFiltersDrawerBackdrop {
+            position: absolute;
+            inset: 0;
+            z-index: 0;
+            margin: 0;
+            padding: 0;
+            border: none;
+            border-radius: 0;
+            width: auto;
+            height: auto;
+            cursor: pointer;
+            background: rgba(0, 0, 0, 0.55);
+            -webkit-appearance: none;
+            appearance: none;
+            -webkit-backdrop-filter: blur(6px);
+            backdrop-filter: blur(6px);
+        }
+        #daadFiltersDrawerPanel {
+            position: absolute;
+            top: 0;
+            bottom: 0;
+            right: 0;
+            width: min(26rem, 92vw);
+            max-width: min(26rem, 92vw);
+            background: rgba(14, 8, 10, 0.97);
+            border-left: 1px solid rgba(255, 255, 255, 0.14);
+            box-shadow: -12px 0 40px rgba(0, 0, 0, 0.55);
+            -webkit-backdrop-filter: blur(14px);
+            backdrop-filter: blur(14px);
+            z-index: 1;
+            transform: translateX(102%);
+            transition: transform 0.28s cubic-bezier(0.22, 1, 0.36, 1);
+            display: flex;
+            flex-direction: column;
+            padding: max(env(safe-area-inset-top), 1rem) 1rem 1rem max(env(safe-area-inset-right), 1rem);
+            padding-bottom: max(env(safe-area-inset-bottom), 1rem);
+        }
+        #daadFiltersDrawer.daad-filters-drawer--open #daadFiltersDrawerPanel {
+            transform: translateX(0);
+        }
     </style>
 </head>
 <body class="daad-poster min-h-screen text-daad-ink antialiased font-sans">
@@ -346,12 +437,16 @@
     <!-- Header -->
     <header id="daadSiteHeader" class="bg-black sticky top-0 z-20">
         <div class="container mx-auto px-4">
-            <div class="flex items-center py-4 gap-4 flex-wrap">
-                <div class="flex items-center gap-3">
+            <div class="flex items-center justify-between py-4 gap-3 min-w-0">
+                <div class="flex items-center gap-3 min-w-0 flex-1">
                     <h1 class="font-display text-3xl sm:text-4xl tracking-[0.04em] uppercase leading-none text-white/65"><span class="text-white">Personal</span> Lineup DAAD 
                         <span class="text-white font-display">2026</span>
                     </h1>
                 </div>
+                <button type="button" id="daadHeaderFiltersBtn" class="text-base shrink-0" aria-label="Open filters"
+                    aria-expanded="false" aria-controls="daadFiltersDrawerPanel" aria-haspopup="dialog">
+                    <i class="fas fa-filter" aria-hidden="true"></i>
+                </button>
             </div>
         </div>
     </header>
@@ -362,53 +457,11 @@
         <div class="mb-10">
             <p>
                 Build your own lineup. Your selections are automatically saved for offline use on this device.
+                Filters (date, location, tag, artist) live in the header — open them with the filter icon.
             </p>
             <p class="text-white/75 max-w-2xl text-sm sm:text-base leading-relaxed font-medium">
                 Official website: <a href="https://2026.daad.hu/" class="text-white underline decoration-white/35 underline-offset-2 hover:decoration-white">2026.daad.hu</a>.
             </p>
-        </div>
-
-        <!-- Filters and Controls -->
-        <div class="mb-6">
-            <div class="daad-frame bg-black/45 backdrop-blur-sm border border-white/15 shadow-daad p-5 rounded-sm">
-                <p class="mb-3 hidden md:block text-xs font-bold uppercase tracking-[0.12em] text-white/85">Filters</p>
-                <details id="moreFilters" class="group [&_summary::-webkit-details-marker]:hidden">
-                    <summary class="flex cursor-pointer list-none items-center justify-between gap-3 rounded-sm border border-white/20 bg-black/40 px-3 py-2.5 text-white md:hidden">
-                        <span class="text-xs font-bold uppercase tracking-[0.12em] text-white/85">Filters</span>
-                        <i class="fas fa-chevron-down text-sm text-white/60 transition-transform duration-200 group-open:rotate-180" aria-hidden="true"></i>
-                    </summary>
-                    <div class="mt-3 grid grid-cols-1 gap-4 sm:grid-cols-2 md:mt-0 md:gap-4 lg:mt-0 lg:grid lg:grid-cols-4 lg:gap-4">
-                        <div>
-                            <label class="block text-xs font-bold uppercase tracking-[0.12em] text-white/85 mb-2">Date</label>
-                            <select id="dateFilter" class="daad-field w-full rounded-sm border border-white/20 bg-black/40 px-3 py-2.5 text-sm text-white focus:border-white/60 focus:ring-1 focus:ring-white/40 outline-none transition-shadow">
-                                <option value="">All Dates</option>
-                            </select>
-                        </div>
-                        <div>
-                            <label class="block text-xs font-bold uppercase tracking-[0.12em] text-white/85 mb-2">Location</label>
-                            <select id="locationFilter" class="daad-field w-full rounded-sm border border-white/20 bg-black/40 px-3 py-2.5 text-sm text-white focus:border-white/60 focus:ring-1 focus:ring-white/40 outline-none transition-shadow">
-                                <option value="">All Locations</option>
-                            </select>
-                        </div>
-                        <div>
-                            <label class="block text-xs font-bold uppercase tracking-[0.12em] text-white/85 mb-2">Tag</label>
-                            <select id="tagFilter" class="daad-field w-full rounded-sm border border-white/20 bg-black/40 px-3 py-2.5 text-sm text-white focus:border-white/60 focus:ring-1 focus:ring-white/40 outline-none transition-shadow">
-                                <option value="">All tags</option>
-                            </select>
-                        </div>
-                        <div>
-                            <label class="block text-xs font-bold uppercase tracking-[0.12em] text-white/85 mb-2">Artist</label>
-                            <input type="text" id="artistFilter" placeholder="Search artist…" class="daad-field w-full rounded-sm border border-white/20 bg-black/40 px-3 py-2.5 text-sm text-white placeholder:text-white/40 focus:border-white/60 focus:ring-1 focus:ring-white/40 outline-none transition-shadow">
-                        </div>
-                    </div>
-                    <div class="mt-4 flex justify-end border-t border-white/15 pt-4">
-                        <button type="button" id="clearFiltersBtn"
-                            class="tab-daad font-sans text-xs font-bold uppercase tracking-[0.12em] px-4 py-2 rounded-sm border transition-colors border-white/35 text-white/90 bg-transparent hover:bg-white/10 focus:outline-none focus-visible:ring-2 focus-visible:ring-white/50">
-                            Clear filters
-                        </button>
-                    </div>
-                </details>
-            </div>
         </div>
 
         <!-- Selection Overview Panel -->
@@ -457,6 +510,54 @@
             </div>
             <div id="panel-by-schedule" role="tabpanel" aria-labelledby="tab-by-schedule" class="tab-panel hidden">
                 <!-- day / time-slot grouping -->
+            </div>
+        </div>
+    </div>
+
+    <!-- Off-canvas filters (header control — sole filter surface) -->
+    <div id="daadFiltersDrawer" aria-hidden="true">
+        <button type="button" id="daadFiltersDrawerBackdrop" aria-label="Close filters panel"></button>
+        <div id="daadFiltersDrawerPanel" role="dialog" aria-labelledby="daadFiltersDrawerTitle" aria-modal="true" class="text-daad-ink">
+            <div class="flex items-start justify-between gap-3 pb-4 border-b border-white/15">
+                <div>
+                    <p id="daadFiltersDrawerTitle" class="text-xs font-bold uppercase tracking-[0.12em] text-white/85">Filters</p>
+                    <p class="mt-1 text-sm text-white/55">Tune the lineup below.</p>
+                </div>
+                <button type="button" id="daadFiltersDrawerClose" class="shrink-0 flex h-9 w-9 items-center justify-center rounded-sm border border-white/25 text-white/85 hover:bg-white/10 focus:outline-none focus-visible:ring-2 focus-visible:ring-white/45" aria-label="Close filters">
+                    <i class="fas fa-times text-lg leading-none" aria-hidden="true"></i>
+                </button>
+            </div>
+            <div class="mt-4 overflow-y-auto flex-1 min-h-0 overscroll-contain py-1 pr-0.5 -mr-1">
+                <div class="grid grid-cols-1 gap-4 pb-6">
+                    <div>
+                        <label class="block text-xs font-bold uppercase tracking-[0.12em] text-white/85 mb-2">Date</label>
+                        <select id="dateFilter" class="daad-field w-full rounded-sm border border-white/20 bg-black/40 px-3 py-2.5 text-sm text-white focus:border-white/60 focus:ring-1 focus:ring-white/40 outline-none transition-shadow">
+                            <option value="">All Dates</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold uppercase tracking-[0.12em] text-white/85 mb-2">Location</label>
+                        <select id="locationFilter" class="daad-field w-full rounded-sm border border-white/20 bg-black/40 px-3 py-2.5 text-sm text-white focus:border-white/60 focus:ring-1 focus:ring-white/40 outline-none transition-shadow">
+                            <option value="">All Locations</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold uppercase tracking-[0.12em] text-white/85 mb-2">Tag</label>
+                        <select id="tagFilter" class="daad-field w-full rounded-sm border border-white/20 bg-black/40 px-3 py-2.5 text-sm text-white focus:border-white/60 focus:ring-1 focus:ring-white/40 outline-none transition-shadow">
+                            <option value="">All tags</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold uppercase tracking-[0.12em] text-white/85 mb-2">Artist</label>
+                        <input type="text" id="artistFilter" placeholder="Search artist…" class="daad-field w-full rounded-sm border border-white/20 bg-black/40 px-3 py-2.5 text-sm text-white placeholder:text-white/40 focus:border-white/60 focus:ring-1 focus:ring-white/40 outline-none transition-shadow">
+                    </div>
+                </div>
+                <div class="pb-6 border-t border-white/15 pt-4 sticky bottom-0 bg-[rgba(14,8,10,0.97)]">
+                    <button type="button" id="clearFiltersBtn"
+                        class="tab-daad font-sans text-xs font-bold uppercase tracking-[0.12em] w-full px-4 py-2.5 rounded-sm border transition-colors border-white/35 text-white/90 bg-transparent hover:bg-white/10 focus:outline-none focus-visible:ring-2 focus-visible:ring-white/50">
+                        Clear filters
+                    </button>
+                </div>
             </div>
         </div>
     </div>
@@ -1109,22 +1210,14 @@
             } catch (e) {}
         }
 
-        const MORE_FILTERS_MIN_WIDTH = 768; // matches Tailwind md — collapsed summary only below this width
-
-        function syncMoreFiltersDetailsOpen() {
-            const details = document.getElementById('moreFilters');
-            if (!details) return;
-            details.open = window.matchMedia(`(min-width: ${MORE_FILTERS_MIN_WIDTH}px)`).matches;
-        }
-
-        let moreFiltersResizeTimer;
+        let daadResizeDebounceTimer;
         window.addEventListener('resize', () => {
-            clearTimeout(moreFiltersResizeTimer);
-            moreFiltersResizeTimer = setTimeout(() => {
-                syncMoreFiltersDetailsOpen();
+            clearTimeout(daadResizeDebounceTimer);
+            daadResizeDebounceTimer = setTimeout(() => {
                 syncDaadStickyTop();
                 syncBackToTopOffset();
                 updateStickyHeadingStates();
+                closeDaadFiltersDrawer();
             }, 150);
         });
 
@@ -1143,6 +1236,64 @@
                 extra = Math.round(overview.getBoundingClientRect().height) + 12;
             }
             btn.style.setProperty('--daad-back-to-top-extra', `${extra}px`);
+        }
+
+        let daadFiltersDrawerPrevFocus = null;
+        function daadFiltersDrawerIsOpen() {
+            const root = document.getElementById('daadFiltersDrawer');
+            return !!(root && root.classList.contains('daad-filters-drawer--open'));
+        }
+
+        function onDaadFiltersDrawerEscape(ev) {
+            if (ev.key !== 'Escape') return;
+            ev.preventDefault();
+            closeDaadFiltersDrawer();
+        }
+
+        function closeDaadFiltersDrawer() {
+            const root = document.getElementById('daadFiltersDrawer');
+            if (!root || !daadFiltersDrawerIsOpen()) return;
+            root.classList.remove('daad-filters-drawer--open');
+            root.setAttribute('aria-hidden', 'true');
+            document.body.style.overflow = '';
+            const headerFiltersBtn = document.getElementById('daadHeaderFiltersBtn');
+            if (headerFiltersBtn) headerFiltersBtn.setAttribute('aria-expanded', 'false');
+            document.removeEventListener('keydown', onDaadFiltersDrawerEscape);
+            const prev = daadFiltersDrawerPrevFocus;
+            daadFiltersDrawerPrevFocus = null;
+            if (prev && typeof prev.focus === 'function') {
+                try {
+                    prev.focus();
+                } catch (_) {}
+            }
+        }
+
+        function openDaadFiltersDrawer() {
+            if (daadFiltersDrawerIsOpen()) return;
+            const root = document.getElementById('daadFiltersDrawer');
+            if (!root) return;
+            daadFiltersDrawerPrevFocus = document.activeElement;
+            root.classList.add('daad-filters-drawer--open');
+            root.setAttribute('aria-hidden', 'false');
+            document.body.style.overflow = 'hidden';
+            const headerFiltersBtn = document.getElementById('daadHeaderFiltersBtn');
+            if (headerFiltersBtn) headerFiltersBtn.setAttribute('aria-expanded', 'true');
+            document.addEventListener('keydown', onDaadFiltersDrawerEscape);
+            requestAnimationFrame(() => {
+                const el = document.getElementById('dateFilter');
+                if (el && typeof el.focus === 'function') el.focus();
+            });
+        }
+
+        let filtersDrawerControlsWired = false;
+        function ensureFiltersDrawerControls() {
+            if (filtersDrawerControlsWired) return;
+            const drawerRoot = document.getElementById('daadFiltersDrawer');
+            if (!drawerRoot) return;
+            filtersDrawerControlsWired = true;
+            document.getElementById('daadHeaderFiltersBtn')?.addEventListener('click', () => openDaadFiltersDrawer());
+            document.getElementById('daadFiltersDrawerBackdrop')?.addEventListener('click', closeDaadFiltersDrawer);
+            document.getElementById('daadFiltersDrawerClose')?.addEventListener('click', closeDaadFiltersDrawer);
         }
 
         function updateBackToTopButton() {
@@ -1198,8 +1349,8 @@
 
         // Initialize the application
         async function init() {
-            syncMoreFiltersDetailsOpen();
             syncDaadStickyTop();
+            ensureFiltersDrawerControls();
             ensureBackToTopControl();
             syncBackToTopOffset();
             ensureStickyHeadingScrollListener();

@@ -7,7 +7,7 @@ alwaysApply: true
 
 ## What it is
 
-Static **event schedule viewer** for **DAAD Gathering** (currently titled “2026” in `index.html`). Users browse lineup by day/stage, filter (date, stage, artist, tags, etc.), open sample-set links, and save a **personal lineup** in the browser. The **PWA** precaches the shell and schedule so the app works **fully offline** after install. No app backend in production: same behavior as **GitHub Pages** (HTML + client-side JS only).
+Static **event schedule viewer** for **DAAD Gathering** (currently titled “2026” in `index.html`). Users browse lineup by day/stage, filter via the **header off-canvas** (date, location, artist, tags), open sample-set links, and save a **personal lineup** in the browser. The **PWA** precaches the shell and schedule so the app works **fully offline** after install. No app backend in production: same behavior as **GitHub Pages** (HTML + client-side JS only).
 
 ## Stack & run locally
 
@@ -48,6 +48,6 @@ Static **event schedule viewer** for **DAAD Gathering** (currently titled “202
 | Stages | `normalizeStageName` → **uppercase** keys must align with **`STAGE_STYLES`** for colors |
 | End times | **Defined in JSON** from CSV **`duration`** (plus start) in the script; app consumes **`endUtcMs` / `duration`** from loaded events. |
 | Sample column | **`buildSampleAsideColumn`** — SoundCloud hydrate; YouTube **`buildYouTubeSampleAsideInner`** (**`youtubeSampleAsideSupported`**: video id **`extractYouTubeVideoId`**, channel **`extractYouTubeChannelIdForThumb`**, browse **`fetchMicrolinkImageUrl`** + **`hydrateYouTubeMicrolinkThumbs`**) |
-| UI | Filter/render helpers, tag filter, event cards / sample aside above, loading overlay + error banner |
+| UI | **Filters**: header `#daadHeaderFiltersBtn` opens `#daadFiltersDrawer` (right panel) with `#dateFilter`, `#locationFilter`, `#tagFilter`, `#artistFilter`, `#clearFiltersBtn`. **Lineup toolbar** still has `#selectionFilter` (all / in lineup / not in lineup). Filter/render helpers, event cards / sample aside, loading overlay + error banner |
 
 When adding stages or columns, update **Sheet + `csv_to_events.py`**, **normalization**, and **`STAGE_STYLES`** together.
