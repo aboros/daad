@@ -493,6 +493,154 @@
             }
         }
 
+        const YOUTUBE_VIDEO_ID_RE = /^[A-Za-z0-9_-]{11}$/;
+        /** @returns {string} 11-char id or '' */
+        function extractYouTubeVideoId(rawUrl) {
+            try {
+                const u = new URL(String(rawUrl || '').trim());
+                if (u.protocol !== 'http:' && u.protocol !== 'https:') return '';
+                const host = u.hostname.replace(/^www\./i, '').toLowerCase();
+                const yt =
+                    host === 'youtu.be' ||
+                    host === 'youtube.com' ||
+                    host === 'youtube-nocookie.com' ||
+                    host === 'm.youtube.com' ||
+                    host === 'music.youtube.com';
+                if (!yt) return '';
+
+                if (host === 'youtu.be') {
+                    const seg = u.pathname.split('/').filter(Boolean)[0] || '';
+                    return YOUTUBE_VIDEO_ID_RE.test(seg) ? seg : '';
+                }
+
+                const v = u.searchParams.get('v');
+                if (v && YOUTUBE_VIDEO_ID_RE.test(v)) return v;
+
+                const pathId = u.pathname.match(/\/(?:embed|shorts|live)\/([A-Za-z0-9_-]{11})(?:\/|$|[?#])/);
+                if (pathId && YOUTUBE_VIDEO_ID_RE.test(pathId[1])) return pathId[1];
+
+                const watchPathOnly = u.pathname.match(/^\/watch\/([^/?#]+)\/?$/);
+                if (
+                    watchPathOnly &&
+                    YOUTUBE_VIDEO_ID_RE.test(watchPathOnly[1])
+                )
+                    return watchPathOnly[1];
+
+                return '';
+            } catch (_) {
+                return '';
+            }
+        }
+
+        /** Channel pages (UC…) — avatar URL via unavatar (see buildYouTubeSampleAsideInner). */
+        function extractYouTubeChannelIdForThumb(rawUrl) {
+            try {
+                const u = new URL(String(rawUrl || '').trim());
+                if (u.protocol !== 'http:' && u.protocol !== 'https:') return '';
+                const host = u.hostname.replace(/^www\./i, '').toLowerCase();
+                const allow =
+                    host === 'youtube.com' ||
+                    host === 'youtube-nocookie.com' ||
+                    host === 'm.youtube.com' ||
+                    host === 'music.youtube.com';
+                if (!allow) return '';
+                const m = u.pathname.match(/^\/channel\/([^/?#]+)\/?$/);
+                if (!m) return '';
+                const id = decodeURIComponent(m[1]);
+                return /^UC[A-Za-z0-9_-]{10,}$/.test(id) ? id : '';
+            } catch (_) {
+                return '';
+            }
+        }
+
+        function isYouTubeMusicBrowseUrl(rawUrl) {
+            try {
+                const u = new URL(String(rawUrl || '').trim());
+                if (u.protocol !== 'http:' && u.protocol !== 'https:') return false;
+                const host = u.hostname.replace(/^www\./i, '').toLowerCase();
+                if (host !== 'music.youtube.com') return false;
+                return /^\/browse\//i.test(u.pathname || '');
+            } catch (_) {
+                return false;
+            }
+        }
+
+        function youtubeSampleAsideSupported(rawUrl) {
+            const s = String(rawUrl || '').trim();
+            return (
+                !!extractYouTubeVideoId(s) ||
+                !!extractYouTubeChannelIdForThumb(s) ||
+                isYouTubeMusicBrowseUrl(s)
+            );
+        }
+
+        /** Microlink open API — used for youtube music /browse URLs (video id cannot be inferred). See microlink.io */
+        const microlinkOgImageUrlByPage = new Map();
+        function fetchMicrolinkImageUrl(pageUrl) {
+            const key = String(pageUrl || '').trim();
+            if (!key) return Promise.reject(new Error('empty microlink url'));
+            if (microlinkOgImageUrlByPage.has(key)) return microlinkOgImageUrlByPage.get(key);
+            const task = fetch(`https://api.microlink.io/?url=${encodeURIComponent(key)}`)
+                .then((res) => {
+                    if (!res.ok) throw new Error(`microlink ${res.status}`);
+                    return res.json();
+                })
+                .then((d) => {
+                    const img = d && d.data && d.data.image && d.data.image.url;
+                    if (!img) throw new Error('microlink: no image');
+                    return img;
+                });
+            microlinkOgImageUrlByPage.set(key, task);
+            return task;
+        }
+
+        function hydrateYouTubeMicrolinkThumbs(root) {
+            if (!root || typeof root.querySelectorAll !== 'function') return;
+            root.querySelectorAll('[data-yt-microlink-thumb]').forEach((slot) => {
+                const pageUrl = slot.getAttribute('data-yt-microlink-thumb');
+                if (!pageUrl) return;
+                slot.removeAttribute('data-yt-microlink-thumb');
+                fetchMicrolinkImageUrl(pageUrl)
+                    .then((thumbSrc) => {
+                        slot.removeAttribute('aria-busy');
+                        slot.className = SAMPLE_THUMB_SHELL;
+                        const a = document.createElement('a');
+                        a.href = pageUrl;
+                        a.target = '_blank';
+                        a.rel = 'noopener noreferrer';
+                        a.className = SAMPLE_THUMB_HIT;
+                        a.addEventListener('click', (e) => e.stopPropagation());
+                        const img = document.createElement('img');
+                        img.src = thumbSrc;
+                        img.alt = '';
+                        img.loading = 'lazy';
+                        img.decoding = 'async';
+                        img.className = SAMPLE_THUMB_IMG;
+                        const overlay = document.createElement('span');
+                        overlay.className = SAMPLE_THUMB_OVERLAY;
+                        overlay.setAttribute('aria-hidden', 'true');
+                        a.appendChild(img);
+                        a.appendChild(overlay);
+                        slot.replaceChildren(a);
+                    })
+                    .catch(() => {
+                        slot.removeAttribute('aria-busy');
+                        slot.classList.add('hidden');
+                        slot.replaceChildren();
+                    });
+            });
+        }
+
+        /** Label for Youtube vs Youtube Music outbound links */
+        function youTubeAsideLinkLabel(trimmedRaw) {
+            try {
+                const host = new URL(trimmedRaw).hostname.replace(/^www\./i, '').toLowerCase();
+                return host === 'music.youtube.com' ? 'Open in YouTube Music' : 'Watch on YouTube';
+            } catch (_) {
+                return 'Watch on YouTube';
+            }
+        }
+
         /** Caches oEmbed JSON promises (dedupes network for same URL across cards / re-filters). */
         const soundCloudOembedJsonByUrl = new Map();
 
@@ -515,6 +663,20 @@
             return task;
         }
 
+        /** Hover: darken gradient overlay, brighten image; footer link warms to amber (named group `sample-thumb`). */
+        const SAMPLE_THUMB_GROUP_WRAP = 'group/sample-thumb flex w-full flex-col items-end gap-1';
+        const SAMPLE_THUMB_SHELL =
+            'relative aspect-square max-h-[5lh] w-[min(5lh,100%)] shrink-0 overflow-hidden rounded-sm border border-white/10 bg-black/25';
+        const SAMPLE_THUMB_IMG =
+            'absolute inset-0 h-full w-full origin-center scale-100 transform object-cover transition duration-300 ease-out group-hover/sample-thumb:scale-[1.05] group-hover/sample-thumb:brightness-115 group-hover/sample-thumb:saturate-110';
+        const SAMPLE_THUMB_OVERLAY =
+            'pointer-events-none absolute inset-0 z-[1] bg-gradient-to-t from-black/70 via-black/55 to-black/45 transition duration-300 ease-out group-hover/sample-thumb:from-black/40 group-hover/sample-thumb:via-black/30 group-hover/sample-thumb:to-black/18';
+        const SAMPLE_THUMB_HIT =
+            'absolute inset-0 z-[2] block outline-none ring-sky-400/0 focus-visible:ring-2 focus-visible:ring-sky-400/80';
+        const SAMPLE_THUMB_FOOTER_P = 'max-w-[min(22ch,calc(5lh+8ch))]';
+        const SAMPLE_THUMB_ACTION_LINK =
+            'text-[11px] font-semibold text-sky-300/90 underline decoration-sky-400/45 underline-offset-2 transition duration-300 ease-out hover:text-amber-100 hover:decoration-amber-300/65 group-hover/sample-thumb:text-amber-50 group-hover/sample-thumb:decoration-amber-200/70';
+
         function hydrateSoundCloudSampleCovers(root) {
             if (!root || typeof root.querySelectorAll !== 'function') return;
             root.querySelectorAll('[data-soundcloud-track-url]').forEach((slot) => {
@@ -527,22 +689,24 @@
                         if (!thumb) throw new Error('no thumbnail_url');
                         const title = String((data && data.title) || 'SoundCloud').trim() || 'SoundCloud';
                         slot.removeAttribute('aria-busy');
-                        slot.className =
-                            'soundcloud-oembed-cover flex aspect-square max-h-[5lh] w-[min(5lh,100%)] shrink-0 items-center justify-center overflow-hidden rounded-sm border border-white/10 bg-black/25';
+                        slot.className = 'soundcloud-oembed-cover ' + SAMPLE_THUMB_SHELL;
                         const a = document.createElement('a');
                         a.href = trackUrl;
                         a.target = '_blank';
                         a.rel = 'noopener noreferrer';
-                        a.className =
-                            'flex h-full w-full items-center justify-center outline-none ring-sky-400/0 focus-visible:ring-2 focus-visible:ring-sky-400/80';
+                        a.className = SAMPLE_THUMB_HIT;
                         a.addEventListener('click', (e) => e.stopPropagation());
                         const img = document.createElement('img');
                         img.src = thumb;
                         img.alt = title;
                         img.loading = 'lazy';
                         img.decoding = 'async';
-                        img.className = 'h-full w-full object-cover';
+                        img.className = SAMPLE_THUMB_IMG;
+                        const overlay = document.createElement('span');
+                        overlay.className = SAMPLE_THUMB_OVERLAY;
+                        overlay.setAttribute('aria-hidden', 'true');
                         a.appendChild(img);
+                        a.appendChild(overlay);
                         slot.replaceChildren(a);
                     })
                     .catch(() => {
@@ -556,13 +720,41 @@
         /** Right column: SoundCloud thumbnail + links (shared layout with plain sample aside). */
         function buildSoundCloudSampleAsideInner(sampleSetUrl) {
             const href = escapeHtml(sampleSetUrl);
-            const openSoundCloud = `<a href="${href}" onclick="event.stopPropagation()" target="_blank" rel="noopener noreferrer" class="text-[11px] font-semibold text-sky-300/95 hover:text-sky-200 underline decoration-sky-400/50 underline-offset-2">Open on SoundCloud</a>`;
-            return `
-                    <div class="soundcloud-oembed-cover flex aspect-square max-h-[5lh] w-[min(5lh,100%)] shrink-0 items-center justify-center overflow-hidden rounded-sm border border-white/10 bg-black/25 text-[10px] leading-tight text-white/40" data-soundcloud-track-url="${href}" aria-busy="true">Loading…</div>
-                    <p class="max-w-[min(22ch,calc(5lh+8ch))] text-white/50">${openSoundCloud}</p>`;
+            const openSoundCloud = `<a href="${href}" onclick="event.stopPropagation()" target="_blank" rel="noopener noreferrer" class="${SAMPLE_THUMB_ACTION_LINK}">Open on SoundCloud</a>`;
+            return `<div class="${SAMPLE_THUMB_GROUP_WRAP}">
+                    <div class="soundcloud-oembed-cover ${SAMPLE_THUMB_SHELL} flex items-center justify-center text-[10px] leading-tight text-white/40" data-soundcloud-track-url="${href}" aria-busy="true">Loading…</div>
+                    <p class="${SAMPLE_THUMB_FOOTER_P}">${openSoundCloud}</p>
+                </div>`;
         }
 
-        /** Plain http sample: same aside shell as SoundCloud minus artwork. */
+        /** Youtube aside: watch?v /watch/ID thumbnails (ytimg); /channel/UC… (unavatar); music /browse/* (Microlink og:image hydrate). */
+        function buildYouTubeSampleAsideInner(sampleSetUrl) {
+            const raw = String(sampleSetUrl || '').trim();
+            const href = escapeHtml(raw);
+            const ytLink = `<a href="${href}" onclick="event.stopPropagation()" target="_blank" rel="noopener noreferrer" class="${SAMPLE_THUMB_ACTION_LINK}">${escapeHtml(
+                youTubeAsideLinkLabel(raw)
+            )}</a>`;
+            const footerLine = `<p class="${SAMPLE_THUMB_FOOTER_P}">${ytLink}</p>`;
+            const thumbLoadingShell = `${SAMPLE_THUMB_SHELL} flex items-center justify-center text-[10px] leading-tight text-white/40`;
+            let thumbBlock = '';
+            const videoId = extractYouTubeVideoId(raw);
+            if (videoId) {
+                const thumbSrc = escapeHtml(`https://i.ytimg.com/vi/${videoId}/hqdefault.jpg`);
+                thumbBlock = `<div class="${SAMPLE_THUMB_SHELL}"><a href="${href}" target="_blank" rel="noopener noreferrer" class="${SAMPLE_THUMB_HIT}" onclick="event.stopPropagation()"><img src="${thumbSrc}" alt="" loading="lazy" decoding="async" class="${SAMPLE_THUMB_IMG}" referrerpolicy="no-referrer" /><span class="${SAMPLE_THUMB_OVERLAY}" aria-hidden="true"></span></a></div>`;
+            } else {
+                const channelId = extractYouTubeChannelIdForThumb(raw);
+                if (channelId) {
+                    const thumbEsc = escapeHtml(`https://unavatar.io/youtube/${encodeURIComponent(channelId)}`);
+                    thumbBlock = `<div class="${SAMPLE_THUMB_SHELL}"><a href="${href}" target="_blank" rel="noopener noreferrer" class="${SAMPLE_THUMB_HIT}" onclick="event.stopPropagation()"><img src="${thumbEsc}" alt="" loading="lazy" decoding="async" class="${SAMPLE_THUMB_IMG}" referrerpolicy="no-referrer" /><span class="${SAMPLE_THUMB_OVERLAY}" aria-hidden="true"></span></a></div>`;
+                } else if (isYouTubeMusicBrowseUrl(raw)) {
+                    thumbBlock = `<div class="${thumbLoadingShell}" data-yt-microlink-thumb="${href}" aria-busy="true">Loading…</div>`;
+                } else {
+                    return buildPlainSampleAsideInner(raw);
+                }
+            }
+            return `<div class="${SAMPLE_THUMB_GROUP_WRAP}">${thumbBlock}${footerLine}</div>`;
+        }
+
         function buildPlainSampleAsideInner(sampleSetUrl) {
             const href = escapeHtml(sampleSetUrl);
             const linkClass =
@@ -577,7 +769,9 @@
                 '<p class="text-[10px] font-semibold uppercase tracking-[0.12em] leading-tight text-white/55">Sample set</p>';
             const body = isSoundCloudEmbedUrl(trimmed)
                 ? buildSoundCloudSampleAsideInner(trimmed)
-                : buildPlainSampleAsideInner(trimmed);
+                : youtubeSampleAsideSupported(trimmed)
+                  ? buildYouTubeSampleAsideInner(trimmed)
+                  : buildPlainSampleAsideInner(trimmed);
             return `<aside class="pointer-events-auto flex max-w-[min(calc(5lh+8ch),42%)] shrink-0 flex-col items-end gap-1 self-start pl-3 text-right text-xs leading-normal sm:pl-4" onclick="event.stopPropagation()">${label}${body}</aside>`;
         }
 
@@ -1011,6 +1205,8 @@
             displayScheduleView(events, schedulePanel);
             hydrateSoundCloudSampleCovers(stagePanel);
             hydrateSoundCloudSampleCovers(schedulePanel);
+            hydrateYouTubeMicrolinkThumbs(stagePanel);
+            hydrateYouTubeMicrolinkThumbs(schedulePanel);
         }
 
         // Display events grouped by stage / venue

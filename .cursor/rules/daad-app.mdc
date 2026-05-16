@@ -30,14 +30,14 @@ Static **event schedule viewer** for **DAAD Gathering** (currently titled “202
 - Full checklist: **`.cursor/plans/pwa-implementation.md`** (manifest, `sw.js`, precache **`index.html`** shell + assets + `events.json`, iOS hint). **PWA ships only after** vendored **`assets/`** (Tailwind, Font Awesome, fonts).
 - **`start_url` / `scope`** in **`manifest.json`** use **`./`** so the same artifact works locally and under **`aboros.github.io/daad/`**; service worker **`./sw.js`** registration matches.
 - **Updates on installed PWAs:** `sw.js` uses **offline-first** caching for same-origin precache URLs (**`CACHE_NAME`** in **`sw.js`**). Bump **`CACHE_NAME`** when you ship changes to **`index.html`**, **`assets/app.css`**, **`data/events.json`**, or any other **`PRECACHE_URLS`** entry so clients drop the old precache after the new SW activates. The browser loads an updated **`sw.js`** after a revisit / reload (and its own update checks)—it is **not instant** everywhere without that bump + rollout.
-- **`sampleSetUrl` thumbnails** (`https://soundcloud.com/…` or `*.soundcloud.com`): client **`fetch`** to SoundCloud’s public **oEmbed JSON** (`format=json`, CORS **`access-control-allow-origin: *`**) for **`thumbnail_url`**; thumbnails hydrate after render (**`hydrateSoundCloudSampleCovers`**, in-memory dedupe). **Offline:** oEmbed fails; **Open on SoundCloud** link still works when online.
+- **`sampleSetUrl` thumbnails:** **SoundCloud** (`soundcloud.com` / `*.soundcloud.com`): **`fetch`** public **oEmbed JSON** (`format=json`; CORS `*`) → **`thumbnail_url`**, hydrate after render (**`hydrateSoundCloudSampleCovers`**). **YouTube & YouTube Music video-style URLs**: **`extractYouTubeVideoId`** → **`i.ytimg.com/vi/{id}/hqdefault.jpg`**. **`/channel/UC…`** (youtube or music.youtube.com): **`unavatar.io/youtube/{channelId}`** as `<img src>`. **`music.youtube.com/browse/…`**: **`api.microlink.io`** (CORS `*`) for **`image.url`**, via **`hydrateYouTubeMicrolinkThumbs`**. Fallback: plain aside link. External services require network; thumbnails may fail offline.
 
 ## Event cards (`renderEventCard`)
 
 - **Layout:** checkbox + **main column** (`flex-1 min-w-0`: title, meta line, tags) + optional **`<aside>` sample column** (right, `items-end`, max width tied to **`5lh`**) when **`sampleSetUrl`** is HTTP.
 - **By stage** tab meta block: **line 1** — long weekday + compact 12h clock (e.g. **`Thursday, 8:00PM`**); **line 2** — **`formatCompactHmDuration`** (e.g. **`1h30m`**), **`EVENT_TIMEZONE`**; no duplicate **“X HOURS”** span on that tab.
 - **By schedule** tab meta line: stage label left, spoken **`formatDuration`** right.
-- **Non-SoundCloud HTTP links:** same aside shell (**Sample set** label + link styling aligned with SoundCloud secondary link).
+- **Generic HTTP samples** (everything else—including **YouTube @handles**, playlists **without `v=`**, ambiguous links): aside label + single **Sample set** link.
 
 ## Implementation map (`index.html` script)
 
@@ -47,7 +47,7 @@ Static **event schedule viewer** for **DAAD Gathering** (currently titled “202
 | Times | Wall-clock semantics align with **`EVENT_TIMEZONE`**; producer is **`csv_to_events.py`**. |
 | Stages | `normalizeStageName` → **uppercase** keys must align with **`STAGE_STYLES`** for colors |
 | End times | **Defined in JSON** from CSV **`duration`** (plus start) in the script; app consumes **`endUtcMs` / `duration`** from loaded events. |
-| Sample column | **`buildSampleAsideColumn`**, SoundCloud **`buildSoundCloudSampleAsideInner`** + **`fetchSoundCloudOembedJson`** / **`hydrateSoundCloudSampleCovers`** |
+| Sample column | **`buildSampleAsideColumn`** — SoundCloud hydrate; YouTube **`buildYouTubeSampleAsideInner`** (**`youtubeSampleAsideSupported`**: video id **`extractYouTubeVideoId`**, channel **`extractYouTubeChannelIdForThumb`**, browse **`fetchMicrolinkImageUrl`** + **`hydrateYouTubeMicrolinkThumbs`**) |
 | UI | Filter/render helpers, tag filter, event cards / sample aside above, loading overlay + error banner |
 
 When adding stages or columns, update **Sheet + `csv_to_events.py`**, **normalization**, and **`STAGE_STYLES`** together.
