@@ -126,9 +126,9 @@
             background-color: #000;
             box-shadow: 0 1px 0 rgba(255, 255, 255, 0.08);
         }
-        /* Below #daadLineupToolbar (not generated in Tailwind: class only appears in JS templates). */
+        /* Stage / schedule section titles: sticky band sits under site header (#daadSiteHeader) only. */
         .daad-sticky-section-heading {
-            top: var(--daad-sticky-under-toolbar-top, var(--daad-sticky-top, 4.5rem));
+            top: var(--daad-sticky-top, 4.5rem);
         }
         /*
          * Stacking: lineup toolbar must sit above tab panels — cards use transform on thumbs (composite)
@@ -139,17 +139,16 @@
         #daadLineupToolbar {
             z-index: 25;
         }
+        /* Lineup toolbar stays visually part of the frame—no opaque fill while sticky */
         #daadLineupToolbar.is-stuck {
+            background-color: transparent;
             border-bottom-color: transparent;
             box-shadow: none;
         }
-        /* Tab switch: scrollIntoView leaves this gap so content clears the sticky header + lineup toolbar. */
+        /* Tab switch: scrollIntoView clears sticky site header inset */
         #panel-by-stage,
         #panel-by-schedule {
-            scroll-margin-top: var(
-                --daad-sticky-under-toolbar-top,
-                calc(var(--daad-sticky-top, 5rem) + 3.5rem)
-            );
+            scroll-margin-top: var(--daad-sticky-top, 4.5rem);
         }
 
         ::-webkit-scrollbar {
@@ -356,6 +355,50 @@
             }
         }
 
+        /* Floating lineup toolbar: stacks flush above #selectionOverview (same gradient + border). */
+        #daadLineupToolbarDock {
+            position: fixed;
+            left: 0;
+            right: 0;
+            z-index: 32;
+            bottom: max(env(safe-area-inset-bottom, 0px), var(--daad-lineup-dock-overview-offset, 0px));
+            transition:
+                opacity 0.22s ease,
+                transform 0.28s cubic-bezier(0.22, 1, 0.36, 1),
+                visibility 0.22s ease;
+            transform: translateY(110%);
+            opacity: 0;
+            visibility: hidden;
+            pointer-events: none;
+        }
+        #daadLineupToolbarDock.daad-lineup-toolbar-dock--visible {
+            transform: translateY(0);
+            opacity: 1;
+            visibility: visible;
+            pointer-events: auto;
+        }
+        #daadLineupToolbarDock:focus-within {
+            z-index: 33;
+        }
+        @media (prefers-reduced-motion: reduce) {
+            #daadLineupToolbarDock {
+                transition-duration: 0.05s;
+            }
+        }
+        #daadLineupToolbarDock .daad-lineup-toolbar-dock__bar {
+            width: 100%;
+            box-sizing: border-box;
+            padding-left: 16px;
+            padding-right: 16px;
+            background: linear-gradient(to top, rgb(0 0 0), rgb(0 0 0 / 0.96), rgb(0 0 0 / 0.85));
+            box-shadow: 0 -8px 40px rgba(0, 0, 0, 0.9);
+        }
+        /* Browsers size <select> oddly; keep the dock control as narrow as the labels allow. */
+        #daadLineupToolbarDock #dock-selectionFilter {
+            width: max-content;
+            max-width: min(13.5rem, 78vw);
+        }
+
         /* Header: opens filters off-canvas (sole filter UI at all breakpoints) */
         #daadHeaderFiltersBtn {
             flex-shrink: 0;
@@ -462,9 +505,9 @@
     <!-- Header -->
     <header id="daadSiteHeader" class="bg-black sticky top-0 z-20">
         <div class="container mx-auto px-4">
-            <div class="flex items-center justify-between py-4 gap-3 min-w-0">
+            <div class="flex items-center justify-between py-2 gap-3 min-w-0">
                 <div class="flex items-center gap-3 min-w-0 flex-1">
-                    <h1 class="font-display text-3xl sm:text-4xl tracking-[0.04em] uppercase leading-none text-white/65"><span class="text-white">Personal</span> Lineup DAAD 
+                    <h1 class="font-display text-2xl tracking-[0.04em] uppercase leading-none text-white/65"><span class="text-white">Personal</span> Lineup DAAD 
                         <span class="text-white font-display">2026</span>
                     </h1>
                 </div>
@@ -476,18 +519,18 @@
         </div>
     </header>
 
-    <div class="container mx-auto px-4 py-8 pb-32 relative z-10">
-        <div id="scheduleLoadError" class="hidden mb-6 rounded-sm border border-amber-400/50 bg-amber-950/40 px-4 py-3 text-sm text-amber-100/95" role="alert"></div>
+    <div class="container mx-auto px-4 pt-8 mb-10">
+        <p>
+            Build your own lineup. Your selections are automatically saved for offline use on this device.
+            Filters (date, location, tag, artist) live in the header — open them with the filter icon.
+        </p>
+        <p class="text-white/75 max-w-2xl text-sm sm:text-base leading-relaxed font-medium">
+            Official website: <a href="https://2026.daad.hu/" class="text-white underline decoration-white/35 underline-offset-2 hover:decoration-white">2026.daad.hu</a>.
+        </p>
+    </div>
 
-        <div class="mb-10">
-            <p>
-                Build your own lineup. Your selections are automatically saved for offline use on this device.
-                Filters (date, location, tag, artist) live in the header — open them with the filter icon.
-            </p>
-            <p class="text-white/75 max-w-2xl text-sm sm:text-base leading-relaxed font-medium">
-                Official website: <a href="https://2026.daad.hu/" class="text-white underline decoration-white/35 underline-offset-2 hover:decoration-white">2026.daad.hu</a>.
-            </p>
-        </div>
+    <div class="container mx-auto pb-32 pt-0 relative z-10">
+        <div id="scheduleLoadError" class="hidden mb-6 rounded-sm border border-amber-400/50 bg-amber-950/40 px-4 py-3 text-sm text-amber-100/95" role="alert"></div>
 
         <!-- Selection Overview Panel -->
         <div id="selectionOverview" class="fixed bottom-0 left-0 right-0 bg-gradient-to-t from-black via-black/96 to-black/85 border-t border-white/20 p-4 transform transition-transform duration-300 translate-y-full z-30 shadow-[0_-8px_40px_rgba(0,0,0,0.9)]">
@@ -510,33 +553,37 @@
             </div>
         </div>
 
-        <!-- Events Display: tabs (by stage | by day & time) -->
-        <div class="daad-frame bg-black/45 backdrop-blur-sm border border-white/15 shadow-daad mb-24 rounded-sm">
-            <div class="min-w-0 p-4 sm:p-6">
-                <div id="daadLineupToolbar" role="toolbar" aria-label="Lineup layout and filters"
-                    class="daad-sticky-heading sticky top-[var(--daad-sticky-top,4.5rem)] flex flex-wrap items-center justify-between gap-2 gap-y-3 border-b border-white/15 pb-3 mb-5 -mx-4 min-w-0 sm:-mx-6 px-4 sm:px-6 transition-colors duration-200 ease-out">
-                    <div class="flex flex-wrap gap-2" role="tablist" aria-label="Lineup layout">
-                        <button type="button" id="tab-by-stage" role="tab" aria-selected="true" aria-controls="panel-by-stage"
-                            class="tab-daad font-sans text-xs font-bold uppercase tracking-[0.12em] px-4 py-2 rounded-sm border transition-colors border-white bg-white text-neutral-900 hover:bg-neutral-100">
-                            By stage
-                        </button>
-                        <button type="button" id="tab-by-schedule" role="tab" aria-selected="false" aria-controls="panel-by-schedule"
-                            class="tab-daad font-sans text-xs font-bold uppercase tracking-[0.12em] px-4 py-2 rounded-sm border transition-colors border-white/35 text-white/90 bg-transparent hover:bg-white/10">
-                            By time
-                        </button>
+        <!-- Events Display: toolbar + tab panels (shared inner wrapper keeps sticky toolbar valid while scrolling lists) -->
+        <div class="daad-frame border border-white/15 shadow-daad mb-24 rounded-sm">
+            <div class="min-w-0">
+                <div id="daadLineupToolbarContainer" class="min-w-0 border-b border-white/15 bg-transparent px-4 sm:px-6 pt-4 sm:pt-6 pb-3">
+                    <div id="daadLineupToolbar" role="toolbar" aria-label="Lineup layout and filters"
+                        class="daad-sticky-heading sticky top-[var(--daad-sticky-top,4.5rem)] flex flex-wrap items-center justify-between gap-2 gap-y-3 min-w-0 transition-colors duration-200 ease-out">
+                        <div class="flex flex-wrap gap-2" role="tablist" aria-label="Lineup layout">
+                            <button type="button" id="tab-by-stage" role="tab" aria-selected="true" aria-controls="panel-by-stage"
+                                class="tab-daad font-sans text-xs font-bold uppercase tracking-[0.12em] px-4 py-2 rounded-sm border transition-colors border-white bg-white text-neutral-900 hover:bg-neutral-100">
+                                By stage
+                            </button>
+                            <button type="button" id="tab-by-schedule" role="tab" aria-selected="false" aria-controls="panel-by-schedule"
+                                class="tab-daad font-sans text-xs font-bold uppercase tracking-[0.12em] px-4 py-2 rounded-sm border transition-colors border-white/35 text-white/90 bg-transparent hover:bg-white/10">
+                                By time
+                            </button>
+                        </div>
+                        <select id="selectionFilter" aria-label="Show"
+                            class="daad-field w-full max-w-full shrink-0 rounded-sm border border-white/20 bg-black/40 px-3 py-2.5 text-sm text-white focus:border-white/60 focus:ring-1 focus:ring-white/40 outline-none transition-shadow sm:w-72">
+                            <option value="all">All sets</option>
+                            <option value="selected">In my lineup</option>
+                            <option value="unselected">Not in my lineup</option>
+                        </select>
                     </div>
-                    <select id="selectionFilter" aria-label="Show"
-                        class="daad-field w-full max-w-full shrink-0 rounded-sm border border-white/20 bg-black/40 px-3 py-2.5 text-sm text-white focus:border-white/60 focus:ring-1 focus:ring-white/40 outline-none transition-shadow sm:w-72">
-                        <option value="all">All sets</option>
-                        <option value="selected">In my lineup</option>
-                        <option value="unselected">Not in my lineup</option>
-                    </select>
                 </div>
-                <div id="panel-by-stage" role="tabpanel" aria-labelledby="tab-by-stage" class="tab-panel">
-                    <!-- stage grouping -->
-                </div>
-                <div id="panel-by-schedule" role="tabpanel" aria-labelledby="tab-by-schedule" class="tab-panel hidden">
-                    <!-- day / time-slot grouping -->
+                <div id="daadEventListContainer" class="min-w-0 bg-transparent p-4 sm:p-6 pt-5">
+                    <div id="panel-by-stage" role="tabpanel" aria-labelledby="tab-by-stage" class="tab-panel">
+                        <!-- stage grouping -->
+                    </div>
+                    <div id="panel-by-schedule" role="tabpanel" aria-labelledby="tab-by-schedule" class="tab-panel hidden">
+                        <!-- day / time-slot grouping -->
+                    </div>
                 </div>
             </div>
         </div>
@@ -587,6 +634,45 @@
                     </button>
                 </div>
             </div>
+        </div>
+    </div>
+
+    <!-- Mirrored lineup controls when the primary toolbar has scrolled away — full-bleed strip -->
+    <div id="daadLineupToolbarDock" class="daad-lineup-toolbar-dock" aria-hidden="true">
+        <div
+            role="toolbar"
+            aria-label="Lineup layout and filters"
+            class="daad-lineup-toolbar-dock__bar flex flex-nowrap items-center justify-between gap-2 border-t border-white/20 py-2.5"
+        >
+            <div role="group" aria-label="Lineup layout" class="flex flex-wrap gap-2">
+                <button
+                    type="button"
+                    id="dock-tab-by-stage"
+                    aria-pressed="true"
+                    aria-controls="panel-by-stage"
+                    class="tab-daad font-sans text-xs font-bold uppercase tracking-[0.12em] px-4 py-2 rounded-sm border transition-colors border-white bg-white text-neutral-900 hover:bg-neutral-100"
+                >
+                    By stage
+                </button>
+                <button
+                    type="button"
+                    id="dock-tab-by-schedule"
+                    aria-pressed="false"
+                    aria-controls="panel-by-schedule"
+                    class="tab-daad font-sans text-xs font-bold uppercase tracking-[0.12em] px-4 py-2 rounded-sm border transition-colors border-white/35 text-white/90 bg-transparent hover:bg-white/10"
+                >
+                    By time
+                </button>
+            </div>
+            <select
+                id="dock-selectionFilter"
+                aria-label="Show"
+                class="daad-field shrink-0 rounded-sm border border-white/20 bg-black/40 px-3 py-2.5 text-sm text-white focus:border-white/60 focus:ring-1 focus:ring-white/40 outline-none transition-shadow"
+            >
+                <option value="all">All sets</option>
+                <option value="selected">In my lineup</option>
+                <option value="unselected">Not in my lineup</option>
+            </select>
         </div>
     </div>
 
@@ -760,7 +846,7 @@
             }
         }
 
-        /** Channel pages (UC…) — avatar URL via unavatar (see buildYouTubeSampleAsideInner). */
+        /** Channel pages (UC…) — avatar URL via unavatar (see buildYouTubeSampleAside). */
         function extractYouTubeChannelIdForThumb(rawUrl) {
             try {
                 const u = new URL(String(rawUrl || '').trim());
@@ -804,6 +890,59 @@
 
         /** Microlink open API — used for youtube music /browse URLs (video id cannot be inferred). See microlink.io */
         const microlinkOgImageUrlByPage = new Map();
+
+        const SAMPLE_ASIDE_LABEL =
+            '<p class="text-[10px] font-semibold uppercase tracking-[0.12em] leading-tight text-amber-100 drop-shadow-[0_1px_2px_rgba(0,0,0,0.85)]">Sample set</p>';
+
+        /** Between “Sample set” caption and outbound link rows (thumb + plain fallback). */
+        const SAMPLE_ASIDE_PLAY_BTN =
+            '<span class="inline-flex shrink-0 text-amber-100 drop-shadow-[0_1px_2px_rgba(0,0,0,0.85)]" aria-hidden="true"><i class="fas fa-circle-play text-base leading-none sm:text-[1.125rem]"></i></span>';
+
+        const SAMPLE_ASIDE_LABEL_STACK =
+            `<div class="flex flex-col items-end gap-0.5 shrink-0">${SAMPLE_ASIDE_LABEL}${SAMPLE_ASIDE_PLAY_BTN}</div>`;
+
+        const SAMPLE_ASIDE_POINTER =
+            'pointer-events-auto flex h-full min-h-0 w-[120px] shrink-0 flex-col items-end gap-1 pl-0 text-right text-xs leading-normal';
+
+        /** Plain / failed-thumb sample column: no poster `<div>` stack; inset label/link inside the 120px track. */
+        const SAMPLE_ASIDE_PLAIN_SHELL =
+            `${SAMPLE_ASIDE_POINTER} justify-between gap-2 py-2 sm:py-3 pr-2`;
+
+        const SAMPLE_ASIDE_FALLBACK_LINK_CLASS =
+            'text-[11px] font-semibold text-amber-100 hover:text-amber-50 underline decoration-amber-300/65 hover:decoration-amber-200/70 underline-offset-2 transition duration-300 ease-out';
+
+        /** Full card height × 120px (use with grid row or parent with definite height). */
+        const SAMPLE_ASIDE_THUMB =
+            'group/sample-thumb relative flex h-full min-h-0 w-[120px] shrink-0 flex-col overflow-hidden rounded-sm border border-white/10 bg-black/25';
+
+        /** Background layer: cover + scale() so the image reads “zoomed in” inside the clip. */
+        const SAMPLE_ASIDE_BG_LAYER =
+            'absolute inset-0 z-0 bg-cover bg-center pointer-events-none origin-center scale-[1.18] transition-transform duration-300 ease-out will-change-transform group-hover/sample-thumb:scale-[1.26]';
+
+        /** Hover: darken gradient overlay; footer link warms to amber (named group `sample-thumb`). */
+        const SAMPLE_THUMB_OVERLAY =
+            'pointer-events-none absolute inset-0 z-[1] bg-gradient-to-t from-black/70 via-black/55 to-black/45 transition duration-300 ease-out group-hover/sample-thumb:from-black/40 group-hover/sample-thumb:via-black/30 group-hover/sample-thumb:to-black/18';
+        const SAMPLE_THUMB_HIT =
+            'absolute inset-0 z-[2] block outline-none ring-sky-400/0 focus-visible:ring-2 focus-visible:ring-sky-400/80';
+        const SAMPLE_THUMB_FOOTER_P = 'max-w-[min(22ch,calc(5lh+8ch))] drop-shadow-[0_1px_2px_rgba(0,0,0,0.75)]';
+        const SAMPLE_THUMB_ACTION_LINK =
+            'text-[11px] font-semibold text-amber-100 underline decoration-amber-300/65 underline-offset-2 transition duration-300 ease-out hover:text-amber-50 hover:decoration-amber-200/70 group-hover/sample-thumb:text-amber-50 group-hover/sample-thumb:decoration-amber-200/70';
+
+        /** Sets background-image on the sample aside and stacks overlay + hit target + content. */
+        function fillSampleAsideThumbBackground(slot, thumbUrl, hitHref, ariaLabel, footerHtml) {
+            const hrefEsc = escapeHtml(hitHref);
+            const thumb = String(thumbUrl);
+            slot.removeAttribute('aria-busy');
+            slot.removeAttribute('style');
+            slot.className = SAMPLE_ASIDE_POINTER + ' ' + SAMPLE_ASIDE_THUMB;
+            const bgStyle = escapeHtml('background-image: url(' + JSON.stringify(thumb) + ')');
+            slot.innerHTML =
+                `<div class="${SAMPLE_ASIDE_BG_LAYER}" style="${bgStyle}"></div>` +
+                `<div class="${SAMPLE_THUMB_OVERLAY}" aria-hidden="true"></div>` +
+                `<a href="${hrefEsc}" class="${SAMPLE_THUMB_HIT}" aria-label="${escapeHtml(ariaLabel)}" target="_blank" rel="noopener noreferrer" onclick="event.stopPropagation()"></a>` +
+                `<div class="relative z-[3] flex min-h-0 w-full flex-1 flex-col items-end justify-between gap-1 px-2 py-2 sm:px-3">${SAMPLE_ASIDE_LABEL_STACK}${footerHtml}</div>`;
+        }
+
         function fetchMicrolinkImageUrl(pageUrl) {
             const key = String(pageUrl || '').trim();
             if (!key) return Promise.reject(new Error('empty microlink url'));
@@ -830,42 +969,28 @@
                 slot.removeAttribute('data-yt-microlink-thumb');
                 fetchMicrolinkImageUrl(pageUrl)
                     .then((thumbSrc) => {
-                        slot.removeAttribute('aria-busy');
-                        slot.className = SAMPLE_THUMB_SHELL;
-                        const a = document.createElement('a');
-                        a.href = pageUrl;
-                        a.target = '_blank';
-                        a.rel = 'noopener noreferrer';
-                        a.className = SAMPLE_THUMB_HIT;
-                        a.addEventListener('click', (e) => e.stopPropagation());
-                        const img = document.createElement('img');
-                        img.src = thumbSrc;
-                        img.alt = '';
-                        img.loading = 'lazy';
-                        img.decoding = 'async';
-                        img.className = SAMPLE_THUMB_IMG;
-                        const overlay = document.createElement('span');
-                        overlay.className = SAMPLE_THUMB_OVERLAY;
-                        overlay.setAttribute('aria-hidden', 'true');
-                        a.appendChild(img);
-                        a.appendChild(overlay);
-                        slot.replaceChildren(a);
+                        const hrefEsc = escapeHtml(pageUrl);
+                        const footer = `<p class="${SAMPLE_THUMB_FOOTER_P}"><a href="${hrefEsc}" onclick="event.stopPropagation()" target="_blank" rel="noopener noreferrer" class="${SAMPLE_THUMB_ACTION_LINK}">${escapeHtml(
+                            youTubeAsideLinkLabel(pageUrl)
+                        )}</a></p>`;
+                        fillSampleAsideThumbBackground(slot, thumbSrc, pageUrl, 'Open YouTube sample', footer);
                     })
                     .catch(() => {
                         slot.removeAttribute('aria-busy');
-                        slot.classList.add('hidden');
-                        slot.replaceChildren();
+                        slot.removeAttribute('data-yt-microlink-thumb');
+                        slot.className = SAMPLE_ASIDE_PLAIN_SHELL;
+                        slot.innerHTML = sampleAsidePlainInnerHtml(pageUrl, youTubeAsideLinkLabel(pageUrl));
                     });
             });
         }
 
-        /** Label for Youtube vs Youtube Music outbound links */
+        /** Visible footer link label: provider name only (thumb hit area has its own aria-label). */
         function youTubeAsideLinkLabel(trimmedRaw) {
             try {
                 const host = new URL(trimmedRaw).hostname.replace(/^www\./i, '').toLowerCase();
-                return host === 'music.youtube.com' ? 'Open in YouTube Music' : 'Watch on YouTube';
+                return host === 'music.youtube.com' ? 'YouTube Music' : 'YouTube';
             } catch (_) {
-                return 'Watch on YouTube';
+                return 'YouTube';
             }
         }
 
@@ -891,20 +1016,6 @@
             return task;
         }
 
-        /** Hover: darken gradient overlay, brighten image; footer link warms to amber (named group `sample-thumb`). */
-        const SAMPLE_THUMB_GROUP_WRAP = 'group/sample-thumb flex w-full flex-col items-end gap-1';
-        const SAMPLE_THUMB_SHELL =
-            'relative aspect-square max-h-[5lh] w-[min(5lh,100%)] shrink-0 overflow-hidden rounded-sm border border-white/10 bg-black/25';
-        const SAMPLE_THUMB_IMG =
-            'absolute inset-0 h-full w-full origin-center scale-100 transform object-cover transition duration-300 ease-out group-hover/sample-thumb:scale-[1.05] group-hover/sample-thumb:brightness-115 group-hover/sample-thumb:saturate-110';
-        const SAMPLE_THUMB_OVERLAY =
-            'pointer-events-none absolute inset-0 z-[1] bg-gradient-to-t from-black/70 via-black/55 to-black/45 transition duration-300 ease-out group-hover/sample-thumb:from-black/40 group-hover/sample-thumb:via-black/30 group-hover/sample-thumb:to-black/18';
-        const SAMPLE_THUMB_HIT =
-            'absolute inset-0 z-[2] block outline-none ring-sky-400/0 focus-visible:ring-2 focus-visible:ring-sky-400/80';
-        const SAMPLE_THUMB_FOOTER_P = 'max-w-[min(22ch,calc(5lh+8ch))]';
-        const SAMPLE_THUMB_ACTION_LINK =
-            'text-[11px] font-semibold text-sky-300/90 underline decoration-sky-400/45 underline-offset-2 transition duration-300 ease-out hover:text-amber-100 hover:decoration-amber-300/65 group-hover/sample-thumb:text-amber-50 group-hover/sample-thumb:decoration-amber-200/70';
-
         function hydrateSoundCloudSampleCovers(root) {
             if (!root || typeof root.querySelectorAll !== 'function') return;
             root.querySelectorAll('[data-soundcloud-track-url]').forEach((slot) => {
@@ -915,92 +1026,65 @@
                     .then((data) => {
                         const thumb = data && data.thumbnail_url;
                         if (!thumb) throw new Error('no thumbnail_url');
-                        const title = String((data && data.title) || 'SoundCloud').trim() || 'SoundCloud';
-                        slot.removeAttribute('aria-busy');
-                        slot.className = 'soundcloud-oembed-cover ' + SAMPLE_THUMB_SHELL;
-                        const a = document.createElement('a');
-                        a.href = trackUrl;
-                        a.target = '_blank';
-                        a.rel = 'noopener noreferrer';
-                        a.className = SAMPLE_THUMB_HIT;
-                        a.addEventListener('click', (e) => e.stopPropagation());
-                        const img = document.createElement('img');
-                        img.src = thumb;
-                        img.alt = title;
-                        img.loading = 'lazy';
-                        img.decoding = 'async';
-                        img.className = SAMPLE_THUMB_IMG;
-                        const overlay = document.createElement('span');
-                        overlay.className = SAMPLE_THUMB_OVERLAY;
-                        overlay.setAttribute('aria-hidden', 'true');
-                        a.appendChild(img);
-                        a.appendChild(overlay);
-                        slot.replaceChildren(a);
+                        const hrefEsc = escapeHtml(trackUrl);
+                        const footer = `<p class="${SAMPLE_THUMB_FOOTER_P}"><a href="${hrefEsc}" onclick="event.stopPropagation()" target="_blank" rel="noopener noreferrer" class="${SAMPLE_THUMB_ACTION_LINK}">SoundCloud</a></p>`;
+                        fillSampleAsideThumbBackground(slot, thumb, trackUrl, 'Open SoundCloud sample', footer);
                     })
                     .catch(() => {
                         slot.removeAttribute('aria-busy');
-                        slot.classList.add('hidden');
-                        slot.replaceChildren();
+                        slot.removeAttribute('data-soundcloud-track-url');
+                        slot.className = SAMPLE_ASIDE_PLAIN_SHELL;
+                        slot.innerHTML = sampleAsidePlainInnerHtml(trackUrl, 'SoundCloud');
                     });
             });
         }
 
-        /** Right column: SoundCloud thumbnail + links (shared layout with plain sample aside). */
-        function buildSoundCloudSampleAsideInner(sampleSetUrl) {
+        function buildSoundCloudSampleAside(sampleSetUrl) {
             const href = escapeHtml(sampleSetUrl);
-            const openSoundCloud = `<a href="${href}" onclick="event.stopPropagation()" target="_blank" rel="noopener noreferrer" class="${SAMPLE_THUMB_ACTION_LINK}">Open on SoundCloud</a>`;
-            return `<div class="${SAMPLE_THUMB_GROUP_WRAP}">
-                    <div class="soundcloud-oembed-cover ${SAMPLE_THUMB_SHELL} flex items-center justify-center text-[10px] leading-tight text-white/40" data-soundcloud-track-url="${href}" aria-busy="true">Loading…</div>
-                    <p class="${SAMPLE_THUMB_FOOTER_P}">${openSoundCloud}</p>
-                </div>`;
+            const footer = `<p class="${SAMPLE_THUMB_FOOTER_P}"><a href="${href}" onclick="event.stopPropagation()" target="_blank" rel="noopener noreferrer" class="${SAMPLE_THUMB_ACTION_LINK}">SoundCloud</a></p>`;
+            return `<aside class="${SAMPLE_ASIDE_POINTER} ${SAMPLE_ASIDE_THUMB} text-[10px] leading-tight text-white/40" data-soundcloud-track-url="${href}" aria-busy="true" onclick="event.stopPropagation()"><div class="relative z-[3] flex min-h-0 w-full flex-1 flex-col items-end justify-center gap-1 px-2 py-2 sm:px-3">${SAMPLE_ASIDE_LABEL_STACK}<p class="text-[10px] text-white/40">Loading…</p>${footer}</div></aside>`;
         }
 
-        /** Youtube aside: watch?v /watch/ID thumbnails (ytimg); /channel/UC… (unavatar); music /browse/* (Microlink og:image hydrate). */
-        function buildYouTubeSampleAsideInner(sampleSetUrl) {
+        /** Youtube: poster on aside (ytimg / unavatar); /browse/* hydrates via Microlink og:image. */
+        function buildYouTubeSampleAside(sampleSetUrl) {
             const raw = String(sampleSetUrl || '').trim();
             const href = escapeHtml(raw);
-            const ytLink = `<a href="${href}" onclick="event.stopPropagation()" target="_blank" rel="noopener noreferrer" class="${SAMPLE_THUMB_ACTION_LINK}">${escapeHtml(
+            const footer = `<p class="${SAMPLE_THUMB_FOOTER_P}"><a href="${href}" onclick="event.stopPropagation()" target="_blank" rel="noopener noreferrer" class="${SAMPLE_THUMB_ACTION_LINK}">${escapeHtml(
                 youTubeAsideLinkLabel(raw)
-            )}</a>`;
-            const footerLine = `<p class="${SAMPLE_THUMB_FOOTER_P}">${ytLink}</p>`;
-            const thumbLoadingShell = `${SAMPLE_THUMB_SHELL} flex items-center justify-center text-[10px] leading-tight text-white/40`;
-            let thumbBlock = '';
+            )}</a></p>`;
             const videoId = extractYouTubeVideoId(raw);
             if (videoId) {
-                const thumbSrc = escapeHtml(`https://i.ytimg.com/vi/${videoId}/hqdefault.jpg`);
-                thumbBlock = `<div class="${SAMPLE_THUMB_SHELL}"><a href="${href}" target="_blank" rel="noopener noreferrer" class="${SAMPLE_THUMB_HIT}" onclick="event.stopPropagation()"><img src="${thumbSrc}" alt="" loading="lazy" decoding="async" class="${SAMPLE_THUMB_IMG}" referrerpolicy="no-referrer" /><span class="${SAMPLE_THUMB_OVERLAY}" aria-hidden="true"></span></a></div>`;
-            } else {
-                const channelId = extractYouTubeChannelIdForThumb(raw);
-                if (channelId) {
-                    const thumbEsc = escapeHtml(`https://unavatar.io/youtube/${encodeURIComponent(channelId)}`);
-                    thumbBlock = `<div class="${SAMPLE_THUMB_SHELL}"><a href="${href}" target="_blank" rel="noopener noreferrer" class="${SAMPLE_THUMB_HIT}" onclick="event.stopPropagation()"><img src="${thumbEsc}" alt="" loading="lazy" decoding="async" class="${SAMPLE_THUMB_IMG}" referrerpolicy="no-referrer" /><span class="${SAMPLE_THUMB_OVERLAY}" aria-hidden="true"></span></a></div>`;
-                } else if (isYouTubeMusicBrowseUrl(raw)) {
-                    thumbBlock = `<div class="${thumbLoadingShell}" data-yt-microlink-thumb="${href}" aria-busy="true">Loading…</div>`;
-                } else {
-                    return buildPlainSampleAsideInner(raw);
-                }
+                const thumbUrl = `https://i.ytimg.com/vi/${videoId}/hqdefault.jpg`;
+                const bgStyle = escapeHtml('background-image: url(' + JSON.stringify(thumbUrl) + ')');
+                return `<aside class="${SAMPLE_ASIDE_POINTER} ${SAMPLE_ASIDE_THUMB}" onclick="event.stopPropagation()"><div class="${SAMPLE_ASIDE_BG_LAYER}" style="${bgStyle}"></div><div class="${SAMPLE_THUMB_OVERLAY}" aria-hidden="true"></div><a href="${href}" class="${SAMPLE_THUMB_HIT}" aria-label="Open YouTube sample" target="_blank" rel="noopener noreferrer" onclick="event.stopPropagation()"></a><div class="relative z-[3] flex min-h-0 w-full flex-1 flex-col items-end justify-between gap-1 px-2 py-2 sm:px-3">${SAMPLE_ASIDE_LABEL_STACK}${footer}</div></aside>`;
             }
-            return `<div class="${SAMPLE_THUMB_GROUP_WRAP}">${thumbBlock}${footerLine}</div>`;
+            const channelId = extractYouTubeChannelIdForThumb(raw);
+            if (channelId) {
+                const thumbUrl = `https://unavatar.io/youtube/${encodeURIComponent(channelId)}`;
+                const bgStyle = escapeHtml('background-image: url(' + JSON.stringify(thumbUrl) + ')');
+                return `<aside class="${SAMPLE_ASIDE_POINTER} ${SAMPLE_ASIDE_THUMB}" onclick="event.stopPropagation()"><div class="${SAMPLE_ASIDE_BG_LAYER}" style="${bgStyle}"></div><div class="${SAMPLE_THUMB_OVERLAY}" aria-hidden="true"></div><a href="${href}" class="${SAMPLE_THUMB_HIT}" aria-label="Open YouTube sample" target="_blank" rel="noopener noreferrer" onclick="event.stopPropagation()"></a><div class="relative z-[3] flex min-h-0 w-full flex-1 flex-col items-end justify-between gap-1 px-2 py-2 sm:px-3">${SAMPLE_ASIDE_LABEL_STACK}${footer}</div></aside>`;
+            }
+            if (isYouTubeMusicBrowseUrl(raw)) {
+                return `<aside class="${SAMPLE_ASIDE_POINTER} ${SAMPLE_ASIDE_THUMB} text-[10px] leading-tight text-white/40" data-yt-microlink-thumb="${href}" aria-busy="true" onclick="event.stopPropagation()"><div class="relative z-[3] flex min-h-0 w-full flex-1 flex-col items-end justify-center gap-1 px-2 py-2 sm:px-3">${SAMPLE_ASIDE_LABEL_STACK}<p class="text-[10px] text-white/40">Loading…</p>${footer}</div></aside>`;
+            }
+            return buildPlainSampleAside(raw);
         }
 
-        function buildPlainSampleAsideInner(sampleSetUrl) {
-            const href = escapeHtml(sampleSetUrl);
-            const linkClass =
-                'text-[11px] font-semibold text-sky-300/95 hover:text-sky-200 underline decoration-sky-400/50 underline-offset-2';
-            return `<p class="max-w-[min(22ch,calc(5lh+8ch))] pt-0.5"><a href="${href}" onclick="event.stopPropagation()" target="_blank" rel="noopener noreferrer" class="${linkClass}">Sample set</a></p>`;
+        function sampleAsidePlainInnerHtml(trackUrlRaw, linkText) {
+            const hrefEsc = escapeHtml(trackUrlRaw);
+            return `${SAMPLE_ASIDE_LABEL_STACK}<p class="max-w-full self-end pt-0.5"><a href="${hrefEsc}" onclick="event.stopPropagation()" target="_blank" rel="noopener noreferrer" class="${SAMPLE_ASIDE_FALLBACK_LINK_CLASS}">${escapeHtml(linkText)}</a></p>`;
+        }
+
+        function buildPlainSampleAside(sampleSetUrl) {
+            return `<aside class="${SAMPLE_ASIDE_PLAIN_SHELL}" onclick="event.stopPropagation()">${sampleAsidePlainInnerHtml(sampleSetUrl, 'Sample set')}</aside>`;
         }
 
         function buildSampleAsideColumn(sampleSetUrl) {
             const trimmed = String(sampleSetUrl || '').trim();
             if (!isHttpUrl(trimmed)) return '';
-            const label =
-                '<p class="text-[10px] font-semibold uppercase tracking-[0.12em] leading-tight text-white/55">Sample set</p>';
-            const body = isSoundCloudEmbedUrl(trimmed)
-                ? buildSoundCloudSampleAsideInner(trimmed)
-                : youtubeSampleAsideSupported(trimmed)
-                  ? buildYouTubeSampleAsideInner(trimmed)
-                  : buildPlainSampleAsideInner(trimmed);
-            return `<aside class="pointer-events-auto flex max-w-[min(calc(5lh+8ch),42%)] shrink-0 flex-col items-end gap-1 self-start pl-3 text-right text-xs leading-normal sm:pl-4" onclick="event.stopPropagation()">${label}${body}</aside>`;
+            if (isSoundCloudEmbedUrl(trimmed)) return buildSoundCloudSampleAside(trimmed);
+            if (youtubeSampleAsideSupported(trimmed)) return buildYouTubeSampleAside(trimmed);
+            return buildPlainSampleAside(trimmed);
         }
 
         function syncDaadBodyScrollLock() {
@@ -1189,7 +1273,7 @@
             }
             const tagsHtml =
                 event.tags && event.tags.length
-                    ? `<div class="mt-2 flex flex-wrap gap-1.5">${event.tags
+                    ? `<div class="mt-2 mb-2 flex flex-wrap gap-1.5">${event.tags
                           .map(
                               (t) =>
                                   `<span class="text-[10px] font-semibold uppercase tracking-wider px-2 py-0.5 rounded-sm border border-white/20 text-white/70">${escapeHtml(t)}</span>`
@@ -1198,17 +1282,20 @@
                     : '';
             const trimmedSample = String(event.sampleSetUrl || '').trim();
             const sampleAsideHtml = buildSampleAsideColumn(trimmedSample);
+            const cardRowGrid = sampleAsideHtml
+                ? 'grid min-h-0 grid-cols-[auto_minmax(0,1fr)_120px] items-stretch gap-3 pl-2'
+                : 'grid min-h-0 grid-cols-[auto_minmax(0,1fr)] items-stretch gap-3 p-2';
             return `
-                            <div class="rounded-sm transition-all cursor-pointer border p-4 ${rowBg}"
+                            <div class="rounded-none transition-all cursor-pointer border ${rowBg}"
                                  onclick="toggleEventSelection(${event.id})">
-                                <div class="flex min-w-0 items-start gap-3">
+                                <div class="${cardRowGrid}">
                                         <input type="checkbox" 
-                                               class="mt-1 h-4 w-4 shrink-0 rounded-sm cursor-pointer ${st.chk}"
+                                               class="mt-3 ml-1 h-4 w-4 shrink-0 self-start rounded-sm cursor-pointer ${st.chk}"
                                                ${isSelected ? 'checked' : ''}
                                                onclick="event.stopPropagation()"
                                                onchange="toggleEventSelection(${event.id})">
-                                        <div class="min-w-0 flex-1">
-                                            <h3 class="font-semibold leading-snug text-white">${escapeHtml(event.summary)}</h3>
+                                        <div class="min-w-0">
+                                            <h3 class="mt-2 font-semibold leading-snug text-white">${escapeHtml(event.summary)}</h3>
                                             ${metaRowHtml}
                                             ${tagsHtml}
                                         </div>
@@ -1217,20 +1304,36 @@
                             </div>`;
         }
 
+        function syncMirrorSelectionDockFromPrimary() {
+            const primary = document.getElementById('selectionFilter');
+            const mirror = document.getElementById('dock-selectionFilter');
+            if (!primary || !mirror || mirror.value === primary.value) return;
+            mirror.value = primary.value;
+        }
+
         function setActiveScheduleTab(tab) {
             const stageBtn = document.getElementById('tab-by-stage');
             const schedBtn = document.getElementById('tab-by-schedule');
+            const dockStage = document.getElementById('dock-tab-by-stage');
+            const dockSched = document.getElementById('dock-tab-by-schedule');
             const stagePanel = document.getElementById('panel-by-stage');
             const schedPanel = document.getElementById('panel-by-schedule');
+            if (!stageBtn || !schedBtn || !stagePanel || !schedPanel) return;
             const isStage = tab === 'stage';
-            stageBtn.setAttribute('aria-selected', isStage);
-            schedBtn.setAttribute('aria-selected', !isStage);
+            stageBtn.setAttribute('aria-selected', isStage ? 'true' : 'false');
+            schedBtn.setAttribute('aria-selected', isStage ? 'false' : 'true');
             const activeClass =
                 'tab-daad font-sans text-xs font-bold uppercase tracking-[0.12em] px-4 py-2 rounded-sm border transition-colors border-white bg-white text-neutral-900 hover:bg-neutral-100';
             const idleClass =
                 'tab-daad font-sans text-xs font-bold uppercase tracking-[0.12em] px-4 py-2 rounded-sm border transition-colors border-white/35 text-white/90 bg-transparent hover:bg-white/10';
             stageBtn.className = isStage ? activeClass : idleClass;
             schedBtn.className = isStage ? idleClass : activeClass;
+            if (dockStage && dockSched) {
+                dockStage.className = isStage ? activeClass : idleClass;
+                dockSched.className = isStage ? idleClass : activeClass;
+                dockStage.setAttribute('aria-pressed', isStage ? 'true' : 'false');
+                dockSched.setAttribute('aria-pressed', isStage ? 'false' : 'true');
+            }
             stagePanel.classList.toggle('hidden', !isStage);
             schedPanel.classList.toggle('hidden', isStage);
             try {
@@ -1264,7 +1367,6 @@
             clearTimeout(daadResizeDebounceTimer);
             daadResizeDebounceTimer = setTimeout(() => {
                 syncDaadStickyTop();
-                syncBackToTopOffset();
                 updateStickyHeadingStates();
                 closeDaadFiltersDrawer();
             }, 150);
@@ -1275,20 +1377,39 @@
             if (!header) return;
             const headerPx = header.offsetHeight;
             document.documentElement.style.setProperty('--daad-sticky-top', `${headerPx}px`);
-            const toolbar = document.getElementById('daadLineupToolbar');
-            const toolbarPx = toolbar ? toolbar.offsetHeight : 0;
-            document.documentElement.style.setProperty('--daad-sticky-under-toolbar-top', `${headerPx + toolbarPx}px`);
         }
 
-        function syncBackToTopOffset() {
+        /** Lineup dock bottom offset + back-to-top clearance for overview strip + dock. */
+        function syncFloatingChromeOffsets() {
+            const dock = document.getElementById('daadLineupToolbarDock');
             const btn = document.getElementById('daadBackToTop');
+
+            let overviewReserve = 0;
             const overview = document.getElementById('selectionOverview');
-            if (!btn) return;
-            let extra = 0;
             if (overview && !overview.classList.contains('translate-y-full')) {
-                extra = Math.round(overview.getBoundingClientRect().height) + 12;
+                overviewReserve = Math.round(overview.getBoundingClientRect().height);
             }
-            btn.style.setProperty('--daad-back-to-top-extra', `${extra}px`);
+
+            if (dock) {
+                dock.style.setProperty('--daad-lineup-dock-overview-offset', `${overviewReserve}px`);
+            }
+
+            let dockReserve = 0;
+            const dockShown = !!(dock && dock.classList.contains('daad-lineup-toolbar-dock--visible'));
+            if (dockShown && dock) {
+                dockReserve = Math.round(dock.offsetHeight);
+            }
+
+            const stackPad = overviewReserve || dockReserve ? 8 : 0;
+            btn?.style.setProperty('--daad-back-to-top-extra', `${overviewReserve + dockReserve + stackPad}px`);
+        }
+
+        function updateLineupToolbarDockVisibility(headerStickyPx, toolbarRect) {
+            const dock = document.getElementById('daadLineupToolbarDock');
+            if (!dock) return;
+            const show = !!(toolbarRect && toolbarRect.bottom <= headerStickyPx + 2);
+            dock.classList.toggle('daad-lineup-toolbar-dock--visible', show);
+            dock.setAttribute('aria-hidden', show ? 'false' : 'true');
         }
 
         let daadFiltersDrawerPrevFocus = null;
@@ -1371,27 +1492,26 @@
 
         function updateStickyHeadingStates() {
             const rootStyle = getComputedStyle(document.documentElement);
-            let toolbarSticky = daadParseStickyTopPx(rootStyle.getPropertyValue('--daad-sticky-top'), 72);
-            let sectionSticky = daadParseStickyTopPx(
-                rootStyle.getPropertyValue('--daad-sticky-under-toolbar-top'),
-                toolbarSticky,
-            );
-            if (!(sectionSticky > toolbarSticky)) sectionSticky = toolbarSticky;
+            const toolbarSticky = daadParseStickyTopPx(rootStyle.getPropertyValue('--daad-sticky-top'), 72);
 
             const toolbarEl = document.getElementById('daadLineupToolbar');
+            let lineupToolbarRect = null;
             if (toolbarEl && toolbarEl.classList.contains('daad-sticky-heading')) {
-                const rect = toolbarEl.getBoundingClientRect();
+                lineupToolbarRect = toolbarEl.getBoundingClientRect();
                 const pinned =
-                    rect.top <= toolbarSticky + 0.75 && rect.bottom > toolbarSticky + 8;
+                    lineupToolbarRect.top <= toolbarSticky + 0.75 &&
+                    lineupToolbarRect.bottom > toolbarSticky + 8;
                 toolbarEl.classList.toggle('is-stuck', pinned);
             }
+            updateLineupToolbarDockVisibility(toolbarSticky, lineupToolbarRect);
 
             document.querySelectorAll('.daad-sticky-heading:not(#daadLineupToolbar)').forEach((el) => {
                 const rect = el.getBoundingClientRect();
                 const pinned =
-                    rect.top <= sectionSticky + 0.75 && rect.bottom > sectionSticky + 8;
+                    rect.top <= toolbarSticky + 0.75 && rect.bottom > toolbarSticky + 8;
                 el.classList.toggle('is-stuck', pinned);
             });
+            syncFloatingChromeOffsets();
             updateBackToTopButton();
         }
 
@@ -1426,8 +1546,13 @@
             });
             const overview = document.getElementById('selectionOverview');
             if (overview && typeof ResizeObserver !== 'undefined') {
-                const ro = new ResizeObserver(() => syncBackToTopOffset());
+                const ro = new ResizeObserver(() => syncFloatingChromeOffsets());
                 ro.observe(overview);
+            }
+            const dock = document.getElementById('daadLineupToolbarDock');
+            if (dock && typeof ResizeObserver !== 'undefined') {
+                const roDock = new ResizeObserver(() => syncFloatingChromeOffsets());
+                roDock.observe(dock);
             }
         }
 
@@ -1437,7 +1562,7 @@
             ensureFiltersDrawerControls();
             ensureBackToTopControl();
             ensureLineupToolbarStickyOffsets();
-            syncBackToTopOffset();
+            syncFloatingChromeOffsets();
             ensureStickyHeadingScrollListener();
             updateBackToTopButton();
             try {
@@ -1506,6 +1631,7 @@
                     setActiveScheduleTab('schedule');
                 }
             } catch (e) {}
+            syncMirrorSelectionDockFromPrimary();
 
             document.getElementById('tab-by-stage').addEventListener('click', () => {
                 setActiveScheduleTab('stage');
@@ -1515,12 +1641,29 @@
                 setActiveScheduleTab('schedule');
                 scrollDaadViewportToLineupToolbarStuck();
             });
+            document.getElementById('dock-tab-by-stage')?.addEventListener('click', () => {
+                setActiveScheduleTab('stage');
+                scrollDaadViewportToLineupToolbarStuck();
+            });
+            document.getElementById('dock-tab-by-schedule')?.addEventListener('click', () => {
+                setActiveScheduleTab('schedule');
+                scrollDaadViewportToLineupToolbarStuck();
+            });
 
             // Add event listeners
             document.getElementById('dateFilter').addEventListener('change', () => filterEvents(events));
             document.getElementById('locationFilter').addEventListener('change', () => filterEvents(events));
             document.getElementById('artistFilter').addEventListener('input', () => filterEvents(events));
-            document.getElementById('selectionFilter').addEventListener('change', () => filterEvents(events));
+            document.getElementById('selectionFilter').addEventListener('change', () => {
+                syncMirrorSelectionDockFromPrimary();
+                filterEvents(events);
+            });
+            document.getElementById('dock-selectionFilter')?.addEventListener('change', () => {
+                const v = document.getElementById('dock-selectionFilter').value;
+                const primary = document.getElementById('selectionFilter');
+                if (primary) primary.value = v;
+                filterEvents(events);
+            });
             document.getElementById('tagFilter').addEventListener('change', () => filterEvents(events));
             document.getElementById('clearFiltersBtn').addEventListener('click', clearFilters);
 
@@ -1544,6 +1687,7 @@
             document.getElementById('tagFilter').value = '';
             document.getElementById('artistFilter').value = '';
             document.getElementById('selectionFilter').value = 'all';
+            syncMirrorSelectionDockFromPrimary();
             if (Array.isArray(window.allEvents)) filterEvents(window.allEvents);
         }
 
@@ -1578,6 +1722,7 @@
             
             if (selectedEvents.length === 0) {
                 overviewPanel.classList.add('translate-y-full');
+                syncFloatingChromeOffsets();
                 return;
             }
             
@@ -1613,7 +1758,7 @@
             
             document.getElementById('totalEvents').textContent = totalEvents;
             document.getElementById('totalDuration').textContent = `${totalDuration.toFixed(1)} hours`;
-            syncBackToTopOffset();
+            syncFloatingChromeOffsets();
         }
 
         // Toggle event selection
