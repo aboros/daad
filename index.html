@@ -559,14 +559,14 @@
                 <div id="daadLineupToolbarContainer" class="min-w-0 border-b border-white/15 bg-transparent px-4 sm:px-6 pt-4 sm:pt-6 pb-3">
                     <div id="daadLineupToolbar" role="toolbar" aria-label="Lineup layout and filters"
                         class="daad-sticky-heading sticky top-[var(--daad-sticky-top,4.5rem)] flex flex-wrap items-center justify-between gap-2 gap-y-3 min-w-0 transition-colors duration-200 ease-out">
-                        <div class="flex flex-wrap gap-2" role="tablist" aria-label="Lineup layout">
-                            <button type="button" id="tab-by-stage" role="tab" aria-selected="true" aria-controls="panel-by-stage"
-                                class="tab-daad font-sans text-xs font-bold uppercase tracking-[0.12em] px-4 py-2 rounded-sm border transition-colors border-white bg-white text-neutral-900 hover:bg-neutral-100">
-                                By stage
-                            </button>
-                            <button type="button" id="tab-by-schedule" role="tab" aria-selected="false" aria-controls="panel-by-schedule"
-                                class="tab-daad font-sans text-xs font-bold uppercase tracking-[0.12em] px-4 py-2 rounded-sm border transition-colors border-white/35 text-white/90 bg-transparent hover:bg-white/10">
+                        <div class="flex flex-wrap" role="tablist" aria-label="Lineup layout">
+                            <button type="button" id="tab-by-schedule" role="tab" aria-selected="true" aria-controls="panel-by-schedule"
+                                class="tab-daad font-sans text-xs font-bold uppercase tracking-[0.12em] px-4 py-2 rounded-none border border-r-0 transition-colors border-white bg-white text-neutral-900 hover:bg-neutral-100">
                                 By time
+                            </button>
+                            <button type="button" id="tab-by-stage" role="tab" aria-selected="false" aria-controls="panel-by-stage"
+                                class="tab-daad font-sans text-xs font-bold uppercase tracking-[0.12em] px-4 py-2 rounded-none border border-l-0 transition-colors border-white/35 text-white/90 bg-transparent hover:bg-white/10">
+                                By stage
                             </button>
                         </div>
                         <select id="selectionFilter" aria-label="Show"
@@ -578,11 +578,11 @@
                     </div>
                 </div>
                 <div id="daadEventListContainer" class="min-w-0 bg-transparent p-4 sm:p-6 pt-5">
-                    <div id="panel-by-stage" role="tabpanel" aria-labelledby="tab-by-stage" class="tab-panel">
-                        <!-- stage grouping -->
-                    </div>
-                    <div id="panel-by-schedule" role="tabpanel" aria-labelledby="tab-by-schedule" class="tab-panel hidden">
+                    <div id="panel-by-schedule" role="tabpanel" aria-labelledby="tab-by-schedule" class="tab-panel">
                         <!-- day / time-slot grouping -->
+                    </div>
+                    <div id="panel-by-stage" role="tabpanel" aria-labelledby="tab-by-stage" class="tab-panel hidden">
+                        <!-- stage grouping -->
                     </div>
                 </div>
             </div>
@@ -644,24 +644,24 @@
             aria-label="Lineup layout and filters"
             class="daad-lineup-toolbar-dock__bar flex flex-nowrap items-center justify-between gap-2 border-t border-white/20 py-2.5"
         >
-            <div role="group" aria-label="Lineup layout" class="flex flex-wrap gap-2">
-                <button
-                    type="button"
-                    id="dock-tab-by-stage"
-                    aria-pressed="true"
-                    aria-controls="panel-by-stage"
-                    class="tab-daad font-sans text-xs font-bold uppercase tracking-[0.12em] px-4 py-2 rounded-sm border transition-colors border-white bg-white text-neutral-900 hover:bg-neutral-100"
-                >
-                    By stage
-                </button>
+            <div role="group" aria-label="Lineup layout" class="flex flex-wrap">
                 <button
                     type="button"
                     id="dock-tab-by-schedule"
-                    aria-pressed="false"
+                    aria-pressed="true"
                     aria-controls="panel-by-schedule"
-                    class="tab-daad font-sans text-xs font-bold uppercase tracking-[0.12em] px-4 py-2 rounded-sm border transition-colors border-white/35 text-white/90 bg-transparent hover:bg-white/10"
+                    class="tab-daad font-sans text-xs font-bold uppercase tracking-[0.12em] px-4 py-2 rounded-none border border-r-0 transition-colors border-white bg-white text-neutral-900 hover:bg-neutral-100"
                 >
                     By time
+                </button>
+                <button
+                    type="button"
+                    id="dock-tab-by-stage"
+                    aria-pressed="false"
+                    aria-controls="panel-by-stage"
+                    class="tab-daad font-sans text-xs font-bold uppercase tracking-[0.12em] px-4 py-2 rounded-none border border-l-0 transition-colors border-white/35 text-white/90 bg-transparent hover:bg-white/10"
+                >
+                    By stage
                 </button>
             </div>
             <select
@@ -1322,15 +1322,15 @@
             const isStage = tab === 'stage';
             stageBtn.setAttribute('aria-selected', isStage ? 'true' : 'false');
             schedBtn.setAttribute('aria-selected', isStage ? 'false' : 'true');
-            const activeClass =
-                'tab-daad font-sans text-xs font-bold uppercase tracking-[0.12em] px-4 py-2 rounded-sm border transition-colors border-white bg-white text-neutral-900 hover:bg-neutral-100';
-            const idleClass =
-                'tab-daad font-sans text-xs font-bold uppercase tracking-[0.12em] px-4 py-2 rounded-sm border transition-colors border-white/35 text-white/90 bg-transparent hover:bg-white/10';
-            stageBtn.className = isStage ? activeClass : idleClass;
-            schedBtn.className = isStage ? idleClass : activeClass;
+            const tabShared =
+                'tab-daad font-sans text-xs font-bold uppercase tracking-[0.12em] px-4 py-2 rounded-none border transition-colors';
+            const activeFill = 'border-white bg-white text-neutral-900 hover:bg-neutral-100';
+            const idleFill = 'border-white/35 text-white/90 bg-transparent hover:bg-white/10';
+            schedBtn.className = `${tabShared} border-r-0 ${isStage ? idleFill : activeFill}`;
+            stageBtn.className = `${tabShared} border-l-0 ${isStage ? activeFill : idleFill}`;
             if (dockStage && dockSched) {
-                dockStage.className = isStage ? activeClass : idleClass;
-                dockSched.className = isStage ? idleClass : activeClass;
+                dockSched.className = `${tabShared} border-r-0 ${isStage ? idleFill : activeFill}`;
+                dockStage.className = `${tabShared} border-l-0 ${isStage ? activeFill : idleFill}`;
                 dockStage.setAttribute('aria-pressed', isStage ? 'true' : 'false');
                 dockSched.setAttribute('aria-pressed', isStage ? 'false' : 'true');
             }
@@ -1627,8 +1627,8 @@
             displayEvents(events);
 
             try {
-                if (localStorage.getItem('daadLineupViewTab') === 'schedule') {
-                    setActiveScheduleTab('schedule');
+                if (localStorage.getItem('daadLineupViewTab') === 'stage') {
+                    setActiveScheduleTab('stage');
                 }
             } catch (e) {}
             syncMirrorSelectionDockFromPrimary();
