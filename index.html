@@ -257,11 +257,42 @@
             font-family: Barlow, system-ui, sans-serif;
             font-size: 0.875rem;
             color: rgba(255, 255, 255, 0.75);
-            margin: 0 0 1.5rem;
+            margin: 0 0 1rem;
+            padding: 1rem 1.125rem;
+            border-radius: 2px;
+            border: 1px solid rgba(255, 255, 255, 0.14);
+            background: rgba(255, 255, 255, 0.05);
         }
 
         #daadInstallGate .daad-install-gate-steps > * + * {
             margin-top: 1rem;
+        }
+
+        #daadInstallGate .daad-install-gate-inapp-tip {
+            font-family: Barlow, system-ui, sans-serif;
+            font-size: 0.8125rem;
+            line-height: 1.55;
+            color: rgba(251, 191, 36, 0.92);
+            margin: 0 0 1.25rem;
+            padding: 0.75rem 0.875rem;
+            border-radius: 2px;
+            border: 1px solid rgba(251, 191, 36, 0.28);
+            background: rgba(251, 191, 36, 0.06);
+        }
+
+        #daadInstallGate .daad-install-gate-footer {
+            margin-top: 0.25rem;
+            padding-top: 1rem;
+            border-top: 1px solid rgba(255, 255, 255, 0.12);
+            text-align: center;
+        }
+
+        #daadInstallGate .daad-install-gate-dismiss-hint {
+            font-family: Barlow, system-ui, sans-serif;
+            font-size: 0.75rem;
+            line-height: 1.45;
+            color: rgba(255, 255, 255, 0.48);
+            margin: 0 0 0.5rem;
         }
 
         #daadInstallGate .daad-install-gate-steps .platform {
@@ -278,30 +309,36 @@
             line-height: 1.625;
         }
 
-        #daadInstallGate .daad-install-gate-steps .emph {
+        #daadInstallGate .emph {
             font-weight: 600;
             color: #fff;
         }
 
         #daadInstallGate #daadInstallGateDismiss {
             font-family: Barlow, system-ui, sans-serif;
-            display: block;
-            width: 100%;
+            display: inline-block;
+            width: auto;
+            max-width: 100%;
             box-sizing: border-box;
+            margin: 0 auto;
             border-radius: 2px;
-            border: 1px solid rgba(255, 255, 255, 0.35);
-            background: rgba(255, 255, 255, 0.1);
-            padding: 0.75rem 1rem;
-            font-size: 0.875rem;
-            font-weight: 700;
-            letter-spacing: 0.12em;
-            text-transform: uppercase;
-            color: #fff;
+            border: none;
+            background: transparent;
+            padding: 0.35rem 0.25rem;
+            font-size: 0.8125rem;
+            font-weight: 500;
+            letter-spacing: normal;
+            text-transform: none;
+            color: rgba(255, 255, 255, 0.52);
+            text-decoration: underline;
+            text-decoration-color: rgba(255, 255, 255, 0.35);
+            text-underline-offset: 3px;
             cursor: pointer;
         }
 
         #daadInstallGate #daadInstallGateDismiss:hover {
-            background: rgba(255, 255, 255, 0.15);
+            color: rgba(255, 255, 255, 0.72);
+            text-decoration-color: rgba(255, 255, 255, 0.45);
         }
 
         #daadInstallGate #daadInstallGateDismiss:focus-visible {
@@ -520,9 +557,14 @@
     </header>
 
     <div class="container mx-auto px-4 pt-8 mb-10">
+        <button type="button" id="daadInstallHelpBtn" class="hidden w-full flex items-center justify-center gap-2 rounded-sm border border-white/55 bg-black px-[4px] py-[16px] text-[11px] font-bold uppercase tracking-[0.1em] text-amber-100 shadow-[0_0_0_1px_rgba(251,191,36,0.12)_inset] hover:bg-amber-400/18 focus:outline-none focus-visible:ring-2 focus-visible:ring-amber-300/55 mb-4 md:hidden"
+            aria-haspopup="dialog" aria-label="How to install this app for offline use">
+            <span aria-hidden="true">Click to install app, that works offline<br />No network around the valley</span>
+        </button>
         <p>
             Build your own lineup. Your selections are automatically saved for offline use on this device.
             Filters (date, location, tag, artist) live in the header — open them with the filter icon.
+            <span id="daadIntroInstallHint" class="hidden"> On your phone, use <strong class="font-semibold text-white">Install app</strong> above for steps to add this lineup to your home screen.</span>
         </p>
         <p class="text-white/75 max-w-2xl text-sm sm:text-base leading-relaxed font-medium">
             Official website: <a href="https://2026.daad.hu/" class="text-white underline decoration-white/35 underline-offset-2 hover:decoration-white">2026.daad.hu</a>.
@@ -1984,8 +2026,7 @@
                 }
             }
 
-            function shouldShowGate() {
-                migrateLegacyDismissal();
+            function shouldShowAutoGate() {
                 return (
                     window.matchMedia(MOBILE_MQ).matches &&
                     !isInstalledPwa() &&
@@ -2013,6 +2054,19 @@
                 hideGate();
             }
 
+            function syncInstallHelpChrome() {
+                const mobile = window.matchMedia(MOBILE_MQ).matches;
+                const show = mobile && !isInstalledPwa();
+                const btn = document.getElementById('daadInstallHelpBtn');
+                const intro = document.getElementById('daadIntroInstallHint');
+                if (btn) {
+                    btn.classList.toggle('hidden', !show);
+                }
+                if (intro) {
+                    intro.classList.toggle('hidden', !show);
+                }
+            }
+
             function showGate() {
                 if (overlayEl) return;
 
@@ -2025,7 +2079,8 @@
                 overlayEl.innerHTML = `
                     <div class="daad-install-gate-panel">
                         <h2 id="daadInstallGateTitle">Install for offline access</h2>
-                        <p class="daad-install-gate-lede">This schedule works best as an installed app on your phone. Add it to your home screen, then open it from the icon.</p>
+                        <p class="daad-install-gate-lede"><strong>Best bet:</strong> follow the steps below, open from your home screen, then tap your lineup there — that version stays saved and works offline. Picks saved only before installing sometimes do not carry over.</p>
+                        <p class="daad-install-gate-inapp-tip"><strong>Coming from Facebook / Messenger?</strong> Their built-in browser usually cannot install web apps. Use the browser menu and pick <span class="emph">Open in Safari</span> or <span class="emph">Open in Chrome</span>, then follow the steps below.</p>
                         <div class="daad-install-gate-steps">
                             <div>
                                 <p class="platform">iPhone / iPad</p>
@@ -2036,7 +2091,10 @@
                                 <p>Open the browser menu (<span class="emph">⋮</span>), then choose <span class="emph">Install app</span> or <span class="emph">Add to Home screen</span>.</p>
                             </div>
                         </div>
-                        <button type="button" id="daadInstallGateDismiss">Continue in browser</button>
+                        <div class="daad-install-gate-footer">
+                            <p class="daad-install-gate-dismiss-hint">Only if you truly cannot install — browsing-only mode works, but offline support is weaker.</p>
+                            <button type="button" id="daadInstallGateDismiss">Continue in browser anyway</button>
+                        </div>
                     </div>
                 `;
 
@@ -2052,17 +2110,29 @@
 
                 const dismissBtn = overlayEl.querySelector('#daadInstallGateDismiss');
                 dismissBtn.addEventListener('click', dismissGate);
-                dismissBtn.focus();
+                overlayEl.focus({ preventScroll: true });
             }
 
             function syncGate() {
-                if (shouldShowGate()) showGate();
-                else hideGate();
+                migrateLegacyDismissal();
+                syncInstallHelpChrome();
+                const mobile = window.matchMedia(MOBILE_MQ).matches;
+                const pwa = isInstalledPwa();
+                if (!mobile || pwa) {
+                    hideGate();
+                    return;
+                }
+                if (shouldShowAutoGate()) showGate();
             }
 
             const mqMobile = window.matchMedia(MOBILE_MQ);
             const mqStandalone = window.matchMedia('(display-mode: standalone)');
             const mqFullscreen = window.matchMedia('(display-mode: fullscreen)');
+
+            const installHelpBtn = document.getElementById('daadInstallHelpBtn');
+            if (installHelpBtn) {
+                installHelpBtn.addEventListener('click', () => showGate());
+            }
 
             mqMobile.addEventListener('change', syncGate);
             mqStandalone.addEventListener('change', syncGate);
