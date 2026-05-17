@@ -557,7 +557,7 @@
     </header>
 
     <div class="container mx-auto px-4 pt-8 mb-10">
-        <button type="button" id="daadInstallHelpBtn" class="hidden w-full flex items-center justify-center gap-2 rounded-sm border border-white/55 bg-black px-[4px] py-[16px] text-[11px] font-bold uppercase tracking-[0.1em] text-amber-100 shadow-[0_0_0_1px_rgba(251,191,36,0.12)_inset] hover:bg-amber-400/18 focus:outline-none focus-visible:ring-2 focus-visible:ring-amber-300/55 mb-4 md:hidden"
+        <button type="button" id="daadInstallHelpBtn" class="hidden w-full flex items-center justify-center gap-2 rounded-sm border border-white/55 bg-black px-[4px] py-[16px] text-[11px] font-bold uppercase tracking-[0.1em] text-amber-100 shadow-[0_0_0_1px_rgba(251,191,36,0.12)_inset] hover:bg-amber-400/18 focus:outline-none focus-visible:ring-2 focus-visible:ring-amber-300/55 mb-4"
             aria-haspopup="dialog" aria-label="How to install this app for offline use">
             <span aria-hidden="true">Click to install app, that works offline<br />No network around the valley</span>
         </button>
@@ -2055,8 +2055,7 @@
             }
 
             function syncInstallHelpChrome() {
-                const mobile = window.matchMedia(MOBILE_MQ).matches;
-                const show = mobile && !isInstalledPwa();
+                const show = !isInstalledPwa();
                 const btn = document.getElementById('daadInstallHelpBtn');
                 const intro = document.getElementById('daadIntroInstallHint');
                 if (btn) {
