@@ -147,8 +147,266 @@
         }
         /* Tab switch: scrollIntoView clears sticky site header inset */
         #panel-by-stage,
-        #panel-by-schedule {
+        #panel-by-schedule,
+        #panel-by-grid {
             scroll-margin-top: var(--daad-sticky-top, 4.5rem);
+        }
+
+        /* Three layout tabs share one bordered row — inner dividers */
+        .daad-layout-tab-first {
+            border-right-width: 0;
+        }
+
+        .daad-layout-tab-mid {
+            border-left-width: 0;
+            border-right-width: 0;
+            box-shadow: 1px 0 0 rgba(255, 255, 255, 0.18), -1px 0 0 rgba(255, 255, 255, 0.18);
+        }
+
+        .daad-layout-tab-last {
+            border-left-width: 0;
+        }
+
+        /* Calendar view: span viewport width inside centered container (+ safe horizontal scroll). */
+        .daad-grid-viewport-breakout {
+            width: 100vw;
+            max-width: 100vw;
+            margin-left: calc(50% - 50vw);
+            margin-right: calc(50% - 50vw);
+        }
+
+        /*
+         * Stage × time grid: 1 calendar hour == 2lh; body text lines use exactly 1lh.
+         */
+        .daad-grid-timeline {
+            font-size: 0.8125rem;
+            line-height: 1.375;
+            --daad-cal-lh-per-hour: 2;
+            --daad-cal-time-col-w: 2.875rem;
+        }
+
+        .daad-grid-stage-scroll {
+            overscroll-behavior-x: contain;
+            -webkit-overflow-scrolling: touch;
+        }
+
+        .daad-grid-hscroll-sync {
+            overflow-x: auto;
+            overflow-y: visible;
+            overscroll-behavior-x: contain;
+            -webkit-overflow-scrolling: touch;
+            scrollbar-width: thin;
+        }
+        .daad-grid-board {
+            display: flex;
+            flex-direction: row;
+            flex-wrap: nowrap;
+            min-width: min-content;
+            position: relative;
+        }
+
+        .daad-grid-colheads-sticky {
+            position: sticky;
+            top: var(--daad-cal-stage-sticky-top, var(--daad-site-header-h, 4.5rem));
+            z-index: 19;
+            background: rgba(7, 5, 10, 0.96);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            box-shadow: 0 10px 28px rgba(0, 0, 0, 0.45);
+            -webkit-backdrop-filter: blur(10px);
+            backdrop-filter: blur(10px);
+        }
+
+        .daad-grid-colheads-sticky.is-stuck {
+            background-color: rgba(0, 0, 0, 0.98);
+            border-bottom-color: rgba(255, 255, 255, 0.12);
+        }
+
+        .daad-grid-head-row {
+            display: flex;
+            flex-direction: row;
+            flex-wrap: nowrap;
+            align-items: stretch;
+            min-width: min-content;
+        }
+
+        .daad-grid-time-head-corner {
+            position: sticky;
+            left: 0;
+            z-index: 20;
+            flex: 0 0 var(--daad-cal-time-col-w);
+            width: var(--daad-cal-time-col-w);
+            min-width: var(--daad-cal-time-col-w);
+            height: calc(2 * 1lh);
+            box-sizing: border-box;
+            background: rgba(7, 5, 10, 0.96);
+            border-right: 1px solid rgba(255, 255, 255, 0.12);
+            box-shadow: 4px 0 12px rgba(0, 0, 0, 0.35);
+            align-self: flex-start;
+        }
+
+        .daad-grid-stage-head-cell {
+            flex: 0 0 clamp(9rem, 28vw, 11.5rem);
+            width: clamp(9rem, 28vw, 11.5rem);
+            min-width: clamp(9rem, 28vw, 11.5rem);
+            flex-shrink: 0;
+            height: calc(2 * 1lh);
+            box-sizing: border-box;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            padding: 0 0.125rem;
+            font-size: 0.6875rem;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            line-height: 1.2;
+            color: rgba(255, 255, 255, 0.92);
+            background: rgba(0, 0, 0, 0.55);
+            word-break: break-word;
+            border-right: 1px solid rgba(255, 255, 255, 0.08);
+        }
+
+        .daad-grid-stage-head-cell:last-of-type {
+            border-right-width: 0;
+        }
+
+        .daad-grid-time-rail {
+            position: sticky;
+            left: 0;
+            z-index: 18;
+            width: var(--daad-cal-time-col-w);
+            flex-shrink: 0;
+            background: rgba(7, 5, 10, 0.92);
+            border-right: 1px solid rgba(255, 255, 255, 0.12);
+            box-shadow: 4px 0 12px rgba(0, 0, 0, 0.35);
+            align-self: flex-start;
+        }
+
+        .daad-grid-stage-col {
+            position: relative;
+            width: clamp(9rem, 28vw, 11.5rem);
+            flex-shrink: 0;
+            border-right: 1px solid rgba(255, 255, 255, 0.08);
+            box-sizing: border-box;
+            background: rgba(0, 0, 0, 0.06);
+            --daad-cal-n-lanes: 1;
+        }
+
+        .daad-grid-hour-line {
+            position: absolute;
+            left: 0;
+            right: 0;
+            height: 0;
+            border-top: 1px solid rgba(255, 255, 255, 0.06);
+            pointer-events: none;
+        }
+
+        /* Time-column: one label per hour (`daad-cal-lh-per-hour` lh == 1 calendar hour). Stage columns use lines only. */
+        .daad-grid-hour-label {
+            position: absolute;
+            left: 0;
+            right: 0;
+            height: calc(var(--daad-cal-lh-per-hour) * 1lh);
+            box-sizing: border-box;
+            pointer-events: none;
+        }
+
+        .daad-grid-time-rail .daad-grid-timeline-inner {
+            padding-left: 2px;
+            padding-right: 2px;
+        }
+
+        .daad-grid-time-rail .daad-grid-hour-label {
+            padding: 2px;
+            font-size: 10px;
+            font-weight: 700;
+            line-height: 1.05;
+            text-transform: uppercase;
+            letter-spacing: 0.04em;
+            color: rgba(255, 255, 255, 0.48);
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        .daad-grid-event {
+            position: absolute;
+            box-sizing: border-box;
+            left: calc(100% * var(--daad-cal-lane, 0) / var(--daad-cal-n-lanes, 1));
+            width: calc(100% / var(--daad-cal-n-lanes, 1));
+            top: calc(var(--daad-cal-t-h, 0) * var(--daad-cal-lh-per-hour) * 1lh);
+            height: calc(var(--daad-cal-d-h, 0) * var(--daad-cal-lh-per-hour) * 1lh);
+            min-height: 1lh;
+            padding: 2px;
+            overflow: hidden;
+            border-radius: 0.125rem;
+            border-width: 1px;
+            cursor: pointer;
+            display: flex;
+            flex-direction: column;
+            align-items: stretch;
+            justify-content: flex-start;
+            z-index: 2;
+        }
+
+        /* Position here (not Tailwind) — grid blocks are built in JS; JIT may omit inset utilities. */
+        .daad-grid-event__chk {
+            position: absolute;
+            top: 2px;
+            right: 2px;
+            z-index: 1;
+            margin: 0;
+            padding: 0;
+            line-height: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+        }
+
+        .daad-grid-event.is-selected {
+            z-index: 4;
+        }
+
+        .daad-grid-event-title {
+            font-weight: 600;
+            color: rgba(250, 250, 247, 0.98);
+            line-height: 1lh;
+            height: 1lh;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .daad-grid-event-meta {
+            margin-top: 0;
+            font-size: 0.6875rem;
+            font-weight: 600;
+            letter-spacing: 0.04em;
+            line-height: 1lh;
+            height: 1lh;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            font-variant-numeric: tabular-nums;
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+            .daad-grid-stage-scroll,
+            .daad-grid-hscroll-sync {
+                scroll-behavior: auto;
+            }
+        }
+
+        .daad-grid-timeline-inner {
+            position: relative;
+            flex-shrink: 0;
+            height: calc(var(--daad-cal-span-hours, 12) * var(--daad-cal-lh-per-hour, 2) * 1lh);
+        }
+
+        .daad-grid-stage-col .daad-grid-timeline-inner .daad-grid-hour-line {
+            opacity: 0.55;
         }
 
         ::-webkit-scrollbar {
@@ -645,12 +903,18 @@
                         class="daad-sticky-heading sticky top-[var(--daad-sticky-top,4.5rem)] flex flex-wrap items-center justify-between gap-2 gap-y-3 min-w-0 transition-colors duration-200 ease-out">
                         <div class="flex flex-wrap" role="tablist" aria-label="Lineup layout">
                             <button type="button" id="tab-by-schedule" role="tab" aria-selected="true" aria-controls="panel-by-schedule"
-                                class="tab-daad font-sans text-xs font-bold uppercase tracking-[0.12em] px-4 py-2 rounded-none border border-r-0 transition-colors border-white bg-white text-neutral-900 hover:bg-neutral-100">
-                                By time
+                                class="tab-daad daad-layout-tab-first font-sans text-xs font-bold uppercase tracking-[0.12em] px-4 py-2 rounded-none border border-r-0 transition-colors border-white bg-white text-neutral-900 hover:bg-neutral-100">
+                                Time
                             </button>
                             <button type="button" id="tab-by-stage" role="tab" aria-selected="false" aria-controls="panel-by-stage"
-                                class="tab-daad font-sans text-xs font-bold uppercase tracking-[0.12em] px-4 py-2 rounded-none border border-l-0 transition-colors border-white/35 text-white/90 bg-transparent hover:bg-white/10">
-                                By stage
+                                class="tab-daad daad-layout-tab-mid font-sans text-xs font-bold uppercase tracking-[0.12em] px-4 py-2 rounded-none border border-x-0 transition-colors border-white/35 text-white/90 bg-transparent hover:bg-white/10">
+                                Stage
+                            </button>
+                            <button type="button" id="tab-by-grid" role="tab" aria-selected="false" aria-controls="panel-by-grid"
+                                aria-label="Calendar grid"
+                                title="Calendar grid"
+                                class="tab-daad daad-layout-tab-last inline-flex shrink-0 items-center justify-center font-sans text-xs font-bold uppercase tracking-[0.12em] px-3 py-2 sm:px-4 rounded-none border border-l-0 transition-colors border-white/35 text-white/90 bg-transparent hover:bg-white/10 focus:outline-none focus-visible:ring-2 focus-visible:ring-white/45">
+                                <i class="fas fa-calendar text-[0.85rem] sm:text-base leading-none" aria-hidden="true"></i>
                             </button>
                         </div>
                         <select id="selectionFilter" aria-label="Show"
@@ -667,6 +931,9 @@
                     </div>
                     <div id="panel-by-stage" role="tabpanel" aria-labelledby="tab-by-stage" class="tab-panel hidden">
                         <!-- stage grouping -->
+                    </div>
+                    <div id="panel-by-grid" role="tabpanel" aria-labelledby="tab-by-grid" class="tab-panel hidden">
+                        <!-- stage columns × vertical time -->
                     </div>
                 </div>
             </div>
@@ -734,18 +1001,29 @@
                     id="dock-tab-by-schedule"
                     aria-pressed="true"
                     aria-controls="panel-by-schedule"
-                    class="tab-daad font-sans text-xs font-bold uppercase tracking-[0.12em] px-4 py-2 rounded-none border border-r-0 transition-colors border-white bg-white text-neutral-900 hover:bg-neutral-100"
+                    class="tab-daad daad-layout-tab-first font-sans text-xs font-bold uppercase tracking-[0.12em] px-4 py-2 rounded-none border border-r-0 transition-colors border-white bg-white text-neutral-900 hover:bg-neutral-100"
                 >
-                    By time
+                    Time
                 </button>
                 <button
                     type="button"
                     id="dock-tab-by-stage"
                     aria-pressed="false"
                     aria-controls="panel-by-stage"
-                    class="tab-daad font-sans text-xs font-bold uppercase tracking-[0.12em] px-4 py-2 rounded-none border border-l-0 transition-colors border-white/35 text-white/90 bg-transparent hover:bg-white/10"
+                    class="tab-daad daad-layout-tab-mid font-sans text-xs font-bold uppercase tracking-[0.12em] px-4 py-2 rounded-none border border-x-0 transition-colors border-white/35 text-white/90 bg-transparent hover:bg-white/10"
                 >
-                    By stage
+                    Stage
+                </button>
+                <button
+                    type="button"
+                    id="dock-tab-by-grid"
+                    aria-pressed="false"
+                    aria-controls="panel-by-grid"
+                    aria-label="Calendar grid"
+                    title="Calendar grid"
+                    class="tab-daad daad-layout-tab-last inline-flex shrink-0 items-center justify-center font-sans text-xs font-bold uppercase tracking-[0.12em] px-3 py-2 rounded-none border border-l-0 transition-colors border-white/35 text-white/90 bg-transparent hover:bg-white/10 focus:outline-none focus-visible:ring-2 focus-visible:ring-white/45"
+                >
+                    <i class="fas fa-calendar text-[0.85rem] sm:text-base leading-none" aria-hidden="true"></i>
                 </button>
             </div>
             <select
@@ -802,6 +1080,15 @@
                 metaLabel: 'text-sky-400/85',
             },
         };
+
+        /** Left-to-right column order in Stage × time (canonical `location` strings). Unknown stages append A–Z. */
+        const DAAD_GRID_STAGE_COLUMN_ORDER = [
+            'COOKING GROOVE',
+            'AM/BEACH',
+            'DAAD STAGE',
+            'THE DOME',
+            'DRAGON NEST',
+        ];
 
         function stageRowStyle(location) {
             return STAGE_STYLES[location] || {
@@ -1339,6 +1626,144 @@
                 }));
         }
 
+        const DAAD_GRID_HOUR_MS = 60 * 60 * 1000;
+
+        /** @returns {number} aligned to start of calendar hour in `timeZone` when Temporal exists; otherwise UTC-hour floor */
+        function gridFloorHourEpochMs(epochMs, timeZone) {
+            if (typeof Temporal === 'undefined') {
+                return Math.floor(epochMs / DAAD_GRID_HOUR_MS) * DAAD_GRID_HOUR_MS;
+            }
+            const inst = Temporal.Instant.fromEpochMilliseconds(epochMs);
+            const zdt = inst.toZonedDateTimeISO(timeZone);
+            const floored = zdt.with({
+                minute: 0,
+                second: 0,
+                millisecond: 0,
+                microsecond: 0,
+                nanosecond: 0,
+            });
+            return floored.toInstant().epochMilliseconds;
+        }
+
+        /** @returns {number} start of smallest calendar hour in `timeZone` that covers `epochMs` */
+        function gridCeilHourEpochMs(epochMs, timeZone) {
+            if (typeof Temporal === 'undefined') {
+                return Math.ceil(epochMs / DAAD_GRID_HOUR_MS) * DAAD_GRID_HOUR_MS;
+            }
+            const inst = Temporal.Instant.fromEpochMilliseconds(epochMs);
+            const zdt = inst.toZonedDateTimeISO(timeZone);
+            const floored = zdt.with({
+                minute: 0,
+                second: 0,
+                millisecond: 0,
+                microsecond: 0,
+                nanosecond: 0,
+            });
+            const flInst = floored.toInstant();
+            return Temporal.Instant.compare(inst, flInst) > 0 ? floored.add({ hours: 1 }).toInstant().epochMilliseconds : flInst.epochMilliseconds;
+        }
+
+        /** Padded `timeZone` hour window spanning all sets in `evs` (any number of festival days). */
+        function gridTimelineAnchors(evtList, timeZone, padHours = 1) {
+            let minStart = Infinity;
+            let maxEnd = -Infinity;
+            for (const e of evtList) {
+                minStart = Math.min(minStart, e.startUtcMs);
+                maxEnd = Math.max(maxEnd, e.endUtcMs);
+            }
+            const padMs = padHours * DAAD_GRID_HOUR_MS;
+            const tAnchor = gridFloorHourEpochMs(minStart - padMs, timeZone);
+            const tEndCeil = gridCeilHourEpochMs(maxEnd + padMs, timeZone);
+            const spanHoursRaw = (tEndCeil - tAnchor) / DAAD_GRID_HOUR_MS;
+            const spanHours = Number.isFinite(spanHoursRaw) && spanHoursRaw > 0 ? Math.max(1, spanHoursRaw) : 1;
+            return { tAnchor, spanHours };
+        }
+
+        /** Greedy lanes for simultaneous sets on the same stage */
+        function gridLanePlacements(stageEvents) {
+            const sorted = [...stageEvents].sort(
+                (a, b) => a.startUtcMs - b.startUtcMs || a.endUtcMs - b.endUtcMs || a.id - b.id
+            );
+            /** @type {number[]} lane end times */
+            const laneEndsMs = [];
+            /** @type {number[]} lane index parallel to sorted */
+            const laneOf = [];
+            for (const ev of sorted) {
+                let lane = -1;
+                for (let i = 0; i < laneEndsMs.length; i++) {
+                    if (laneEndsMs[i] <= ev.startUtcMs) {
+                        lane = i;
+                        break;
+                    }
+                }
+                if (lane < 0) {
+                    lane = laneEndsMs.length;
+                    laneEndsMs.push(ev.endUtcMs);
+                } else {
+                    laneEndsMs[lane] = ev.endUtcMs;
+                }
+                laneOf.push(lane);
+            }
+            const nLanes = Math.max(1, laneEndsMs.length);
+            return sorted.map((ev, i) => ({
+                ev,
+                lane: laneOf[i],
+                nLanes,
+            }));
+        }
+
+        /** Column order from `DAAD_GRID_STAGE_COLUMN_ORDER`, then any other stages A–Z */
+        function sortedStageKeysForTimeline(stageSet) {
+            const ordered = [];
+            for (const k of DAAD_GRID_STAGE_COLUMN_ORDER) {
+                if (stageSet.has(k)) ordered.push(k);
+            }
+            const rest = [...stageSet]
+                .filter((k) => !ordered.includes(k))
+                .sort((a, b) => a.localeCompare(b));
+            return ordered.concat(rest);
+        }
+
+        /** Full timeline: one ruled line + optional label per calendar hour (labels = time rail only). */
+        function buildGridHourRailsHtml(spanHours, tAnchorMs, includeSlotLabels) {
+            let inner = '';
+            for (let h = 0; h < spanHours; h++) {
+                const tops = `${h}`;
+                inner += `<div class="daad-grid-hour-line" style="top:calc(${tops} * var(--daad-cal-lh-per-hour, 2) * 1lh)" aria-hidden="true"></div>`;
+                if (includeSlotLabels) {
+                    inner += `<div class="daad-grid-hour-label" style="top:calc(${tops} * var(--daad-cal-lh-per-hour, 2) * 1lh)">${escapeHtml(
+                        formatStageCardClockLabel(tAnchorMs + h * DAAD_GRID_HOUR_MS)
+                    )}</div>`;
+                }
+            }
+            inner += `<div class="daad-grid-hour-line" style="top:calc(${spanHours} * var(--daad-cal-lh-per-hour, 2) * 1lh)" aria-hidden="true"></div>`;
+            return inner;
+        }
+
+        function renderGridEventBlock(ev, st, tAnchorMs, lane, nLanes) {
+            const isSelected = window.selectedEvents.has(ev.id);
+            const durH = Math.max(0, (ev.endUtcMs - ev.startUtcMs) / DAAD_GRID_HOUR_MS);
+            const topH = (ev.startUtcMs - tAnchorMs) / DAAD_GRID_HOUR_MS;
+            const selClass = isSelected ? ' is-selected' : '';
+            const rowBg = isSelected ? st.cardSel : st.cardDef;
+            const startClock = formatStageCardClockLabel(ev.startUtcMs);
+            const checkboxSr = `Include “${ev.summary}” (${startClock}) in my lineup`;
+            return `<div class="daad-grid-event${selClass} transition-all rounded-sm ${rowBg}"
+    role="article"
+    style="--daad-cal-t-h:${topH};--daad-cal-d-h:${durH};--daad-cal-lane:${lane};--daad-cal-n-lanes:${nLanes}"
+    onclick="toggleEventSelection(${ev.id})">
+    <label class="daad-grid-event__chk" onclick="event.stopPropagation()">
+        <span class="sr-only">${escapeHtml(checkboxSr)}</span>
+        <input type="checkbox" class="h-3.5 w-3.5 shrink-0 cursor-pointer rounded-sm ${st.chk}"
+            ${isSelected ? 'checked' : ''}
+            onclick="event.stopPropagation()"
+            onchange="toggleEventSelection(${ev.id})"/>
+    </label>
+    <p class="daad-grid-event-title pr-9">${escapeHtml(ev.summary)}</p>
+    <p class="daad-grid-event-meta pr-9 ${st.metaLabel}">${escapeHtml(startClock)}</p>
+</div>`;
+        }
+
         function renderEventCard(event, options) {
             options = options || {};
             const st = stageRowStyle(event.location);
@@ -1396,32 +1821,55 @@
         }
 
         function setActiveScheduleTab(tab) {
-            const stageBtn = document.getElementById('tab-by-stage');
+            const normalized = tab === 'stage' || tab === 'grid' ? tab : 'schedule';
+
             const schedBtn = document.getElementById('tab-by-schedule');
-            const dockStage = document.getElementById('dock-tab-by-stage');
+            const stageBtn = document.getElementById('tab-by-stage');
+            const gridBtn = document.getElementById('tab-by-grid');
             const dockSched = document.getElementById('dock-tab-by-schedule');
-            const stagePanel = document.getElementById('panel-by-stage');
+            const dockStage = document.getElementById('dock-tab-by-stage');
+            const dockGrid = document.getElementById('dock-tab-by-grid');
             const schedPanel = document.getElementById('panel-by-schedule');
-            if (!stageBtn || !schedBtn || !stagePanel || !schedPanel) return;
-            const isStage = tab === 'stage';
-            stageBtn.setAttribute('aria-selected', isStage ? 'true' : 'false');
-            schedBtn.setAttribute('aria-selected', isStage ? 'false' : 'true');
+            const stagePanel = document.getElementById('panel-by-stage');
+            const gridPanel = document.getElementById('panel-by-grid');
+            if (!schedBtn || !stageBtn || !gridBtn || !schedPanel || !stagePanel || !gridPanel) return;
+
             const tabShared =
                 'tab-daad font-sans text-xs font-bold uppercase tracking-[0.12em] px-4 py-2 rounded-none border transition-colors';
             const activeFill = 'border-white bg-white text-neutral-900 hover:bg-neutral-100';
             const idleFill = 'border-white/35 text-white/90 bg-transparent hover:bg-white/10';
-            schedBtn.className = `${tabShared} border-r-0 ${isStage ? idleFill : activeFill}`;
-            stageBtn.className = `${tabShared} border-l-0 ${isStage ? activeFill : idleFill}`;
-            if (dockStage && dockSched) {
-                dockSched.className = `${tabShared} border-r-0 ${isStage ? idleFill : activeFill}`;
-                dockStage.className = `${tabShared} border-l-0 ${isStage ? activeFill : idleFill}`;
-                dockStage.setAttribute('aria-pressed', isStage ? 'true' : 'false');
-                dockSched.setAttribute('aria-pressed', isStage ? 'false' : 'true');
+
+            const btnClassFor = (name) => {
+                const active = name === normalized;
+                const fill = active ? activeFill : idleFill;
+                if (name === 'schedule') return `${tabShared} daad-layout-tab-first border-r-0 ${fill}`;
+                if (name === 'stage') return `${tabShared} daad-layout-tab-mid border-x-0 ${fill}`;
+                const gridBase =
+                    'tab-daad daad-layout-tab-last inline-flex shrink-0 items-center justify-center font-sans text-xs font-bold uppercase tracking-[0.12em] px-3 py-2 sm:px-4 rounded-none border border-l-0 transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-white/45';
+                return `${gridBase} ${fill}`;
+            };
+
+            schedBtn.setAttribute('aria-selected', normalized === 'schedule' ? 'true' : 'false');
+            stageBtn.setAttribute('aria-selected', normalized === 'stage' ? 'true' : 'false');
+            gridBtn.setAttribute('aria-selected', normalized === 'grid' ? 'true' : 'false');
+            schedBtn.className = btnClassFor('schedule');
+            stageBtn.className = btnClassFor('stage');
+            gridBtn.className = btnClassFor('grid');
+
+            if (dockSched && dockStage && dockGrid) {
+                dockSched.className = btnClassFor('schedule');
+                dockStage.className = btnClassFor('stage');
+                dockGrid.className = btnClassFor('grid');
+                dockSched.setAttribute('aria-pressed', normalized === 'schedule' ? 'true' : 'false');
+                dockStage.setAttribute('aria-pressed', normalized === 'stage' ? 'true' : 'false');
+                dockGrid.setAttribute('aria-pressed', normalized === 'grid' ? 'true' : 'false');
             }
-            stagePanel.classList.toggle('hidden', !isStage);
-            schedPanel.classList.toggle('hidden', isStage);
+
+            schedPanel.classList.toggle('hidden', normalized !== 'schedule');
+            stagePanel.classList.toggle('hidden', normalized !== 'stage');
+            gridPanel.classList.toggle('hidden', normalized !== 'grid');
             try {
-                localStorage.setItem('daadLineupViewTab', tab);
+                localStorage.setItem('daadLineupViewTab', normalized);
             } catch (e) {}
         }
 
@@ -1434,9 +1882,14 @@
         function scrollDaadViewportToLineupToolbarStuck() {
             syncDaadStickyTop();
             const instant = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-            const stageSelected =
-                document.getElementById('tab-by-stage')?.getAttribute('aria-selected') === 'true';
-            const panel = document.getElementById(stageSelected ? 'panel-by-stage' : 'panel-by-schedule');
+            const selected =
+                document.querySelector('[role="tablist"] [aria-selected="true"]') ||
+                document.getElementById('tab-by-schedule');
+            const pid = selected && selected.id;
+            let panelId = 'panel-by-schedule';
+            if (pid === 'tab-by-stage') panelId = 'panel-by-stage';
+            else if (pid === 'tab-by-grid') panelId = 'panel-by-grid';
+            const panel = document.getElementById(panelId);
             if (!panel) {
                 scrollDaadViewportToTop();
                 return;
@@ -1467,6 +1920,8 @@
                 barPx = Math.round(bar.getBoundingClientRect().height || bar.offsetHeight);
             }
             document.documentElement.style.setProperty('--daad-sticky-top', `${headerPx + barPx}px`);
+            /* Stage × time column headers hug the bottom of `#daadSiteHeader` only (not filters / lineup toolbar). */
+            document.documentElement.style.setProperty('--daad-cal-stage-sticky-top', `${headerPx}px`);
         }
 
         /** Lineup dock bottom offset + back-to-top clearance for overview strip + dock. */
@@ -1595,12 +2050,26 @@
             }
             updateLineupToolbarDockVisibility(toolbarSticky, lineupToolbarRect);
 
-            document.querySelectorAll('.daad-sticky-heading:not(#daadLineupToolbar)').forEach((el) => {
+            const calHeadStickyPx = daadParseStickyTopPx(
+                rootStyle.getPropertyValue('--daad-cal-stage-sticky-top'),
+                daadParseStickyTopPx(rootStyle.getPropertyValue('--daad-site-header-h'), 72)
+            );
+
+            document.querySelectorAll('.daad-grid-colheads-sticky').forEach((el) => {
                 const rect = el.getBoundingClientRect();
                 const pinned =
-                    rect.top <= toolbarSticky + 0.75 && rect.bottom > toolbarSticky + 8;
+                    rect.top <= calHeadStickyPx + 0.75 && rect.bottom > calHeadStickyPx + 8;
                 el.classList.toggle('is-stuck', pinned);
             });
+
+            document
+                .querySelectorAll('.daad-sticky-heading:not(#daadLineupToolbar):not(.daad-grid-colheads-sticky)')
+                .forEach((el) => {
+                    const rect = el.getBoundingClientRect();
+                    const pinned =
+                        rect.top <= toolbarSticky + 0.75 && rect.bottom > toolbarSticky + 8;
+                    el.classList.toggle('is-stuck', pinned);
+                });
             syncFloatingChromeOffsets();
             updateBackToTopButton();
         }
@@ -1717,8 +2186,9 @@
             displayEvents(events);
 
             try {
-                if (localStorage.getItem('daadLineupViewTab') === 'stage') {
-                    setActiveScheduleTab('stage');
+                const savedTab = localStorage.getItem('daadLineupViewTab');
+                if (savedTab === 'stage' || savedTab === 'grid') {
+                    setActiveScheduleTab(savedTab);
                 }
             } catch (e) {}
             syncMirrorSelectionDockFromPrimary();
@@ -1737,6 +2207,14 @@
             });
             document.getElementById('dock-tab-by-schedule')?.addEventListener('click', () => {
                 setActiveScheduleTab('schedule');
+                scrollDaadViewportToLineupToolbarStuck();
+            });
+            document.getElementById('tab-by-grid').addEventListener('click', () => {
+                setActiveScheduleTab('grid');
+                scrollDaadViewportToLineupToolbarStuck();
+            });
+            document.getElementById('dock-tab-by-grid')?.addEventListener('click', () => {
+                setActiveScheduleTab('grid');
                 scrollDaadViewportToLineupToolbarStuck();
             });
 
@@ -1975,12 +2453,14 @@
             filterEvents(window.allEvents);
         }
 
-        // Display events in both tab panels
+        // Display events in all tab panels
         function displayEvents(events) {
             const stagePanel = document.getElementById('panel-by-stage');
             const schedulePanel = document.getElementById('panel-by-schedule');
+            const gridPanel = document.getElementById('panel-by-grid');
             displayListView(events, stagePanel);
             displayScheduleView(events, schedulePanel);
+            displayGridView(events, gridPanel);
             hydrateSoundCloudSampleCovers(stagePanel);
             hydrateSoundCloudSampleCovers(schedulePanel);
             hydrateYouTubeMicrolinkThumbs(stagePanel);
@@ -2048,6 +2528,125 @@
                 </section>`
                 )
                 .join('');
+        }
+
+        function wireDaadGridHorizontalScroll(panel) {
+            if (!panel) return;
+            const a = panel.querySelector('.daad-grid-hscroll-a');
+            const b = panel.querySelector('.daad-grid-hscroll-b');
+            if (!a || !b) return;
+            let syncing = false;
+            const sync = (from, to) => {
+                if (syncing) return;
+                syncing = true;
+                to.scrollLeft = from.scrollLeft;
+                syncing = false;
+            };
+            a.onscroll = () => sync(a, b);
+            b.onscroll = () => sync(b, a);
+        }
+
+        /** Before replacing grid DOM, capture scroll so selection toggles / re-filters don't jump the view */
+        function readDaadGridScrollState(container) {
+            if (!container) return null;
+            const a = container.querySelector('.daad-grid-hscroll-a');
+            const b = container.querySelector('.daad-grid-hscroll-b');
+            if (!a && !b) return null;
+            return {
+                scrollLeft: Math.max(a?.scrollLeft ?? 0, b?.scrollLeft ?? 0),
+                scrollX: window.scrollX || document.documentElement.scrollLeft || document.body.scrollLeft || 0,
+                scrollY: window.scrollY || document.documentElement.scrollTop || document.body.scrollTop || 0,
+            };
+        }
+
+        function applyDaadGridScrollState(container, state) {
+            if (!container || !state) return;
+            const a = container.querySelector('.daad-grid-hscroll-a');
+            const b = container.querySelector('.daad-grid-hscroll-b');
+            if (a) a.scrollLeft = state.scrollLeft;
+            if (b) b.scrollLeft = state.scrollLeft;
+            window.scrollTo({ left: state.scrollX, top: state.scrollY, behavior: 'auto' });
+        }
+
+        /** Stage-column × vertical-time calendar: single timeline for all filtered days */
+        function displayGridView(events, container) {
+            if (!container) return;
+            const gridScrollState = readDaadGridScrollState(container);
+            if (!events.length) {
+                container.innerHTML =
+                    '<p class="text-white/65 text-sm py-6 text-center">No sets match the current filters.</p>';
+                return;
+            }
+
+            const { tAnchor, spanHours } = gridTimelineAnchors(events, EVENT_TIMEZONE);
+            const hourRails = buildGridHourRailsHtml(spanHours, tAnchor, true);
+
+            const stageKeys = sortedStageKeysForTimeline(new Set(events.map((e) => e.location)));
+            const byStageLoc = {};
+            for (const e of events) {
+                if (!byStageLoc[e.location]) byStageLoc[e.location] = [];
+                byStageLoc[e.location].push(e);
+            }
+
+            const stageHeadCells = stageKeys
+                .map((loc) => `<div class="daad-grid-stage-head-cell">${escapeHtml(loc)}</div>`)
+                .join('');
+
+            const stageColsHtml = stageKeys
+                .map((loc) => {
+                    const stagEvs = byStageLoc[loc] || [];
+                    const st = stageRowStyle(loc);
+                    const placements = gridLanePlacements(stagEvs);
+                    const nLanesCol = placements.length ? placements[0].nLanes : 1;
+                    const railsCol = buildGridHourRailsHtml(spanHours, tAnchor, false);
+                    const blocksHtml = placements
+                        .map(({ ev, lane, nLanes }) => renderGridEventBlock(ev, st, tAnchor, lane, nLanes))
+                        .join('');
+                    return `
+<div class="daad-grid-stage-col flex flex-col" style="--daad-cal-n-lanes:${nLanesCol}">
+    <div class="daad-grid-timeline-inner">
+        ${railsCol}
+        ${blocksHtml}
+    </div>
+</div>`;
+                })
+                .join('');
+
+            const tzHint = `Stages sideways, time vertically`;
+            container.innerHTML = `
+                <div class="mb-6">
+                    <p class="text-xs font-medium uppercase tracking-[0.1em] text-white/45 mb-3 px-4 sm:px-6">${escapeHtml(tzHint)}</p>
+                    <div class="daad-grid-viewport-breakout">
+                        <div class="daad-grid-timeline max-w-none" style="--daad-cal-span-hours:${spanHours}">
+                            <div class="daad-grid-colheads-sticky daad-sticky-heading">
+                                <div class="daad-grid-hscroll-sync daad-grid-hscroll-a min-w-0">
+                                    <div class="daad-grid-head-row">
+                                        <div class="daad-grid-time-head-corner" aria-hidden="true"></div>
+                                        ${stageHeadCells}
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="daad-grid-hscroll-sync daad-grid-hscroll-b min-w-0">
+                                <div class="daad-grid-board">
+                                    <div class="daad-grid-time-rail flex flex-col">
+                                        <div class="daad-grid-timeline-inner">
+                                            ${hourRails}
+                                        </div>
+                                    </div>
+                                    ${stageColsHtml}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>`;
+
+            requestAnimationFrame(() => {
+                wireDaadGridHorizontalScroll(container);
+                syncDaadStickyTop();
+                updateStickyHeadingStates();
+                applyDaadGridScrollState(container, gridScrollState);
+                requestAnimationFrame(() => applyDaadGridScrollState(container, gridScrollState));
+            });
         }
 
         // Group events by location
