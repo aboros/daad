@@ -526,6 +526,30 @@
         #daadFiltersDrawer.daad-filters-drawer--open #daadFiltersDrawerPanel {
             transform: translateX(0);
         }
+
+        /* Sticky strip stacks under pinned site header; in document flow so copy above the frame is not obscured while scrolling */
+        #daadActiveFiltersBar {
+            position: sticky;
+            top: var(--daad-site-header-h, 4.5rem);
+            z-index: 21;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.12);
+            background: rgba(0, 0, 0, 0.92);
+            box-shadow: 0 12px 24px rgba(0, 0, 0, 0.35);
+            -webkit-backdrop-filter: blur(10px);
+            backdrop-filter: blur(10px);
+        }
+        #daadActiveFiltersBar.daad-active-filters--hidden {
+            display: none;
+        }
+        #daadActiveFiltersBar .daad-active-filters-chip {
+            max-width: min(28rem, 85vw);
+        }
+        @media (prefers-reduced-motion: reduce) {
+            #daadActiveFiltersBar {
+                backdrop-filter: none;
+                -webkit-backdrop-filter: none;
+            }
+        }
     </style>
 </head>
 <body class="daad-poster min-h-screen text-daad-ink antialiased font-sans">
@@ -555,6 +579,24 @@
             </div>
         </div>
     </header>
+
+    <div id="daadActiveFiltersBar" class="daad-active-filters--hidden" aria-hidden="true">
+        <div class="container mx-auto px-4 py-2.5 flex flex-col gap-y-2 min-w-0">
+            <span class="block w-full text-[10px] font-bold uppercase tracking-[0.12em] text-white/55 leading-none">
+                Active filters
+            </span>
+            <div class="flex flex-wrap items-center justify-between gap-x-3 gap-y-2 min-w-0">
+                <div id="daadActiveFiltersChips" class="flex flex-wrap items-center gap-2 min-w-0 flex-1"></div>
+                <button
+                    type="button"
+                    id="daadActiveFiltersClearAll"
+                    class="shrink-0 tab-daad font-sans text-[10px] font-bold uppercase tracking-[0.12em] px-3 py-1.5 rounded-sm border transition-colors border-white/35 text-white/90 bg-white/5 hover:bg-white/12 focus:outline-none focus-visible:ring-2 focus-visible:ring-white/45"
+                >
+                    Clear all
+                </button>
+            </div>
+        </div>
+    </div>
 
     <div class="container mx-auto px-4 pt-8 mb-10">
         <button type="button" id="daadInstallHelpBtn" class="hidden w-full flex items-center justify-center gap-2 rounded-sm border border-white/55 bg-black px-[4px] py-[16px] text-[11px] font-bold uppercase tracking-[0.1em] text-amber-100 shadow-[0_0_0_1px_rgba(251,191,36,0.12)_inset] hover:bg-amber-400/18 focus:outline-none focus-visible:ring-2 focus-visible:ring-amber-300/55 mb-4"
@@ -1418,7 +1460,13 @@
             const header = document.getElementById('daadSiteHeader');
             if (!header) return;
             const headerPx = header.offsetHeight;
-            document.documentElement.style.setProperty('--daad-sticky-top', `${headerPx}px`);
+            document.documentElement.style.setProperty('--daad-site-header-h', `${headerPx}px`);
+            const bar = document.getElementById('daadActiveFiltersBar');
+            let barPx = 0;
+            if (bar && !bar.classList.contains('daad-active-filters--hidden')) {
+                barPx = Math.round(bar.getBoundingClientRect().height || bar.offsetHeight);
+            }
+            document.documentElement.style.setProperty('--daad-sticky-top', `${headerPx + barPx}px`);
         }
 
         /** Lineup dock bottom offset + back-to-top clearance for overview strip + dock. */
@@ -1708,6 +1756,21 @@
             });
             document.getElementById('tagFilter').addEventListener('change', () => filterEvents(events));
             document.getElementById('clearFiltersBtn').addEventListener('click', clearFilters);
+            document.getElementById('daadActiveFiltersClearAll')?.addEventListener('click', clearFilters);
+            document.getElementById('daadActiveFiltersChips')?.addEventListener('click', (ev) => {
+                const rm = ev.target.closest('button[data-daad-clear-filter]');
+                if (!rm) return;
+                ev.preventDefault();
+                clearOneDaadDrawerFilter(rm.getAttribute('data-daad-clear-filter'));
+            });
+            const activeFiltersBar = document.getElementById('daadActiveFiltersBar');
+            if (activeFiltersBar && typeof ResizeObserver !== 'undefined') {
+                const roActiveFilters = new ResizeObserver(() => {
+                    syncDaadStickyTop();
+                    updateStickyHeadingStates();
+                });
+                roActiveFilters.observe(activeFiltersBar);
+            }
 
             // Add toggle details event listener
             document.getElementById('toggleDetails').addEventListener('click', () => {
@@ -1733,6 +1796,95 @@
             if (Array.isArray(window.allEvents)) filterEvents(window.allEvents);
         }
 
+        /** Single drawer filter cleared from the pinned “Active filters” strip (does not reopen the drawer). */
+        function clearOneDaadDrawerFilter(which) {
+            if (!which || !Array.isArray(window.allEvents)) return;
+            if (which === 'date') document.getElementById('dateFilter').value = '';
+            else if (which === 'location') document.getElementById('locationFilter').value = '';
+            else if (which === 'tag') document.getElementById('tagFilter').value = '';
+            else if (which === 'artist') document.getElementById('artistFilter').value = '';
+            else if (which === 'selection') {
+                document.getElementById('selectionFilter').value = 'all';
+                syncMirrorSelectionDockFromPrimary();
+            } else return;
+            filterEvents(window.allEvents);
+        }
+
+        /** Pinned strip under header: summarizes non-default filters while the lineup is narrowed. */
+        function updateActiveFiltersBar() {
+            const root = document.getElementById('daadActiveFiltersBar');
+            const chipsHost = document.getElementById('daadActiveFiltersChips');
+            if (!root || !chipsHost) return;
+
+            const dateSel = document.getElementById('dateFilter');
+            const locSel = document.getElementById('locationFilter');
+            const tagSel = document.getElementById('tagFilter');
+            const artistIn = document.getElementById('artistFilter');
+            const lineupSel = document.getElementById('selectionFilter');
+
+            const defs = [];
+
+            const dateVal = dateSel?.value || '';
+            if (dateVal) {
+                const opt = dateSel?.options?.[dateSel.selectedIndex];
+                const label = opt ? String(opt.textContent || '').trim() : dateVal;
+                defs.push({ key: 'date', valueText: label });
+            }
+
+            const locVal = locSel?.value || '';
+            if (locVal) {
+                const opt = locSel?.options?.[locSel.selectedIndex];
+                const label = opt ? String(opt.textContent || '').trim() : locVal;
+                defs.push({ key: 'location', valueText: label });
+            }
+
+            const tagVal = tagSel?.value || '';
+            if (tagVal)
+                defs.push({ key: 'tag', valueText: String(tagSel.options[tagSel.selectedIndex]?.textContent || tagVal).trim() });
+
+            const artistQ = String(artistIn?.value || '').trim();
+            if (artistQ) defs.push({ key: 'artist', valueText: artistQ });
+
+            const lineupVal = lineupSel?.value || 'all';
+            if (lineupVal && lineupVal !== 'all') {
+                const opt = lineupSel?.options?.[lineupSel.selectedIndex];
+                const label = opt ? String(opt.textContent || '').trim() : lineupVal;
+                defs.push({ key: 'selection', valueText: label });
+            }
+
+            const hasAny = defs.length > 0;
+            root.classList.toggle('daad-active-filters--hidden', !hasAny);
+            root.setAttribute('aria-hidden', hasAny ? 'false' : 'true');
+
+            chipsHost.replaceChildren();
+
+            defs.forEach((d) => {
+                const btn = document.createElement('button');
+                btn.type = 'button';
+                btn.className =
+                    'daad-active-filters-chip group inline-flex min-w-0 max-w-full cursor-pointer items-center gap-1 rounded-sm border border-white/22 bg-black/55 px-1 py-0.5 text-left text-xs font-medium text-white shadow-[inset_0_0_0_1px_rgba(255,255,255,0.06)] transition-colors hover:border-white/35 hover:bg-white/10 focus:outline-none focus-visible:ring-2 focus-visible:ring-white/35';
+                btn.setAttribute('data-daad-clear-filter', d.key);
+                btn.setAttribute('aria-label', `Remove filter: ${d.valueText}`);
+
+                const valSpan = document.createElement('span');
+                valSpan.className = 'min-w-0 flex-1 truncate';
+                valSpan.textContent = d.valueText;
+
+                const iconWrap = document.createElement('span');
+                iconWrap.className =
+                    'pointer-events-none shrink-0 text-white/50 group-hover:text-white/80';
+                iconWrap.innerHTML = '<i class="fas fa-times text-[11px] leading-none" aria-hidden="true"></i>';
+
+                btn.append(valSpan, iconWrap);
+                chipsHost.appendChild(btn);
+            });
+
+            requestAnimationFrame(() => {
+                syncDaadStickyTop();
+                updateStickyHeadingStates();
+            });
+        }
+
         // Filter events based on selected criteria
         function filterEvents(events) {
             const dateFilter = document.getElementById('dateFilter').value;
@@ -1755,6 +1907,7 @@
 
             
             displayEvents(filteredEvents);
+            updateActiveFiltersBar();
         }
 
         // Update selection overview
