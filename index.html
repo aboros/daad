@@ -709,8 +709,8 @@
             max-width: min(13.5rem, 78vw);
         }
 
-        /* Header: opens filters off-canvas (sole filter UI at all breakpoints) */
-        #daadHeaderFiltersBtn {
+        /* Header: opens search panel (sole schedule filter UI) */
+        #daadHeaderSearchBtn {
             flex-shrink: 0;
             margin-left: 0.75rem;
             width: 2.75rem;
@@ -725,44 +725,24 @@
             cursor: pointer;
             transition: background-color 0.18s ease, border-color 0.18s ease;
         }
-        #daadHeaderFiltersBtn:hover {
+        #daadHeaderSearchBtn:hover {
             background: rgba(255, 255, 255, 0.06);
             border-color: rgba(255, 255, 255, 0.32);
         }
-        #daadHeaderFiltersBtn:focus-visible {
+        #daadHeaderSearchBtn:focus-visible {
             outline: 2px solid rgba(255, 255, 255, 0.55);
             outline-offset: 3px;
         }
-        @media (prefers-reduced-motion: reduce) {
-            #daadHeaderFiltersBtn {
-                transition-duration: 0.05s;
-            }
-            #daadFiltersDrawer,
-            #daadFiltersDrawerPanel {
-                transition-duration: 0.05s;
-            }
+        #daadHeaderSearchBtn.daad-header-search--active {
+            background: rgba(255, 255, 255, 0.12);
+            border-color: rgba(255, 255, 255, 0.45);
         }
 
-        /* Off-canvas filters (all viewports — single filtering surface) */
-        #daadFiltersDrawer {
+        /* Slide-down search from top (below site header) */
+        #daadSearchBackdrop {
             position: fixed;
             inset: 0;
-            z-index: 45;
-            display: block;
-            pointer-events: none;
-            opacity: 0;
-            visibility: hidden;
-            transition: opacity 0.22s ease, visibility 0.22s ease;
-        }
-        #daadFiltersDrawer.daad-filters-drawer--open {
-            pointer-events: auto;
-            opacity: 1;
-            visibility: visible;
-        }
-        #daadFiltersDrawerBackdrop {
-            position: absolute;
-            inset: 0;
-            z-index: 0;
+            z-index: 24;
             margin: 0;
             padding: 0;
             border: none;
@@ -770,46 +750,102 @@
             width: auto;
             height: auto;
             cursor: pointer;
-            background: rgba(0, 0, 0, 0.55);
+            background: rgba(0, 0, 0, 0.45);
             -webkit-appearance: none;
             appearance: none;
-            -webkit-backdrop-filter: blur(6px);
-            backdrop-filter: blur(6px);
+            -webkit-backdrop-filter: blur(4px);
+            backdrop-filter: blur(4px);
+            opacity: 0;
+            visibility: hidden;
+            pointer-events: none;
+            transition: opacity 0.2s ease, visibility 0.2s ease;
         }
-        #daadFiltersDrawerPanel {
-            position: absolute;
-            top: 0;
-            bottom: 0;
+        #daadSearchBackdrop.daad-search-backdrop--open {
+            opacity: 1;
+            visibility: visible;
+            pointer-events: auto;
+        }
+        #daadSearchPanel {
+            position: fixed;
+            top: var(--daad-site-header-h, 4.5rem);
+            left: 0;
             right: 0;
-            width: min(26rem, 92vw);
-            max-width: min(26rem, 92vw);
-            background: rgba(14, 8, 10, 0.97);
-            border-left: 1px solid rgba(255, 255, 255, 0.14);
-            box-shadow: -12px 0 40px rgba(0, 0, 0, 0.55);
+            z-index: 25;
+            background: rgba(8, 4, 6, 0.98);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.14);
+            box-shadow: 0 16px 40px rgba(0, 0, 0, 0.55);
             -webkit-backdrop-filter: blur(14px);
             backdrop-filter: blur(14px);
-            z-index: 1;
-            transform: translateX(102%);
-            transition: transform 0.28s cubic-bezier(0.22, 1, 0.36, 1);
-            display: flex;
-            flex-direction: column;
-            padding: max(env(safe-area-inset-top), 1rem) 1rem 1rem max(env(safe-area-inset-right), 1rem);
-            padding-bottom: max(env(safe-area-inset-bottom), 1rem);
+            transform: translateY(-100%);
+            visibility: hidden;
+            pointer-events: none;
+            transition: transform 0.28s cubic-bezier(0.22, 1, 0.36, 1), visibility 0.28s ease;
         }
-        #daadFiltersDrawer.daad-filters-drawer--open #daadFiltersDrawerPanel {
-            transform: translateX(0);
+        #daadSearchPanel.daad-search-panel--open {
+            transform: translateY(0);
+            visibility: visible;
+            pointer-events: auto;
+        }
+        #daadSearchInput {
+            padding-left: 36px;
+            -webkit-appearance: none;
+            appearance: none;
+        }
+        /* White focus ring; not only Tailwind — stale app.css omitted focus:ring-white / focus:border-white */
+        #daadSearchInput:focus,
+        #daadSearchInput:focus-visible {
+            outline: none;
+            border-color: #fff;
+            box-shadow: 0 0 0 1px #fff;
+        }
+        #daadSearchInputIcon {
+            position: absolute;
+            left: 12px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: rgba(255, 255, 255, 0.45);
+            pointer-events: none;
+            line-height: 1;
+            display: flex;
+            align-items: center;
+        }
+        #daadSearchSuggestions {
+            max-height: min(50vh, 22rem);
+            overflow-y: auto;
+            overscroll-behavior: contain;
+        }
+        #daadSearchSuggestions .daad-search-suggestion--active {
+            background: rgba(255, 255, 255, 0.1);
+        }
+        @media (prefers-reduced-motion: reduce) {
+            #daadHeaderSearchBtn,
+            #daadSearchPanel,
+            #daadSearchBackdrop {
+                transition-duration: 0.05s;
+            }
         }
 
-        /* Sticky strip stacks under pinned site header; in document flow so copy above the frame is not obscured while scrolling */
+        /* Active filters: anchor sticks under header when browsing; bar sits above search field when searching */
         #daadActiveFiltersBar {
+            border-bottom: 1px solid rgba(255, 255, 255, 0.12);
+            background: rgba(0, 0, 0, 0.92);
+        }
+        #daadActiveFiltersAnchor.daad-active-filters-anchor--sticky {
             position: sticky;
             top: var(--daad-site-header-h, 4.5rem);
             z-index: 21;
-            border-bottom: 1px solid rgba(255, 255, 255, 0.12);
-            background: rgba(0, 0, 0, 0.92);
+        }
+        #daadActiveFiltersAnchor.daad-active-filters-anchor--sticky #daadActiveFiltersBar {
             box-shadow: 0 12px 24px rgba(0, 0, 0, 0.35);
             -webkit-backdrop-filter: blur(10px);
             backdrop-filter: blur(10px);
+        }
+        #daadSearchPanelFiltersSlot #daadActiveFiltersBar {
+            margin-bottom: 0.75rem;
+            padding-bottom: 0.25rem;
+            box-shadow: none;
+            -webkit-backdrop-filter: none;
+            backdrop-filter: none;
         }
         #daadActiveFiltersBar.daad-active-filters--hidden {
             display: none;
@@ -818,7 +854,7 @@
             max-width: min(28rem, 85vw);
         }
         @media (prefers-reduced-motion: reduce) {
-            #daadActiveFiltersBar {
+            #daadActiveFiltersAnchor.daad-active-filters-anchor--sticky #daadActiveFiltersBar {
                 backdrop-filter: none;
                 -webkit-backdrop-filter: none;
             }
@@ -845,13 +881,49 @@
                         <span class="text-white font-display">2026</span>
                     </h1>
                 </div>
-                <button type="button" id="daadHeaderFiltersBtn" class="text-base shrink-0" aria-label="Open filters"
-                    aria-expanded="false" aria-controls="daadFiltersDrawerPanel" aria-haspopup="dialog">
-                    <i class="fas fa-filter" aria-hidden="true"></i>
+                <button type="button" id="daadHeaderSearchBtn" class="text-base shrink-0" aria-label="Search lineup"
+                    aria-expanded="false" aria-controls="daadSearchPanel">
+                    <i class="fas fa-search" aria-hidden="true"></i>
                 </button>
             </div>
         </div>
     </header>
+
+    <div id="daadActiveFiltersAnchor"></div>
+
+    <button type="button" id="daadSearchBackdrop" aria-label="Close search" aria-hidden="true" tabindex="-1"></button>
+    <div id="daadSearchPanel" class="text-daad-ink" aria-hidden="true">
+        <div class="container mx-auto px-4 py-3 pb-4">
+            <div id="daadSearchPanelFiltersSlot" class="min-w-0"></div>
+            <label for="daadSearchInput" class="sr-only">Type at least 3 letters to search artist, genre, stage, or day</label>
+            <div>
+                <div class="relative">
+                <span id="daadSearchInputIcon" aria-hidden="true">
+                    <i class="fas fa-search text-sm"></i>
+                </span>
+                <input
+                    type="search"
+                    id="daadSearchInput"
+                    role="combobox"
+                    autocomplete="off"
+                    autocorrect="off"
+                    spellcheck="false"
+                    enterkeyhint="search"
+                    placeholder="Type artist, genre, stage, or day…"
+                    aria-expanded="false"
+                    aria-controls="daadSearchSuggestions"
+                    aria-autocomplete="list"
+                    class="daad-field w-full rounded-sm border border-white/20 bg-black/50 py-3 pr-3 text-sm text-white placeholder:text-white/40 focus:border-white focus:ring-1 focus:ring-white outline-none transition-shadow"
+                />
+                </div>
+                <ul
+                    id="daadSearchSuggestions"
+                    role="listbox"
+                    class="mt-2 hidden rounded-sm border border-white/15 bg-black/80 shadow-daad divide-y divide-white/10"
+                ></ul>
+            </div>
+        </div>
+    </div>
 
     <div id="daadActiveFiltersBar" class="daad-active-filters--hidden" aria-hidden="true">
         <div class="container mx-auto px-4 py-2.5 flex flex-col gap-y-2 min-w-0">
@@ -878,7 +950,7 @@
         </button>
         <p>
             Build your own lineup. Your selections are automatically saved for offline use on this device.
-            Filters (date, location, tag, artist) live in the header — open them with the filter icon.
+            Use the search icon in the header to filter by artist, genre, stage, or day.
             <span id="daadIntroInstallHint" class="hidden"> On your phone, use <strong class="font-semibold text-white">Install app</strong> above for steps to add this lineup to your home screen.</span>
         </p>
         <p class="text-white/75 max-w-2xl text-sm sm:text-base leading-relaxed font-medium">
@@ -955,53 +1027,6 @@
         </div>
     </div>
 
-    <!-- Off-canvas filters (header control — sole filter surface) -->
-    <div id="daadFiltersDrawer" aria-hidden="true">
-        <button type="button" id="daadFiltersDrawerBackdrop" aria-label="Close filters panel"></button>
-        <div id="daadFiltersDrawerPanel" role="dialog" aria-labelledby="daadFiltersDrawerTitle" aria-modal="true" class="text-daad-ink">
-            <div class="flex items-start justify-between gap-3 pb-4 border-b border-white/15">
-                <div>
-                    <p id="daadFiltersDrawerTitle" class="text-xs font-bold uppercase tracking-[0.12em] text-white/85">Filters</p>
-                    <p class="mt-1 text-sm text-white/55">Tune the lineup below.</p>
-                </div>
-                <button type="button" id="daadFiltersDrawerClose" class="shrink-0 flex h-9 w-9 items-center justify-center rounded-sm border border-white/25 text-white/85 hover:bg-white/10 focus:outline-none focus-visible:ring-2 focus-visible:ring-white/45" aria-label="Close filters">
-                    <i class="fas fa-times text-lg leading-none" aria-hidden="true"></i>
-                </button>
-            </div>
-            <div class="mt-4 overflow-y-auto flex-1 min-h-0 overscroll-contain py-1 pr-0.5 -mr-1">
-                <div class="grid grid-cols-1 gap-4 pb-6">
-                    <div>
-                        <label class="block text-xs font-bold uppercase tracking-[0.12em] text-white/85 mb-2">Date</label>
-                        <select id="dateFilter" class="daad-field w-full rounded-sm border border-white/20 bg-black/40 px-3 py-2.5 text-sm text-white focus:border-white/60 focus:ring-1 focus:ring-white/40 outline-none transition-shadow">
-                            <option value="">All Dates</option>
-                        </select>
-                    </div>
-                    <div>
-                        <label class="block text-xs font-bold uppercase tracking-[0.12em] text-white/85 mb-2">Location</label>
-                        <select id="locationFilter" class="daad-field w-full rounded-sm border border-white/20 bg-black/40 px-3 py-2.5 text-sm text-white focus:border-white/60 focus:ring-1 focus:ring-white/40 outline-none transition-shadow">
-                            <option value="">All Locations</option>
-                        </select>
-                    </div>
-                    <div>
-                        <label class="block text-xs font-bold uppercase tracking-[0.12em] text-white/85 mb-2">Tag</label>
-                        <select id="tagFilter" class="daad-field w-full rounded-sm border border-white/20 bg-black/40 px-3 py-2.5 text-sm text-white focus:border-white/60 focus:ring-1 focus:ring-white/40 outline-none transition-shadow">
-                            <option value="">All tags</option>
-                        </select>
-                    </div>
-                    <div>
-                        <label class="block text-xs font-bold uppercase tracking-[0.12em] text-white/85 mb-2">Artist</label>
-                        <input type="text" id="artistFilter" placeholder="Search artist…" class="daad-field w-full rounded-sm border border-white/20 bg-black/40 px-3 py-2.5 text-sm text-white placeholder:text-white/40 focus:border-white/60 focus:ring-1 focus:ring-white/40 outline-none transition-shadow">
-                    </div>
-                </div>
-                <div class="pb-6 border-t border-white/15 pt-4 sticky bottom-0 bg-[rgba(14,8,10,0.97)]">
-                    <button type="button" id="clearFiltersBtn"
-                        class="tab-daad font-sans text-xs font-bold uppercase tracking-[0.12em] w-full px-4 py-2.5 rounded-sm border transition-colors border-white/35 text-white/90 bg-transparent hover:bg-white/10 focus:outline-none focus-visible:ring-2 focus-visible:ring-white/50">
-                        Clear filters
-                    </button>
-                </div>
-            </div>
-        </div>
-    </div>
 
     <!-- Mirrored lineup controls when the primary toolbar has scrolled away — full-bleed strip -->
     <div id="daadLineupToolbarDock" class="daad-lineup-toolbar-dock" aria-hidden="true">
@@ -1966,7 +1991,7 @@
             daadResizeDebounceTimer = setTimeout(() => {
                 syncDaadStickyTop();
                 updateStickyHeadingStates();
-                closeDaadFiltersDrawer();
+                closeDaadSearchPanel();
             }, 150);
         });
 
@@ -1977,7 +2002,12 @@
             document.documentElement.style.setProperty('--daad-site-header-h', `${headerPx}px`);
             const bar = document.getElementById('daadActiveFiltersBar');
             let barPx = 0;
-            if (bar && !bar.classList.contains('daad-active-filters--hidden')) {
+            const anchor = document.getElementById('daadActiveFiltersAnchor');
+            if (
+                bar &&
+                anchor?.classList.contains('daad-active-filters-anchor--sticky') &&
+                !bar.classList.contains('daad-active-filters--hidden')
+            ) {
                 barPx = Math.round(bar.getBoundingClientRect().height || bar.offsetHeight);
             }
             document.documentElement.style.setProperty('--daad-sticky-top', `${headerPx + barPx}px`);
@@ -2018,29 +2048,65 @@
             dock.setAttribute('aria-hidden', show ? 'false' : 'true');
         }
 
-        let daadFiltersDrawerPrevFocus = null;
-        function daadFiltersDrawerIsOpen() {
-            const root = document.getElementById('daadFiltersDrawer');
-            return !!(root && root.classList.contains('daad-filters-drawer--open'));
+        const DAAD_SEARCH_MIN_QUERY_LEN = 3;
+        const daadScheduleFilters = { date: '', location: '', tag: '', artist: '' };
+        const daadDateLabels = {};
+        let daadSearchSuggestionsCache = [];
+        let daadSearchActiveIndex = -1;
+        let daadSearchPanelPrevFocus = null;
+
+        function daadSearchPanelIsOpen() {
+            const root = document.getElementById('daadSearchPanel');
+            return !!(root && root.classList.contains('daad-search-panel--open'));
         }
 
-        function onDaadFiltersDrawerEscape(ev) {
+        function syncDaadActiveFiltersAnchorSticky() {
+            const anchor = document.getElementById('daadActiveFiltersAnchor');
+            const bar = document.getElementById('daadActiveFiltersBar');
+            if (!anchor || !bar) return;
+            const hasAny = !bar.classList.contains('daad-active-filters--hidden');
+            anchor.classList.toggle(
+                'daad-active-filters-anchor--sticky',
+                hasAny && bar.parentElement?.id === 'daadActiveFiltersAnchor',
+            );
+        }
+
+        /** Active filters sit above the search field while searching; sticky under header otherwise. */
+        function placeDaadActiveFiltersBar(forSearchPanel) {
+            const bar = document.getElementById('daadActiveFiltersBar');
+            const anchor = document.getElementById('daadActiveFiltersAnchor');
+            const slot = document.getElementById('daadSearchPanelFiltersSlot');
+            if (!bar || !anchor || !slot) return;
+            const target = forSearchPanel ? slot : anchor;
+            if (bar.parentElement !== target) target.append(bar);
+            syncDaadActiveFiltersAnchorSticky();
+        }
+
+        function onDaadSearchPanelEscape(ev) {
             if (ev.key !== 'Escape') return;
             ev.preventDefault();
-            closeDaadFiltersDrawer();
+            closeDaadSearchPanel();
         }
 
-        function closeDaadFiltersDrawer() {
-            const root = document.getElementById('daadFiltersDrawer');
-            if (!root || !daadFiltersDrawerIsOpen()) return;
-            root.classList.remove('daad-filters-drawer--open');
-            root.setAttribute('aria-hidden', 'true');
+        function closeDaadSearchPanel() {
+            const panel = document.getElementById('daadSearchPanel');
+            const backdrop = document.getElementById('daadSearchBackdrop');
+            if (!panel || !daadSearchPanelIsOpen()) return;
+            panel.classList.remove('daad-search-panel--open');
+            panel.setAttribute('aria-hidden', 'true');
+            backdrop?.classList.remove('daad-search-backdrop--open');
+            backdrop?.setAttribute('aria-hidden', 'true');
             document.body.style.overflow = '';
-            const headerFiltersBtn = document.getElementById('daadHeaderFiltersBtn');
-            if (headerFiltersBtn) headerFiltersBtn.setAttribute('aria-expanded', 'false');
-            document.removeEventListener('keydown', onDaadFiltersDrawerEscape);
-            const prev = daadFiltersDrawerPrevFocus;
-            daadFiltersDrawerPrevFocus = null;
+            const headerBtn = document.getElementById('daadHeaderSearchBtn');
+            headerBtn?.classList.remove('daad-header-search--active');
+            headerBtn?.setAttribute('aria-expanded', 'false');
+            document.removeEventListener('keydown', onDaadSearchPanelEscape);
+            hideDaadSearchSuggestions();
+            placeDaadActiveFiltersBar(false);
+            const input = document.getElementById('daadSearchInput');
+            if (input) input.value = '';
+            const prev = daadSearchPanelPrevFocus;
+            daadSearchPanelPrevFocus = null;
             if (prev && typeof prev.focus === 'function') {
                 try {
                     prev.focus();
@@ -2048,32 +2114,222 @@
             }
         }
 
-        function openDaadFiltersDrawer() {
-            if (daadFiltersDrawerIsOpen()) return;
-            const root = document.getElementById('daadFiltersDrawer');
-            if (!root) return;
-            daadFiltersDrawerPrevFocus = document.activeElement;
-            root.classList.add('daad-filters-drawer--open');
-            root.setAttribute('aria-hidden', 'false');
+        function openDaadSearchPanel() {
+            if (daadSearchPanelIsOpen()) return;
+            const panel = document.getElementById('daadSearchPanel');
+            const backdrop = document.getElementById('daadSearchBackdrop');
+            if (!panel) return;
+            syncDaadStickyTop();
+            daadSearchPanelPrevFocus = document.activeElement;
+            panel.classList.add('daad-search-panel--open');
+            panel.setAttribute('aria-hidden', 'false');
+            backdrop?.classList.add('daad-search-backdrop--open');
+            backdrop?.setAttribute('aria-hidden', 'false');
             document.body.style.overflow = 'hidden';
-            const headerFiltersBtn = document.getElementById('daadHeaderFiltersBtn');
-            if (headerFiltersBtn) headerFiltersBtn.setAttribute('aria-expanded', 'true');
-            document.addEventListener('keydown', onDaadFiltersDrawerEscape);
+            const headerBtn = document.getElementById('daadHeaderSearchBtn');
+            headerBtn?.classList.add('daad-header-search--active');
+            headerBtn?.setAttribute('aria-expanded', 'true');
+            document.addEventListener('keydown', onDaadSearchPanelEscape);
+            placeDaadActiveFiltersBar(true);
             requestAnimationFrame(() => {
-                const el = document.getElementById('dateFilter');
-                if (el && typeof el.focus === 'function') el.focus();
+                hideDaadSearchSuggestions();
+                syncDaadStickyTop();
             });
         }
 
-        let filtersDrawerControlsWired = false;
-        function ensureFiltersDrawerControls() {
-            if (filtersDrawerControlsWired) return;
-            const drawerRoot = document.getElementById('daadFiltersDrawer');
-            if (!drawerRoot) return;
-            filtersDrawerControlsWired = true;
-            document.getElementById('daadHeaderFiltersBtn')?.addEventListener('click', () => openDaadFiltersDrawer());
-            document.getElementById('daadFiltersDrawerBackdrop')?.addEventListener('click', closeDaadFiltersDrawer);
-            document.getElementById('daadFiltersDrawerClose')?.addEventListener('click', closeDaadFiltersDrawer);
+        function daadSearchQueryLen(value) {
+            return String(value || '').trim().length;
+        }
+
+        function toggleDaadSearchPanel() {
+            if (daadSearchPanelIsOpen()) closeDaadSearchPanel();
+            else openDaadSearchPanel();
+        }
+
+        function eventsMatchingDaadScheduleFilters(events) {
+            const f = daadScheduleFilters;
+            const selectionFilter = document.getElementById('selectionFilter')?.value || 'all';
+            return events.filter((event) => {
+                const matchesDate = !f.date || event.dayKey === f.date;
+                const matchesLocation = !f.location || event.location === f.location;
+                const matchesArtist =
+                    !f.artist || event.summary.toLowerCase().includes(String(f.artist).toLowerCase());
+                const matchesTag =
+                    !f.tag || (Array.isArray(event.tags) && event.tags.some((t) => t === f.tag));
+                const matchesSelection =
+                    selectionFilter === 'all' ||
+                    (selectionFilter === 'selected' && window.selectedEvents.has(event.id)) ||
+                    (selectionFilter === 'unselected' && !window.selectedEvents.has(event.id));
+                return matchesDate && matchesLocation && matchesArtist && matchesTag && matchesSelection;
+            });
+        }
+
+        function buildDaadSearchSuggestions(query) {
+            const trimmed = String(query || '').trim();
+            if (trimmed.length < DAAD_SEARCH_MIN_QUERY_LEN) return [];
+            const all = Array.isArray(window.allEvents) ? window.allEvents : [];
+            const pool = eventsMatchingDaadScheduleFilters(all);
+            const q = trimmed.toLowerCase();
+            const f = daadScheduleFilters;
+            const items = [];
+            const matchesQ = (label, value) => {
+                return (
+                    String(label || '').toLowerCase().includes(q) ||
+                    String(value || '').toLowerCase().includes(q)
+                );
+            };
+
+            if (!f.date) {
+                [...new Set(pool.map((e) => e.dayKey))].sort().forEach((dayKey) => {
+                    const label = daadDateLabels[dayKey] || formatDayHeading(dayKey);
+                    if (matchesQ(label, dayKey))
+                        items.push({ type: 'date', value: dayKey, label, kind: 'Day' });
+                });
+            }
+            if (!f.location) {
+                [...new Set(pool.map((e) => e.location))]
+                    .sort((a, b) => String(a).localeCompare(String(b)))
+                    .forEach((loc) => {
+                        if (matchesQ(loc, loc))
+                            items.push({ type: 'location', value: loc, label: loc, kind: 'Stage' });
+                    });
+            }
+            if (!f.tag) {
+                const tagSet = new Set();
+                pool.forEach((e) => (e.tags || []).forEach((t) => tagSet.add(t)));
+                [...tagSet].sort().forEach((tag) => {
+                    if (matchesQ(tag, tag)) items.push({ type: 'tag', value: tag, label: tag, kind: 'Tag' });
+                });
+            }
+            if (!f.artist) {
+                [...new Set(pool.map((e) => e.summary))]
+                    .sort((a, b) => String(a).localeCompare(String(b)))
+                    .forEach((name) => {
+                        if (matchesQ(name, name))
+                            items.push({ type: 'artist', value: name, label: name, kind: 'Artist' });
+                    });
+            }
+            return items.slice(0, 48);
+        }
+
+        function hideDaadSearchSuggestions() {
+            const list = document.getElementById('daadSearchSuggestions');
+            const input = document.getElementById('daadSearchInput');
+            daadSearchSuggestionsCache = [];
+            daadSearchActiveIndex = -1;
+            if (list) {
+                list.replaceChildren();
+                list.classList.add('hidden');
+            }
+            input?.setAttribute('aria-expanded', 'false');
+        }
+
+        function renderDaadSearchSuggestions(items) {
+            const list = document.getElementById('daadSearchSuggestions');
+            const input = document.getElementById('daadSearchInput');
+            if (!list || !input) return;
+            daadSearchSuggestionsCache = items;
+            daadSearchActiveIndex = items.length ? 0 : -1;
+            list.replaceChildren();
+            if (!items.length) {
+                list.classList.add('hidden');
+                input.setAttribute('aria-expanded', 'false');
+                return;
+            }
+            list.classList.remove('hidden');
+            input.setAttribute('aria-expanded', 'true');
+            items.forEach((item, idx) => {
+                const li = document.createElement('li');
+                li.setAttribute('role', 'option');
+                li.id = `daad-search-opt-${idx}`;
+                li.dataset.index = String(idx);
+                li.className =
+                    'daad-search-suggestion flex cursor-pointer items-center gap-3 px-3 py-2.5 text-sm text-white hover:bg-white/10' +
+                    (idx === daadSearchActiveIndex ? ' daad-search-suggestion--active' : '');
+                const kind = document.createElement('span');
+                kind.className =
+                    'shrink-0 text-[10px] font-bold uppercase tracking-[0.1em] text-white/45 w-14';
+                kind.textContent = item.kind;
+                const label = document.createElement('span');
+                label.className = 'min-w-0 flex-1 truncate';
+                label.textContent = item.label;
+                li.append(kind, label);
+                li.addEventListener('mousedown', (ev) => ev.preventDefault());
+                li.addEventListener('click', () => applyDaadSearchSuggestion(item));
+                list.appendChild(li);
+            });
+            input.setAttribute('aria-activedescendant', items[0] ? 'daad-search-opt-0' : '');
+        }
+
+        function highlightDaadSearchSuggestion(index) {
+            const list = document.getElementById('daadSearchSuggestions');
+            const input = document.getElementById('daadSearchInput');
+            if (!list || !daadSearchSuggestionsCache.length) return;
+            const clamped = Math.max(0, Math.min(index, daadSearchSuggestionsCache.length - 1));
+            daadSearchActiveIndex = clamped;
+            list.querySelectorAll('[role="option"]').forEach((el, i) => {
+                el.classList.toggle('daad-search-suggestion--active', i === clamped);
+            });
+            input?.setAttribute('aria-activedescendant', `daad-search-opt-${clamped}`);
+        }
+
+        function refreshDaadSearchSuggestions() {
+            const input = document.getElementById('daadSearchInput');
+            const value = input?.value || '';
+            if (daadSearchQueryLen(value) < DAAD_SEARCH_MIN_QUERY_LEN) {
+                hideDaadSearchSuggestions();
+                return;
+            }
+            renderDaadSearchSuggestions(buildDaadSearchSuggestions(value));
+        }
+
+        function applyDaadSearchSuggestion(item) {
+            if (!item || !item.type) return;
+            if (item.type === 'date') daadScheduleFilters.date = item.value;
+            else if (item.type === 'location') daadScheduleFilters.location = item.value;
+            else if (item.type === 'tag') daadScheduleFilters.tag = item.value;
+            else if (item.type === 'artist') daadScheduleFilters.artist = item.value;
+            trackDaad(`daadFilter_${item.type}`, { filter_value: item.value });
+            const input = document.getElementById('daadSearchInput');
+            if (input) input.value = '';
+            closeDaadSearchPanel();
+            if (Array.isArray(window.allEvents)) filterEvents(window.allEvents);
+        }
+
+        let searchPanelControlsWired = false;
+        function ensureSearchPanelControls() {
+            if (searchPanelControlsWired) return;
+            const panel = document.getElementById('daadSearchPanel');
+            if (!panel) return;
+            searchPanelControlsWired = true;
+            document.getElementById('daadHeaderSearchBtn')?.addEventListener('click', () => toggleDaadSearchPanel());
+            document.getElementById('daadSearchBackdrop')?.addEventListener('click', closeDaadSearchPanel);
+            const input = document.getElementById('daadSearchInput');
+            input?.addEventListener('input', refreshDaadSearchSuggestions);
+            input?.addEventListener('keydown', (ev) => {
+                const n = daadSearchSuggestionsCache.length;
+                if (ev.key === 'ArrowDown') {
+                    ev.preventDefault();
+                    if (!n) return;
+                    highlightDaadSearchSuggestion(
+                        daadSearchActiveIndex < 0 ? 0 : daadSearchActiveIndex + 1,
+                    );
+                } else if (ev.key === 'ArrowUp') {
+                    ev.preventDefault();
+                    if (!n) return;
+                    highlightDaadSearchSuggestion(
+                        daadSearchActiveIndex < 0 ? n - 1 : daadSearchActiveIndex - 1,
+                    );
+                } else if (ev.key === 'Enter') {
+                    if (n && daadSearchActiveIndex >= 0) {
+                        ev.preventDefault();
+                        applyDaadSearchSuggestion(daadSearchSuggestionsCache[daadSearchActiveIndex]);
+                    }
+                } else if (ev.key === 'Escape') {
+                    ev.preventDefault();
+                    closeDaadSearchPanel();
+                }
+            });
         }
 
         function updateBackToTopButton() {
@@ -2179,7 +2435,8 @@
         // Initialize the application
         async function init() {
             syncDaadStickyTop();
-            ensureFiltersDrawerControls();
+            placeDaadActiveFiltersBar(false);
+            ensureSearchPanelControls();
             ensureBackToTopControl();
             ensureLineupToolbarStickyOffsets();
             syncFloatingChromeOffsets();
@@ -2190,8 +2447,9 @@
             } catch (e) {}
             syncDaadStickyTop();
             const events = await fetchEvents();
-            const uniqueDates = [...new Set(events.map((event) => event.dayKey))];
-            const uniqueLocations = [...new Set(events.map(event => event.location))];
+            [...new Set(events.map((event) => event.dayKey))].sort().forEach((date) => {
+                daadDateLabels[date] = formatDayHeading(date);
+            });
 
             const savedSelections = localStorage.getItem('daadSelectedEvents');
             const parsedSelections = savedSelections ? JSON.parse(savedSelections) : [];
@@ -2207,41 +2465,6 @@
                 overviewPanel.classList.remove('translate-y-full');
                 updateSelectionOverview(events);
             }
-
-            // Populate date filter
-            const dateFilter = document.getElementById('dateFilter');
-            uniqueDates.sort().forEach((date) => {
-                const option = document.createElement('option');
-                option.value = date;
-                option.textContent = new Date(date + 'T12:00:00').toLocaleDateString('en-US', {
-                    timeZone: EVENT_TIMEZONE,
-                    weekday: 'long',
-                    month: 'long',
-                    day: 'numeric',
-                });
-                dateFilter.appendChild(option);
-            });
-
-            // Populate tag filter
-            const tagFilterEl = document.getElementById('tagFilter');
-            while (tagFilterEl.options.length > 1) tagFilterEl.remove(1);
-            const tagSet = new Set();
-            events.forEach((e) => (e.tags || []).forEach((t) => tagSet.add(t)));
-            [...tagSet].sort().forEach((tag) => {
-                const opt = document.createElement('option');
-                opt.value = tag;
-                opt.textContent = tag;
-                tagFilterEl.appendChild(opt);
-            });
-
-            // Populate location filter
-            const locationFilter = document.getElementById('locationFilter');
-            uniqueLocations.forEach(location => {
-                const option = document.createElement('option');
-                option.value = location;
-                option.textContent = location;
-                locationFilter.appendChild(option);
-            });
 
             // Display events
             displayEvents(events);
@@ -2280,35 +2503,24 @@
             });
 
             // Add event listeners
-            document.getElementById('dateFilter').addEventListener('change', () =>
-                filterEvents(events, 'dateFilter'),
-            );
-            document.getElementById('locationFilter').addEventListener('change', () =>
-                filterEvents(events, 'locationFilter'),
-            );
-            document.getElementById('artistFilter').addEventListener('input', () =>
-                filterEvents(events, 'artistFilter'),
-            );
             document.getElementById('selectionFilter').addEventListener('change', () => {
                 syncMirrorSelectionDockFromPrimary();
                 filterEvents(events, 'selectionFilter');
+                if (daadSearchPanelIsOpen()) refreshDaadSearchSuggestions();
             });
             document.getElementById('dock-selectionFilter')?.addEventListener('change', () => {
                 const v = document.getElementById('dock-selectionFilter').value;
                 const primary = document.getElementById('selectionFilter');
                 if (primary) primary.value = v;
                 filterEvents(events, 'selectionFilter');
+                if (daadSearchPanelIsOpen()) refreshDaadSearchSuggestions();
             });
-            document.getElementById('tagFilter').addEventListener('change', () =>
-                filterEvents(events, 'tagFilter'),
-            );
-            document.getElementById('clearFiltersBtn').addEventListener('click', clearFilters);
             document.getElementById('daadActiveFiltersClearAll')?.addEventListener('click', clearFilters);
             document.getElementById('daadActiveFiltersChips')?.addEventListener('click', (ev) => {
                 const rm = ev.target.closest('button[data-daad-clear-filter]');
                 if (!rm) return;
                 ev.preventDefault();
-                clearOneDaadDrawerFilter(rm.getAttribute('data-daad-clear-filter'));
+                clearOneDaadScheduleFilter(rm.getAttribute('data-daad-clear-filter'));
             });
             const activeFiltersBar = document.getElementById('daadActiveFiltersBar');
             if (activeFiltersBar && typeof ResizeObserver !== 'undefined') {
@@ -2336,22 +2548,22 @@
         }
 
         function clearFilters() {
-            document.getElementById('dateFilter').value = '';
-            document.getElementById('locationFilter').value = '';
-            document.getElementById('tagFilter').value = '';
-            document.getElementById('artistFilter').value = '';
+            daadScheduleFilters.date = '';
+            daadScheduleFilters.location = '';
+            daadScheduleFilters.tag = '';
+            daadScheduleFilters.artist = '';
             document.getElementById('selectionFilter').value = 'all';
             syncMirrorSelectionDockFromPrimary();
             if (Array.isArray(window.allEvents)) filterEvents(window.allEvents);
         }
 
-        /** Single drawer filter cleared from the pinned “Active filters” strip (does not reopen the drawer). */
-        function clearOneDaadDrawerFilter(which) {
+        /** Single filter cleared from the pinned “Active filters” strip. */
+        function clearOneDaadScheduleFilter(which) {
             if (!which || !Array.isArray(window.allEvents)) return;
-            if (which === 'date') document.getElementById('dateFilter').value = '';
-            else if (which === 'location') document.getElementById('locationFilter').value = '';
-            else if (which === 'tag') document.getElementById('tagFilter').value = '';
-            else if (which === 'artist') document.getElementById('artistFilter').value = '';
+            if (which === 'date') daadScheduleFilters.date = '';
+            else if (which === 'location') daadScheduleFilters.location = '';
+            else if (which === 'tag') daadScheduleFilters.tag = '';
+            else if (which === 'artist') daadScheduleFilters.artist = '';
             else if (which === 'selection') {
                 document.getElementById('selectionFilter').value = 'all';
                 syncMirrorSelectionDockFromPrimary();
@@ -2365,34 +2577,24 @@
             const chipsHost = document.getElementById('daadActiveFiltersChips');
             if (!root || !chipsHost) return;
 
-            const dateSel = document.getElementById('dateFilter');
-            const locSel = document.getElementById('locationFilter');
-            const tagSel = document.getElementById('tagFilter');
-            const artistIn = document.getElementById('artistFilter');
             const lineupSel = document.getElementById('selectionFilter');
-
             const defs = [];
 
-            const dateVal = dateSel?.value || '';
-            if (dateVal) {
-                const opt = dateSel?.options?.[dateSel.selectedIndex];
-                const label = opt ? String(opt.textContent || '').trim() : dateVal;
-                defs.push({ key: 'date', valueText: label });
+            if (daadScheduleFilters.date) {
+                defs.push({
+                    key: 'date',
+                    valueText: daadDateLabels[daadScheduleFilters.date] || daadScheduleFilters.date,
+                });
             }
-
-            const locVal = locSel?.value || '';
-            if (locVal) {
-                const opt = locSel?.options?.[locSel.selectedIndex];
-                const label = opt ? String(opt.textContent || '').trim() : locVal;
-                defs.push({ key: 'location', valueText: label });
+            if (daadScheduleFilters.location) {
+                defs.push({ key: 'location', valueText: daadScheduleFilters.location });
             }
-
-            const tagVal = tagSel?.value || '';
-            if (tagVal)
-                defs.push({ key: 'tag', valueText: String(tagSel.options[tagSel.selectedIndex]?.textContent || tagVal).trim() });
-
-            const artistQ = String(artistIn?.value || '').trim();
-            if (artistQ) defs.push({ key: 'artist', valueText: artistQ });
+            if (daadScheduleFilters.tag) {
+                defs.push({ key: 'tag', valueText: daadScheduleFilters.tag });
+            }
+            if (daadScheduleFilters.artist) {
+                defs.push({ key: 'artist', valueText: daadScheduleFilters.artist });
+            }
 
             const lineupVal = lineupSel?.value || 'all';
             if (lineupVal && lineupVal !== 'all') {
@@ -2428,6 +2630,8 @@
                 chipsHost.appendChild(btn);
             });
 
+            placeDaadActiveFiltersBar(daadSearchPanelIsOpen());
+            syncDaadActiveFiltersAnchorSticky();
             requestAnimationFrame(() => {
                 syncDaadStickyTop();
                 updateStickyHeadingStates();
@@ -2436,30 +2640,11 @@
 
         // Filter events based on selected criteria
         function filterEvents(events, clickedFilterName) {
-            if (clickedFilterName) {
-                const el = document.getElementById(clickedFilterName);
-                const filterValue = el ? el.value : '';
-                trackDaad(clickedFilterName, { filter_value: filterValue });
+            if (clickedFilterName === 'selectionFilter') {
+                const el = document.getElementById('selectionFilter');
+                trackDaad(clickedFilterName, { filter_value: el ? el.value : '' });
             }
-            const dateFilter = document.getElementById('dateFilter').value;
-            const locationFilter = document.getElementById('locationFilter').value;
-            const artistFilter = document.getElementById('artistFilter').value.toLowerCase();
-            const selectionFilter = document.getElementById('selectionFilter').value;
-            const tagFilter = document.getElementById('tagFilter').value;
-
-            const filteredEvents = events.filter(event => {
-                const matchesDate = !dateFilter || event.dayKey === dateFilter;
-                const matchesLocation = !locationFilter || event.location === locationFilter;
-                const matchesArtist = !artistFilter || event.summary.toLowerCase().includes(artistFilter);
-                const matchesTag =
-                    !tagFilter || (Array.isArray(event.tags) && event.tags.some((t) => t === tagFilter));
-                const matchesSelection = selectionFilter === 'all' ||
-                    (selectionFilter === 'selected' && window.selectedEvents.has(event.id)) ||
-                    (selectionFilter === 'unselected' && !window.selectedEvents.has(event.id));
-                return matchesDate && matchesLocation && matchesArtist && matchesTag && matchesSelection;
-            });
-
-            
+            const filteredEvents = eventsMatchingDaadScheduleFilters(events);
             displayEvents(filteredEvents);
             updateActiveFiltersBar();
         }

@@ -7,7 +7,7 @@ alwaysApply: true
 
 ## What it is
 
-Static **event schedule viewer** for **DAAD Gathering** (currently titled “2026” in `index.html`). Users browse lineup by day/stage, filter via the **header off-canvas** (date, location, artist, tags), open sample-set links, and save a **personal lineup** in the browser. The **PWA** precaches the shell and schedule so the app works **fully offline** after install. No app backend in production: same behavior as **GitHub Pages** (HTML + client-side JS only).
+Static **event schedule viewer** for **DAAD Gathering** (currently titled “2026” in `index.html`). Users browse lineup by day/stage, **filter via header search** (day, stage, tag, artist — see **Filtering & search** below), open sample-set links, and save a **personal lineup** in the browser. The **PWA** precaches the shell and schedule so the app works **fully offline** after install. No app backend in production: same behavior as **GitHub Pages** (HTML + client-side JS only).
 
 ## Stack & run locally
 
@@ -40,6 +40,38 @@ Static **event schedule viewer** for **DAAD Gathering** (currently titled “202
 - **By schedule** tab meta line: stage label left, spoken **`formatDuration`** right.
 - **Generic HTTP samples** (everything else—including **YouTube @handles**, playlists **without `v=`**, ambiguous links): aside label + single **Sample set** link.
 
+## Filtering & search
+
+Schedule narrowing is **search-driven** (no separate filter drawer). The header magnifier is the **only** UI for day / stage / tag / artist filters.
+
+### Opening search
+
+- **`#daadHeaderSearchBtn`** toggles **`#daadSearchPanel`** (slides down under **`#daadSiteHeader`**) and dimmed **`#daadSearchBackdrop`**. **Escape** or backdrop click closes via **`closeDaadSearchPanel`** / **`toggleDaadSearchPanel`**.
+- Opening the panel does **not** auto-focus **`#daadSearchInput`** — focus stays on the control the user used until they activate the field.
+- On close, the search field is cleared and focus returns to the element that had it when the panel opened (**`daadSearchPanelPrevFocus`**).
+
+### Search field & autocomplete
+
+- **`#daadSearchInput`**: `type="search"`, combobox ARIA (`aria-controls` → **`#daadSearchSuggestions`**). Placeholder, screen-reader label, and install help say **“genre”** colloquially; **tag values in data are `event.tags`**, and the suggestion **kind** column labels them **`Tag`** (not “Genre”).
+- Suggestions appear after **`DAAD_SEARCH_MIN_QUERY_LEN` (3)** typed characters (**`buildDaadSearchSuggestions`** → **`renderDaadSearchSuggestions`**). Keyboard: **↑/↓** highlight, **Enter** applies highlighted row, **Escape** closes panel.
+- Suggestion pool = events already matching **`eventsMatchingDaadScheduleFilters`** (filters **stack**). Each row: **`kind`** (`Day` | `Stage` | `Tag` | `Artist`) + label. Dimensions already set in **`daadScheduleFilters`** are omitted from suggestions (e.g. no more day picks while a day filter is active). Cap **48** items.
+- Picking a row (**`applyDaadSearchSuggestion`**) sets the matching key on **`daadScheduleFilters`**, clears the input, closes the panel, and re-renders the lineup (**`filterEvents`**). Fires **`trackDaad('daadFilter_<type>', …)`** when analytics is loaded.
+- Changing **`#selectionFilter`** while the panel is open refreshes suggestions (**`refreshDaadSearchSuggestions`**) so the pool stays in sync.
+
+### Filter state & matching
+
+- **`daadScheduleFilters`**: `{ date: '', location: '', tag: '', artist: '' }` — `date` is **`dayKey`**, `location` is normalized stage name, `tag` is a single tag string, `artist` is matched as **case-insensitive substring** of **`event.summary`**.
+- **`eventsMatchingDaadScheduleFilters`** also applies **`#selectionFilter`** (lineup membership: all / in lineup / not in lineup). That control lives in the **lineup toolbar**, not in the search panel.
+
+### Active filters bar
+
+- **`#daadActiveFiltersBar`** shows removable chips (**`#daadActiveFiltersChips`**) for every active schedule filter plus non-`all` lineup filter; **Clear all** (**`#daadActiveFiltersClearAll`**) resets schedule filters and lineup filter (**`clearFilters`**). Per-chip remove: **`clearOneDaadScheduleFilter`** (`data-daad-clear-filter` = `date` | `location` | `tag` | `artist` | `selection`).
+- **`placeDaadActiveFiltersBar`**: while search is open, the bar moves into **`#daadSearchPanelFiltersSlot`** above the input; when closed, it lives in **`#daadActiveFiltersAnchor`** and can stick under the site header when filters are active (**`syncDaadActiveFiltersAnchorSticky`**). Hidden when no filters apply (**`updateActiveFiltersBar`**).
+
+### Styling note
+
+- Search chrome and **`#daadSearchInput`** focus ring (grey border default, white on focus) include rules in **`index.html`** `<style>` so behavior survives a stale **`app.css`**; still run **`npm run build:css`** when changing Tailwind classes on the input.
+
 ## Implementation map (`index.html` script)
 
 | Concern | Functions / notes |
@@ -50,6 +82,7 @@ Static **event schedule viewer** for **DAAD Gathering** (currently titled “202
 | End times | **Defined in JSON** from CSV **`duration`** (plus start) in the script; app consumes **`endUtcMs` / `duration`** from loaded events. |
 | Sample column | **`buildSampleAsideColumn`** — SoundCloud hydrate; YouTube **`buildYouTubeSampleAsideInner`** (**`youtubeSampleAsideSupported`**: video id **`extractYouTubeVideoId`**, channel **`extractYouTubeChannelIdForThumb`**, browse **`fetchMicrolinkImageUrl`** + **`hydrateYouTubeMicrolinkThumbs`**) |
 | Analytics | **`tryInjectDaadSimpleAnalytics`** (online + **`online`** listener), **`trackDaad`** → Simple Analytics **`window.sa_event`**; never **`PRECACHE_URLS`** |
-| UI | **Filters**: header `#daadHeaderFiltersBtn` opens `#daadFiltersDrawer` (right panel) with `#dateFilter`, `#locationFilter`, `#tagFilter`, `#artistFilter`, `#clearFiltersBtn`. **Lineup toolbar** still has `#selectionFilter` (all / in lineup / not in lineup). Filter/render helpers, event cards / sample aside, loading overlay + error banner |
+| Filtering & search | **`openDaadSearchPanel`**, **`closeDaadSearchPanel`**, **`buildDaadSearchSuggestions`**, **`applyDaadSearchSuggestion`**, **`eventsMatchingDaadScheduleFilters`**, **`updateActiveFiltersBar`**, **`clearFilters`**, **`clearOneDaadScheduleFilter`**, **`placeDaadActiveFiltersBar`** — see **Filtering & search** |
+| UI (other) | Tabs / grid, **`#selectionFilter`** + dock mirror, event cards / sample aside, loading overlay + error banner |
 
 When adding stages or columns, update **Sheet + `csv_to_events.py`**, **normalization**, and **`STAGE_STYLES`** together.
