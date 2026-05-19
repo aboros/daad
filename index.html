@@ -788,6 +788,8 @@
         }
         #daadSearchInput {
             padding-left: 36px;
+            /* ≥16px stops iOS Safari focus-zoom (stuck zoom + horizontal scroll after blur) */
+            font-size: 16px;
             -webkit-appearance: none;
             appearance: none;
         }
@@ -913,7 +915,7 @@
                     aria-expanded="false"
                     aria-controls="daadSearchSuggestions"
                     aria-autocomplete="list"
-                    class="daad-field w-full rounded-sm border border-white/20 bg-black/50 py-3 pr-3 text-sm text-white placeholder:text-white/40 focus:border-white focus:ring-1 focus:ring-white outline-none transition-shadow"
+                    class="daad-field w-full rounded-sm border border-white/20 bg-black/50 py-3 pr-3 text-base text-white placeholder:text-white/40 focus:border-white focus:ring-1 focus:ring-white outline-none transition-shadow"
                 />
                 </div>
                 <ul
