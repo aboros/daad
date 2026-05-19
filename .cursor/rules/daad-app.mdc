@@ -47,7 +47,7 @@ Schedule narrowing is **search-driven** (no separate filter drawer). The header 
 ### Opening search
 
 - **`#daadHeaderSearchBtn`** toggles **`#daadSearchPanel`** (slides down under **`#daadSiteHeader`**) and dimmed **`#daadSearchBackdrop`**. **Escape** or backdrop click closes via **`closeDaadSearchPanel`** / **`toggleDaadSearchPanel`**.
-- Opening from the header: **`pointerdown`** runs **`beginDaadSearchKeyboardHandoff`** (hidden fake input on coarse-pointer / no-hover devices so iOS keeps the soft keyboard), then **`click`** opens with **`openDaadSearchPanel({ focusInput: true })`** → **`completeDaadSearchKeyboardHandoff`** (sync **`focusDaadSearchInputFromUserGesture`** + 100ms refocus). Desktop fine-pointer gets sync focus only.
+- Opening from the header: **`pointerdown`** (with **`preventDefault`**) runs handoff + **`openDaadSearchPanel({ focusInput: true })`** in one gesture; **`click`** is ignored for that open ( **`daadSearchOpenedThisGesture`** ) so the header button does not steal focus and dismiss the keyboard. Coarse-pointer uses a hidden fake input until panel **`transitionend`** (~360ms fallback). Do not call **`input.click()`** after focus on iOS.
 - On close, pending handoff is cancelled (**`cancelDaadSearchKeyboardHandoff`**), the search field is cleared, and focus returns to the element that had it when the panel opened (**`daadSearchPanelPrevFocus`**).
 
 ### Search field & autocomplete
