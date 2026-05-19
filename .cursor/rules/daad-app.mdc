@@ -47,8 +47,8 @@ Schedule narrowing is **search-driven** (no separate filter drawer). The header 
 ### Opening search
 
 - **`#daadHeaderSearchBtn`** toggles **`#daadSearchPanel`** (slides down under **`#daadSiteHeader`**) and dimmed **`#daadSearchBackdrop`**. **Escape** or backdrop click closes via **`closeDaadSearchPanel`** / **`toggleDaadSearchPanel`**.
-- Opening the panel does **not** auto-focus **`#daadSearchInput`** — focus stays on the control the user used until they activate the field.
-- On close, the search field is cleared and focus returns to the element that had it when the panel opened (**`daadSearchPanelPrevFocus`**).
+- Opening from the header: **`pointerdown`** runs **`beginDaadSearchKeyboardHandoff`** (hidden fake input on coarse-pointer / no-hover devices so iOS keeps the soft keyboard), then **`click`** opens with **`openDaadSearchPanel({ focusInput: true })`** → **`completeDaadSearchKeyboardHandoff`** (sync **`focusDaadSearchInputFromUserGesture`** + 100ms refocus). Desktop fine-pointer gets sync focus only.
+- On close, pending handoff is cancelled (**`cancelDaadSearchKeyboardHandoff`**), the search field is cleared, and focus returns to the element that had it when the panel opened (**`daadSearchPanelPrevFocus`**).
 
 ### Search field & autocomplete
 
@@ -82,7 +82,7 @@ Schedule narrowing is **search-driven** (no separate filter drawer). The header 
 | End times | **Defined in JSON** from CSV **`duration`** (plus start) in the script; app consumes **`endUtcMs` / `duration`** from loaded events. |
 | Sample column | **`buildSampleAsideColumn`** — SoundCloud hydrate; YouTube **`buildYouTubeSampleAsideInner`** (**`youtubeSampleAsideSupported`**: video id **`extractYouTubeVideoId`**, channel **`extractYouTubeChannelIdForThumb`**, browse **`fetchMicrolinkImageUrl`** + **`hydrateYouTubeMicrolinkThumbs`**) |
 | Analytics | **`tryInjectDaadSimpleAnalytics`** (online + **`online`** listener), **`trackDaad`** → Simple Analytics **`window.sa_event`**; never **`PRECACHE_URLS`** |
-| Filtering & search | **`openDaadSearchPanel`**, **`closeDaadSearchPanel`**, **`buildDaadSearchSuggestions`**, **`applyDaadSearchSuggestion`**, **`eventsMatchingDaadScheduleFilters`**, **`updateActiveFiltersBar`**, **`clearFilters`**, **`clearOneDaadScheduleFilter`**, **`placeDaadActiveFiltersBar`** — see **Filtering & search** |
+| Filtering & search | **`openDaadSearchPanel`**, **`closeDaadSearchPanel`**, **`beginDaadSearchKeyboardHandoff`**, **`focusDaadSearchInputFromUserGesture`**, **`completeDaadSearchKeyboardHandoff`**, **`buildDaadSearchSuggestions`**, **`applyDaadSearchSuggestion`**, **`eventsMatchingDaadScheduleFilters`**, **`updateActiveFiltersBar`**, **`clearFilters`**, **`clearOneDaadScheduleFilter`**, **`placeDaadActiveFiltersBar`** — see **Filtering & search** |
 | UI (other) | Tabs / grid, **`#selectionFilter`** + dock mirror, event cards / sample aside, loading overlay + error banner |
 
 When adding stages or columns, update **Sheet + `csv_to_events.py`**, **normalization**, and **`STAGE_STYLES`** together.

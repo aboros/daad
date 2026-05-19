@@ -2093,6 +2093,90 @@
         let daadSearchSuggestionsCache = [];
         let daadSearchActiveIndex = -1;
         let daadSearchPanelPrevFocus = null;
+        let daadSearchFakeInputEl = null;
+        let daadSearchFakeInputHandoffTimer = null;
+        let daadTouchKeyboardDeviceCache = null;
+
+        function daadLikelyTouchKeyboardDevice() {
+            if (daadTouchKeyboardDeviceCache === null) {
+                daadTouchKeyboardDeviceCache =
+                    window.matchMedia('(pointer: coarse)').matches ||
+                    window.matchMedia('(hover: none)').matches;
+            }
+            return daadTouchKeyboardDeviceCache;
+        }
+
+        function removeDaadSearchFakeInput() {
+            if (daadSearchFakeInputHandoffTimer != null) {
+                clearTimeout(daadSearchFakeInputHandoffTimer);
+                daadSearchFakeInputHandoffTimer = null;
+            }
+            if (daadSearchFakeInputEl) {
+                daadSearchFakeInputEl.remove();
+                daadSearchFakeInputEl = null;
+            }
+        }
+
+        /** Reserve iOS/Android keyboard during the header tap (must run synchronously on pointerdown). */
+        function beginDaadSearchKeyboardHandoff() {
+            removeDaadSearchFakeInput();
+            if (!daadLikelyTouchKeyboardDevice()) return;
+            const fake = document.createElement('input');
+            fake.type = 'text';
+            fake.setAttribute('aria-hidden', 'true');
+            fake.setAttribute('tabindex', '-1');
+            fake.setAttribute('autocomplete', 'off');
+            Object.assign(fake.style, {
+                position: 'fixed',
+                opacity: '0',
+                height: '0',
+                width: '1px',
+                fontSize: '16px',
+                top: '0',
+                left: '0',
+                border: 'none',
+                padding: '0',
+                margin: '0',
+            });
+            document.body.appendChild(fake);
+            daadSearchFakeInputEl = fake;
+            try {
+                fake.focus();
+            } catch (_) {}
+        }
+
+        function focusDaadSearchInputFromUserGesture() {
+            const input = document.getElementById('daadSearchInput');
+            if (!input) return;
+            try {
+                input.focus({ preventScroll: true });
+            } catch (_) {
+                try {
+                    input.focus();
+                } catch (_) {}
+            }
+            if (daadLikelyTouchKeyboardDevice()) {
+                try {
+                    input.click();
+                } catch (_) {}
+            }
+        }
+
+        function completeDaadSearchKeyboardHandoff() {
+            focusDaadSearchInputFromUserGesture();
+            if (!daadSearchFakeInputEl) return;
+            const fake = daadSearchFakeInputEl;
+            daadSearchFakeInputHandoffTimer = window.setTimeout(() => {
+                daadSearchFakeInputHandoffTimer = null;
+                focusDaadSearchInputFromUserGesture();
+                if (fake.parentNode) fake.remove();
+                if (daadSearchFakeInputEl === fake) daadSearchFakeInputEl = null;
+            }, 100);
+        }
+
+        function cancelDaadSearchKeyboardHandoff() {
+            removeDaadSearchFakeInput();
+        }
 
         function daadSearchPanelIsOpen() {
             const root = document.getElementById('daadSearchPanel');
@@ -2131,6 +2215,7 @@
             const panel = document.getElementById('daadSearchPanel');
             const backdrop = document.getElementById('daadSearchBackdrop');
             if (!panel || !daadSearchPanelIsOpen()) return;
+            cancelDaadSearchKeyboardHandoff();
             panel.classList.remove('daad-search-panel--open');
             panel.setAttribute('aria-hidden', 'true');
             backdrop?.classList.remove('daad-search-backdrop--open');
@@ -2154,8 +2239,9 @@
             }
         }
 
-        function openDaadSearchPanel() {
+        function openDaadSearchPanel(options) {
             if (daadSearchPanelIsOpen()) return;
+            const focusInput = !!(options && options.focusInput);
             const panel = document.getElementById('daadSearchPanel');
             const backdrop = document.getElementById('daadSearchBackdrop');
             if (!panel) return;
@@ -2171,6 +2257,7 @@
             headerBtn?.setAttribute('aria-expanded', 'true');
             document.addEventListener('keydown', onDaadSearchPanelEscape);
             placeDaadActiveFiltersBar(true);
+            if (focusInput) completeDaadSearchKeyboardHandoff();
             requestAnimationFrame(() => {
                 hideDaadSearchSuggestions();
                 syncDaadStickyTop();
@@ -2376,7 +2463,19 @@
             const panel = document.getElementById('daadSearchPanel');
             if (!panel) return;
             searchPanelControlsWired = true;
-            document.getElementById('daadHeaderSearchBtn')?.addEventListener('click', () => toggleDaadSearchPanel());
+            const headerSearchBtn = document.getElementById('daadHeaderSearchBtn');
+            headerSearchBtn?.addEventListener('pointerdown', (ev) => {
+                if (ev.button !== 0) return;
+                if (daadSearchPanelIsOpen()) return;
+                beginDaadSearchKeyboardHandoff();
+            });
+            headerSearchBtn?.addEventListener('click', () => {
+                if (daadSearchPanelIsOpen()) {
+                    closeDaadSearchPanel();
+                    return;
+                }
+                openDaadSearchPanel({ focusInput: true });
+            });
             document.getElementById('daadSearchBackdrop')?.addEventListener('click', closeDaadSearchPanel);
             const input = document.getElementById('daadSearchInput');
             input?.addEventListener('input', refreshDaadSearchSuggestions);
