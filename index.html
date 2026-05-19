@@ -1058,6 +1058,35 @@
     </button>
 
     <script>
+        /** Simple Analytics: network-only loader + safe custom events (`trackDaad`); never precache this URL in `sw.js`. */
+        const DAAD_SIMPLE_ANALYTICS_SCRIPT_URL = 'https://scripts.simpleanalyticscdn.com/latest.js';
+        let daadSimpleAnalyticsScriptAppended = false;
+
+        function tryInjectDaadSimpleAnalytics() {
+            if (typeof navigator !== 'undefined' && navigator.onLine === false) return;
+            if (daadSimpleAnalyticsScriptAppended) return;
+            daadSimpleAnalyticsScriptAppended = true;
+            try {
+                const s = document.createElement('script');
+                s.async = true;
+                s.src = DAAD_SIMPLE_ANALYTICS_SCRIPT_URL;
+                s.onerror = () => {};
+                document.head.appendChild(s);
+            } catch (_) {}
+        }
+
+        function trackDaad(name, props) {
+            try {
+                if (typeof navigator !== 'undefined' && navigator.onLine === false) return;
+                if (typeof window.sa_event !== 'function') return;
+                if (props === undefined) window.sa_event(name);
+                else window.sa_event(name, props);
+            } catch (_) {}
+        }
+
+        window.addEventListener('online', () => tryInjectDaadSimpleAnalytics());
+        tryInjectDaadSimpleAnalytics();
+
         const STAGE_STYLES = {
             'DAAD STAGE': {
                 h2: 'border-l-fuchsia-500',
@@ -2251,20 +2280,28 @@
             });
 
             // Add event listeners
-            document.getElementById('dateFilter').addEventListener('change', () => filterEvents(events));
-            document.getElementById('locationFilter').addEventListener('change', () => filterEvents(events));
-            document.getElementById('artistFilter').addEventListener('input', () => filterEvents(events));
+            document.getElementById('dateFilter').addEventListener('change', () =>
+                filterEvents(events, 'dateFilter'),
+            );
+            document.getElementById('locationFilter').addEventListener('change', () =>
+                filterEvents(events, 'locationFilter'),
+            );
+            document.getElementById('artistFilter').addEventListener('input', () =>
+                filterEvents(events, 'artistFilter'),
+            );
             document.getElementById('selectionFilter').addEventListener('change', () => {
                 syncMirrorSelectionDockFromPrimary();
-                filterEvents(events);
+                filterEvents(events, 'selectionFilter');
             });
             document.getElementById('dock-selectionFilter')?.addEventListener('change', () => {
                 const v = document.getElementById('dock-selectionFilter').value;
                 const primary = document.getElementById('selectionFilter');
                 if (primary) primary.value = v;
-                filterEvents(events);
+                filterEvents(events, 'selectionFilter');
             });
-            document.getElementById('tagFilter').addEventListener('change', () => filterEvents(events));
+            document.getElementById('tagFilter').addEventListener('change', () =>
+                filterEvents(events, 'tagFilter'),
+            );
             document.getElementById('clearFiltersBtn').addEventListener('click', clearFilters);
             document.getElementById('daadActiveFiltersClearAll')?.addEventListener('click', clearFilters);
             document.getElementById('daadActiveFiltersChips')?.addEventListener('click', (ev) => {
@@ -2287,9 +2324,11 @@
                 const detailsSection = document.getElementById('stageDetails');
                 const toggleIcon = document.querySelector('#toggleDetails i');
                 if (detailsSection.classList.contains('hidden')) {
+                    trackDaad('selection_details_opened');
                     detailsSection.classList.remove('hidden');
                     toggleIcon.classList.add('rotate-180');
                 } else {
+                    trackDaad('selection_details_closed');
                     detailsSection.classList.add('hidden');
                     toggleIcon.classList.remove('rotate-180');
                 }
@@ -2396,7 +2435,12 @@
         }
 
         // Filter events based on selected criteria
-        function filterEvents(events) {
+        function filterEvents(events, clickedFilterName) {
+            if (clickedFilterName) {
+                const el = document.getElementById(clickedFilterName);
+                const filterValue = el ? el.value : '';
+                trackDaad(clickedFilterName, { filter_value: filterValue });
+            }
             const dateFilter = document.getElementById('dateFilter').value;
             const locationFilter = document.getElementById('locationFilter').value;
             const artistFilter = document.getElementById('artistFilter').value.toLowerCase();
@@ -2472,10 +2516,20 @@
             if (!Number.isInteger(idNum)) return;
             const event = window.allEvents.find((e) => e.id === idNum);
             if (!event) return;
+            const artist_metadata = {
+                artist: event.summary,
+            };
+            const stage_metadata = {
+                stage: event.location,
+            };
             if (window.selectedEvents.has(idNum)) {
                 window.selectedEvents.delete(idNum);
+                trackDaad('removeArtist', artist_metadata);
+                trackDaad('removeAtStage', stage_metadata);
             } else {
                 window.selectedEvents.add(idNum);
+                trackDaad('addArtist', artist_metadata);
+                trackDaad('addAtStage', stage_metadata);
             }
 
             persistSelectionsToStorage();
