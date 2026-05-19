@@ -1,0 +1,361 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Summer Festival — Gradient Transitions</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+body {
+  background: #080810;
+  color: #e0dcd4;
+  font-family: 'DM Sans', sans-serif;
+  padding: 3rem 2rem;
+  min-height: 100vh;
+}
+
+header {
+  text-align: left;
+  margin-bottom: 3.5rem;
+}
+
+header h1 {
+  font-family: 'Playfair Display', serif;
+  font-size: clamp(1.8rem, 4vw, 3rem);
+  font-weight: 400;
+  letter-spacing: -0.02em;
+  color: #f0ebe0;
+  margin-bottom: 0.4rem;
+}
+
+header p {
+  font-size: 0.85rem;
+  font-weight: 300;
+  color: #5a5650;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 2rem;
+}
+
+.card {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.card-meta {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.card-meta .time {
+  font-size: 0.7rem;
+  font-weight: 500;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: rgba(255,255,255,0.7);
+}
+
+.card-meta .name {
+  font-family: 'DM Sans', sans-serif;
+  font-size: 0.72rem;
+  font-weight: 300;
+  color: rgba(255,255,255,0.7);
+}
+
+.phone {
+  width: 100%;
+  aspect-ratio: 9 / 19.5;
+  border-radius: 22px;
+  overflow: hidden;
+  position: relative;
+}
+
+/* Each phone has two gradient layers that cross-fade */
+.phone .layer-a,
+.phone .layer-b {
+  position: absolute;
+  inset: 0;
+  border-radius: 22px;
+}
+
+/* Progress bar */
+.progress-wrap {
+  height: 2px;
+  background: #1a1820;
+  border-radius: 2px;
+  overflow: hidden;
+}
+
+.progress-bar {
+  height: 100%;
+  width: 0%;
+  border-radius: 2px;
+  transition: width 0.1s linear;
+}
+
+/* Scrubber */
+.scrubber-row {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+}
+
+.scrubber-row input[type=range] {
+  flex: 1;
+  height: 2px;
+  accent-color: #6060a0;
+  cursor: pointer;
+}
+
+.time-display {
+  font-size: 0.7rem;
+  font-weight: 500;
+  color: #4a4640;
+  font-variant-numeric: tabular-nums;
+  min-width: 36px;
+  text-align: right;
+}
+
+.controls {
+  display: flex;
+  gap: 0.5rem;
+  align-items: center;
+}
+
+.btn {
+  background: transparent;
+  border: 1px solid #2a2828;
+  color: #7a7870;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 0.7rem;
+  font-weight: 500;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  padding: 5px 12px;
+  border-radius: 20px;
+  cursor: pointer;
+  transition: border-color 0.2s, color 0.2s;
+}
+
+.btn:hover {
+  border-color: #4a4848;
+  color: #c0bcb0;
+}
+
+.btn.active {
+  border-color: #5050a0;
+  color: #a0a0e0;
+}
+</style>
+</head>
+<body>
+
+<header>
+  <h1>Gradient Transitions</h1>
+  <p>Summer Festival · 30s preview · four times of day</p>
+</header>
+
+<div class="grid" id="grid"></div>
+
+<script>
+const DURATION = 30000;
+
+// Named gradient stop definitions
+const G = {
+  night:   { stop1: '#020810', stop2: '#081828', stop3: '#102040', stop4: '#1a3878', stop5: '#2870c0' },
+  sunrise: { stop1: '#1a1035', stop2: '#4a2050', stop3: '#c85a30', stop4: '#f5a623', stop5: '#ffd54f' },
+  midday:  { stop1: '#0a4fa8', stop2: '#1880d0', stop3: '#80c8e8', stop4: '#e8ead0', stop5: '#f8f8e4' },
+  sunset:  { stop1: '#260a14', stop2: '#8c1a40', stop3: '#e0502a', stop4: '#f5a030', stop5: '#ffe090' },
+};
+
+const transitions = [
+  {
+    id: 'night-sunrise',
+    label: 'Night → Sunrise',
+    name: 'Starless Depth  ›  Ember Dawn',
+    from: G.night,
+    to:   G.sunrise,
+    progressColor: '#f5a623',
+  },
+  {
+    id: 'sunrise-midday',
+    label: 'Sunrise → Mid-day',
+    name: 'Ember Dawn  ›  Solar Flare',
+    from: G.sunrise,
+    to:   G.midday,
+    progressColor: '#80c8e8',
+  },
+  {
+    id: 'midday-sunset',
+    label: 'Mid-day → Sunset',
+    name: 'Solar Flare  ›  Wine & Amber',
+    from: G.midday,
+    to:   G.sunset,
+    progressColor: '#f5a030',
+  },
+  {
+    id: 'sunset-night',
+    label: 'Sunset → Night',
+    name: 'Wine & Amber  ›  Starless Depth',
+    from: G.sunset,
+    to:   G.night,
+    progressColor: '#2870c0',
+  },
+];
+
+function lerpHex(a, b, t) {
+  const ah = parseInt(a.slice(1), 16);
+  const bh = parseInt(b.slice(1), 16);
+  const ar = (ah >> 16) & 0xff, ag = (ah >> 8) & 0xff, ab = ah & 0xff;
+  const br = (bh >> 16) & 0xff, bg = (bh >> 8) & 0xff, bb = bh & 0xff;
+  const rr = Math.round(ar + (br - ar) * t);
+  const rg = Math.round(ag + (bg - ag) * t);
+  const rb = Math.round(ab + (bb - ab) * t);
+  return '#' + [rr, rg, rb].map(v => v.toString(16).padStart(2, '0')).join('');
+}
+
+function lerpFrame(tr, t) {
+  const keys = ['stop1','stop2','stop3','stop4','stop5'];
+  const result = {};
+  keys.forEach(k => { result[k] = lerpHex(tr.from[k], tr.to[k], t); });
+  return result;
+}
+
+function buildGradient(stops) {
+  return `linear-gradient(135deg, ${stops.stop1} 0%, ${stops.stop2} 25%, ${stops.stop3} 55%, ${stops.stop4} 78%, ${stops.stop5} 100%)`;
+}
+
+const instances = [];
+
+const grid = document.getElementById('grid');
+transitions.forEach((tr, idx) => {
+  const card = document.createElement('div');
+  card.className = 'card';
+  card.innerHTML = `
+    <div class="phone" id="phone-${idx}">
+      <div class="layer-a" id="layer-a-${idx}"></div>
+      <div class="layer-b" id="layer-b-${idx}" style="opacity:0"></div>
+    </div>
+    <div class="card-meta">
+      <span class="time">${tr.label}</span>
+      <span class="name">${tr.name}</span>
+    </div>
+    <div class="scrubber-row">
+      <input type="range" min="0" max="1000" value="0" id="scrub-${idx}" />
+      <span class="time-display" id="tdisp-${idx}">0:00</span>
+    </div>
+    <div class="controls">
+      <button class="btn" id="btn-${idx}" onclick="togglePlay(${idx})">play</button>
+      <button class="btn" onclick="restart(${idx})">restart</button>
+    </div>
+  `;
+  grid.appendChild(card);
+
+  const inst = {
+    tr,
+    playing: false,
+    startTime: null,
+    elapsed: 0,
+    layerA: null,
+    layerB: null,
+    scrub: null,
+    tdisp: null,
+    btn: null,
+    raf: null,
+  };
+  instances.push(inst);
+});
+
+// Wire up after DOM insertion
+instances.forEach((inst, idx) => {
+  inst.layerA = document.getElementById(`layer-a-${idx}`);
+  inst.layerB = document.getElementById(`layer-b-${idx}`);
+  inst.scrub = document.getElementById(`scrub-${idx}`);
+  inst.tdisp = document.getElementById(`tdisp-${idx}`);
+  inst.btn = document.getElementById(`btn-${idx}`);
+
+  // Init first frame
+  inst.layerA.style.background = buildGradient(lerpFrame(inst.tr, 0));
+
+  // Scrubber interaction
+  inst.scrub.addEventListener('input', () => {
+    const t = inst.scrub.value / 1000;
+    inst.elapsed = t * DURATION;
+    inst.startTime = null;
+    applyFrame(inst, t);
+    updateTimeDisplay(inst);
+  });
+
+  inst.scrub.addEventListener('mousedown', () => {
+    if (inst.playing) {
+      inst.playing = false;
+      inst.btn.textContent = 'play';
+      inst.btn.classList.remove('active');
+    }
+  });
+
+  tick(idx);
+});
+
+function applyFrame(inst, t) {
+  const stops = lerpFrame(inst.tr, t);
+  inst.layerA.style.background = buildGradient(stops);
+}
+
+function updateTimeDisplay(inst) {
+  const secs = Math.floor((inst.elapsed / DURATION) * 30);
+  const m = Math.floor(secs / 60);
+  const s = secs % 60;
+  inst.tdisp.textContent = `${m}:${s.toString().padStart(2,'0')}`;
+  inst.scrub.value = Math.round((inst.elapsed / DURATION) * 1000);
+}
+
+function tick(idx) {
+  const inst = instances[idx];
+  if (inst.playing) {
+    const now = performance.now();
+    if (inst.startTime === null) inst.startTime = now - inst.elapsed;
+    inst.elapsed = (now - inst.startTime) % DURATION;
+    const t = inst.elapsed / DURATION;
+    applyFrame(inst, t);
+    updateTimeDisplay(inst);
+  }
+  inst.raf = requestAnimationFrame(() => tick(idx));
+}
+
+function togglePlay(idx) {
+  const inst = instances[idx];
+  inst.playing = !inst.playing;
+  if (inst.playing) {
+    inst.startTime = null;
+    inst.btn.textContent = 'pause';
+    inst.btn.classList.add('active');
+  } else {
+    inst.btn.textContent = 'play';
+    inst.btn.classList.remove('active');
+  }
+}
+
+function restart(idx) {
+  const inst = instances[idx];
+  inst.elapsed = 0;
+  inst.startTime = null;
+  inst.playing = true;
+  inst.btn.textContent = 'pause';
+  inst.btn.classList.add('active');
+  applyFrame(inst, 0);
+  updateTimeDisplay(inst);
+}
+</script>
+</body>
+</html>

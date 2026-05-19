@@ -33,42 +33,44 @@
     <link rel="stylesheet" href="assets/app.css">
     <link rel="stylesheet" href="assets/fontawesome/css/all.min.css">
     <style>
-        /* Atmospheric BG: oversized rotating wash + soft vignette (no grid) */
+        /* Festival sky: time-of-day gradients + soft vignette (see initDaadSkyBackground) */
         body.daad-poster {
             position: relative;
             color: #fafaf7;
-            background: #07050a;
+            background: #020810;
             isolation: isolate;
         }
-        body.daad-poster::before {
-            content: '';
+        #daadSkyBg {
             position: fixed;
+            inset: 0;
+            z-index: -2;
+            pointer-events: none;
+            overflow: hidden;
+        }
+        #daadSkyBg .daad-sky-rotator {
+            position: absolute;
             left: 50%;
             top: 50%;
             width: 200vmax;
             height: 200vmax;
             margin-left: -100vmax;
             margin-top: -100vmax;
-            z-index: -2;
             transform-origin: 50% 50%;
-            background: linear-gradient(
-                115deg,
-                #3d0a12 0%,
-                #dc2626 14%,
-                #c026d3 38%,
-                #7c3aed 58%,
-                #312e81 78%,
-                #0f172a 100%
-            );
-            opacity: 0.9;
-            animation: daad-aurora-rotate 60s linear infinite;
+            will-change: transform;
         }
-        @keyframes daad-aurora-rotate {
-            from {
-                transform: rotate(0deg);
-            }
-            to {
-                transform: rotate(360deg);
+        #daadSkyBg .daad-sky-layer {
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(135deg, #020810 0%, #081828 25%, #102040 55%, #1a3878 78%, #2870c0 100%);
+        }
+        @media (prefers-reduced-motion: reduce) {
+            #daadSkyBg .daad-sky-rotator {
+                width: 100%;
+                height: 100%;
+                left: 0;
+                top: 0;
+                margin: 0;
+                transform: none !important;
             }
         }
         body.daad-poster::after {
@@ -78,16 +80,8 @@
             z-index: -1;
             pointer-events: none;
             background:
-                radial-gradient(ellipse 85% 55% at 25% 10%, rgba(251, 113, 133, 0.18), transparent 52%),
-                radial-gradient(ellipse 65% 70% at 88% 35%, rgba(196, 181, 253, 0.16), transparent 45%),
-                radial-gradient(ellipse 50% 45% at 55% 85%, rgba(52, 211, 153, 0.06), transparent 50%),
-                radial-gradient(ellipse 130% 95% at 50% 110%, rgba(0, 0, 0, 0.45), transparent 42%),
-                radial-gradient(ellipse 120% 100% at 50% 50%, transparent 0%, rgba(4, 2, 8, 0.82) 100%);
-        }
-        @media (prefers-reduced-motion: reduce) {
-            body.daad-poster::before {
-                animation: none;
-            }
+                radial-gradient(ellipse 130% 95% at 50% 110%, rgba(0, 0, 0, 0.35), transparent 42%),
+                radial-gradient(ellipse 120% 100% at 50% 50%, transparent 0%, rgba(4, 2, 8, 0.72) 100%);
         }
         .daad-frame {
             position: relative;
@@ -908,6 +902,10 @@
     </style>
 </head>
 <body class="daad-poster min-h-screen text-daad-ink antialiased font-sans">
+    <div id="daadSkyBg" aria-hidden="true">
+        <div class="daad-sky-rotator" id="daadSkyRotator"><div class="daad-sky-layer" id="daadSkyLayer"></div></div>
+    </div>
+
     <div id="scheduleLoadingOverlay" class="daad-schedule-loading-overlay fixed inset-0 z-[100] flex items-center justify-center px-4" aria-hidden="true">
         <div class="absolute inset-0 bg-black/60 backdrop-blur-[12px]" aria-hidden="true"></div>
         <div class="relative z-[1] w-full max-w-sm rounded-sm border border-white/18 bg-black/72 px-8 py-9 text-center shadow-daad backdrop-blur-md">
@@ -1160,6 +1158,149 @@
 
         window.addEventListener('online', () => tryInjectDaadSimpleAnalytics());
         tryInjectDaadSimpleAnalytics();
+
+        /** Festival sky gradients — palette + schedule from `.cursor/plans/festival-transitions.html`. */
+        const DAAD_SKY_GRADIENTS = {
+            night: { stop1: '#020810', stop2: '#081828', stop3: '#102040', stop4: '#1a3878', stop5: '#2870c0' },
+            sunrise: { stop1: '#1a1035', stop2: '#4a2050', stop3: '#c85a30', stop4: '#f5a623', stop5: '#ffd54f' },
+            midday: { stop1: '#0a4fa8', stop2: '#1880d0', stop3: '#80c8e8', stop4: '#e8ead0', stop5: '#f8f8e4' },
+            sunset: { stop1: '#260a14', stop2: '#8c1a40', stop3: '#e0502a', stop4: '#f5a030', stop5: '#ffe090' },
+        };
+
+        /** Wall-clock transition length when device time drives the sky (minutes). */
+        const DAAD_SKY_TRANSITION_MINUTES = 5;
+
+        /**
+         * Day schedule (minutes from midnight, device local time).
+         * Holds use a named palette; transitions lerp between palettes over DAAD_SKY_TRANSITION_MINUTES.
+         */
+        const DAAD_SKY_DAY_SEGMENTS = (() => {
+            const t = DAAD_SKY_TRANSITION_MINUTES;
+            const tr = (from, to, start) => ({ kind: 'transition', from, to, start, end: start + t });
+            const hold = (palette, start, end) => ({ kind: 'hold', palette, start, end });
+            return [
+                hold('night', 0, 300),
+                tr('night', 'sunrise', 300),
+                hold('sunrise', 300 + t, 480),
+                tr('sunrise', 'midday', 480),
+                hold('midday', 480 + t, 960),
+                tr('midday', 'sunset', 960),
+                hold('sunset', 960 + t, 1200),
+                tr('sunset', 'night', 1200),
+                hold('night', 1200 + t, 1440),
+            ];
+        })();
+
+        const DAAD_SKY_STOP_KEYS = ['stop1', 'stop2', 'stop3', 'stop4', 'stop5'];
+
+        let daadSkyRotatorEl = null;
+        let daadSkyLayerEl = null;
+        let daadSkyRafId = null;
+
+        function daadSkyLerpHex(a, b, t) {
+            const ah = parseInt(a.slice(1), 16);
+            const bh = parseInt(b.slice(1), 16);
+            const ar = (ah >> 16) & 0xff;
+            const ag = (ah >> 8) & 0xff;
+            const ab = ah & 0xff;
+            const br = (bh >> 16) & 0xff;
+            const bg = (bh >> 8) & 0xff;
+            const bb = bh & 0xff;
+            const rr = Math.round(ar + (br - ar) * t);
+            const rg = Math.round(ag + (bg - ag) * t);
+            const rb = Math.round(ab + (bb - ab) * t);
+            return '#' + [rr, rg, rb].map((v) => v.toString(16).padStart(2, '0')).join('');
+        }
+
+        function daadSkyLerpStops(fromStops, toStops, t) {
+            const result = {};
+            DAAD_SKY_STOP_KEYS.forEach((k) => {
+                result[k] = daadSkyLerpHex(fromStops[k], toStops[k], t);
+            });
+            return result;
+        }
+
+        function daadSkyBuildGradient(stops) {
+            return (
+                'linear-gradient(135deg, ' +
+                stops.stop1 +
+                ' 0%, ' +
+                stops.stop2 +
+                ' 25%, ' +
+                stops.stop3 +
+                ' 55%, ' +
+                stops.stop4 +
+                ' 78%, ' +
+                stops.stop5 +
+                ' 100%)'
+            );
+        }
+
+        function daadSkyMinutesFromDate(d) {
+            return d.getHours() * 60 + d.getMinutes() + d.getSeconds() / 60 + d.getMilliseconds() / 60000;
+        }
+
+        function daadSkySegmentAtMinutes(minutes) {
+            const m = ((minutes % 1440) + 1440) % 1440;
+            for (let i = 0; i < DAAD_SKY_DAY_SEGMENTS.length; i++) {
+                const seg = DAAD_SKY_DAY_SEGMENTS[i];
+                if (m >= seg.start && m < seg.end) return seg;
+            }
+            return DAAD_SKY_DAY_SEGMENTS[0];
+        }
+
+        function daadSkyTransitionTAtMinutes(minutes) {
+            const seg = daadSkySegmentAtMinutes(minutes);
+            if (seg.kind !== 'transition') return 0;
+            const span = seg.end - seg.start;
+            return span > 0 ? Math.max(0, Math.min(1, (minutes - seg.start) / span)) : 0;
+        }
+
+        function daadSkyHoldTAtMinutes(minutes) {
+            const seg = daadSkySegmentAtMinutes(minutes);
+            if (seg.kind !== 'hold') return 0;
+            const span = seg.end - seg.start;
+            return span > 0 ? Math.max(0, Math.min(1, (minutes - seg.start) / span)) : 0;
+        }
+
+        function daadSkyStopsAtMinutes(minutes) {
+            const seg = daadSkySegmentAtMinutes(minutes);
+            if (seg.kind === 'hold') {
+                return DAAD_SKY_GRADIENTS[seg.palette];
+            }
+            const t = daadSkyTransitionTAtMinutes(minutes);
+            return daadSkyLerpStops(DAAD_SKY_GRADIENTS[seg.from], DAAD_SKY_GRADIENTS[seg.to], t);
+        }
+
+        /** Full 360° over each hold; frozen at 0° while palettes transition. */
+        function daadSkyRotationDegAtMinutes(minutes) {
+            return daadSkyHoldTAtMinutes(minutes) * 360;
+        }
+
+        function applyDaadSkyAtMinutes(minutes) {
+            if (!daadSkyLayerEl) return;
+            const stops = daadSkyStopsAtMinutes(minutes);
+            daadSkyLayerEl.style.background = daadSkyBuildGradient(stops);
+            if (daadSkyRotatorEl) {
+                const deg = daadSkyRotationDegAtMinutes(minutes);
+                daadSkyRotatorEl.style.transform = deg ? 'rotate(' + deg + 'deg)' : 'rotate(0deg)';
+            }
+        }
+
+        function daadSkyTick() {
+            applyDaadSkyAtMinutes(daadSkyMinutesFromDate(new Date()));
+            daadSkyRafId = requestAnimationFrame(daadSkyTick);
+        }
+
+        function initDaadSkyBackground() {
+            daadSkyRotatorEl = document.getElementById('daadSkyRotator');
+            daadSkyLayerEl = document.getElementById('daadSkyLayer');
+            if (!daadSkyLayerEl) return;
+
+            applyDaadSkyAtMinutes(daadSkyMinutesFromDate(new Date()));
+            if (daadSkyRafId != null) cancelAnimationFrame(daadSkyRafId);
+            daadSkyRafId = requestAnimationFrame(daadSkyTick);
+        }
 
         const STAGE_STYLES = {
             'DAAD STAGE': {
@@ -3281,7 +3422,10 @@
         }
 
         // Initialize the application when the page loads
-        document.addEventListener('DOMContentLoaded', init);
+        document.addEventListener('DOMContentLoaded', () => {
+            initDaadSkyBackground();
+            init();
+        });
 
         if ('serviceWorker' in navigator) {
             window.addEventListener('load', () => {
