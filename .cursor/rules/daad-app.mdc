@@ -47,7 +47,7 @@ Schedule narrowing is **search-driven** (no separate filter drawer). The header 
 ### Opening search
 
 - **`#daadHeaderSearchBtn`** toggles **`#daadSearchPanel`** (slides down under **`#daadSiteHeader`**) and dimmed **`#daadSearchBackdrop`**. **Escape** or backdrop click closes via **`closeDaadSearchPanel`** / **`toggleDaadSearchPanel`**.
-- Opening from the header: **`pointerdown`** (with **`preventDefault`**) runs handoff + **`openDaadSearchPanel({ focusInput: true })`** in one gesture; **`click`** is ignored for that open ( **`daadSearchOpenedThisGesture`** ) so the header button does not steal focus and dismiss the keyboard. Coarse-pointer uses a hidden fake input until panel **`transitionend`** (~360ms fallback). Do not call **`input.click()`** after focus on iOS.
+- Opening from the header: **`tryOpenDaadSearchFromHeader`** on **`pointerdown`** (iOS: **`preventDefault`**), **`touchstart`** fallback on non-iOS Android, and **`click`** fallback for mice. **`daadSearchOpenedThisGesture`** swallows the duplicate **`click`** after open. Panel show/hide uses **`opacity` + `transform`** only (no **`visibility`** transition — Android Chrome bug). **`z-index`**: backdrop 29, panel 30. **`backdrop-filter`** only inside **`@supports`**. Fake-input keyboard handoff (**`daadUseFakeInputKeyboardHandoff`**) is **iOS only**; Android uses sync open + focus + optional **`scrollIntoView`**.
 - On close, pending handoff is cancelled (**`cancelDaadSearchKeyboardHandoff`**), the search field is cleared, and focus returns to the element that had it when the panel opened (**`daadSearchPanelPrevFocus`**).
 
 ### Search field & autocomplete
@@ -82,7 +82,7 @@ Schedule narrowing is **search-driven** (no separate filter drawer). The header 
 | End times | **Defined in JSON** from CSV **`duration`** (plus start) in the script; app consumes **`endUtcMs` / `duration`** from loaded events. |
 | Sample column | **`buildSampleAsideColumn`** — SoundCloud hydrate; YouTube **`buildYouTubeSampleAsideInner`** (**`youtubeSampleAsideSupported`**: video id **`extractYouTubeVideoId`**, channel **`extractYouTubeChannelIdForThumb`**, browse **`fetchMicrolinkImageUrl`** + **`hydrateYouTubeMicrolinkThumbs`**) |
 | Analytics | **`tryInjectDaadSimpleAnalytics`** (online + **`online`** listener), **`trackDaad`** → Simple Analytics **`window.sa_event`**; never **`PRECACHE_URLS`** |
-| Filtering & search | **`openDaadSearchPanel`**, **`closeDaadSearchPanel`**, **`beginDaadSearchKeyboardHandoff`**, **`focusDaadSearchInputFromUserGesture`**, **`completeDaadSearchKeyboardHandoff`**, **`buildDaadSearchSuggestions`**, **`applyDaadSearchSuggestion`**, **`eventsMatchingDaadScheduleFilters`**, **`updateActiveFiltersBar`**, **`clearFilters`**, **`clearOneDaadScheduleFilter`**, **`placeDaadActiveFiltersBar`** — see **Filtering & search** |
+| Filtering & search | **`tryOpenDaadSearchFromHeader`**, **`openDaadSearchPanel`**, **`closeDaadSearchPanel`**, **`daadUseFakeInputKeyboardHandoff`**, **`focusDaadSearchInputFromUserGesture`**, **`buildDaadSearchSuggestions`**, **`applyDaadSearchSuggestion`**, **`eventsMatchingDaadScheduleFilters`**, **`updateActiveFiltersBar`**, **`clearFilters`**, **`clearOneDaadScheduleFilter`**, **`placeDaadActiveFiltersBar`** — see **Filtering & search** |
 | UI (other) | Tabs / grid, **`#selectionFilter`** + dock mirror, event cards / sample aside, loading overlay + error banner |
 
 When adding stages or columns, update **Sheet + `csv_to_events.py`**, **normalization**, and **`STAGE_STYLES`** together.
