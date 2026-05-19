@@ -788,10 +788,20 @@
         }
         #daadSearchInput {
             padding-left: 36px;
+            padding-right: 2.25rem;
             /* ≥16px stops iOS Safari focus-zoom (stuck zoom + horizontal scroll after blur) */
             font-size: 16px;
             -webkit-appearance: none;
             appearance: none;
+        }
+        /* Native type=search clear control — replaced by #daadSearchInputClear for symmetric inset */
+        #daadSearchInput::-webkit-search-cancel-button {
+            -webkit-appearance: none;
+            appearance: none;
+            display: none;
+        }
+        #daadSearchInput::-moz-search-clear-button {
+            display: none;
         }
         /* White focus ring; not only Tailwind — stale app.css omitted focus:ring-white / focus:border-white */
         #daadSearchInput:focus,
@@ -810,6 +820,31 @@
             line-height: 1;
             display: flex;
             align-items: center;
+        }
+        #daadSearchInputClear {
+            position: absolute;
+            right: 12px;
+            top: 50%;
+            transform: translateY(-50%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 0;
+            border: none;
+            background: transparent;
+            color: rgba(255, 255, 255, 0.55);
+            cursor: pointer;
+            line-height: 1;
+        }
+        #daadSearchInputClear:hover {
+            color: rgba(255, 255, 255, 0.85);
+        }
+        #daadSearchInputClear:focus-visible {
+            outline: 2px solid rgba(255, 255, 255, 0.55);
+            outline-offset: 2px;
+        }
+        #daadSearchInputClear.hidden {
+            display: none;
         }
         #daadSearchSuggestions {
             max-height: min(50vh, 22rem);
@@ -897,7 +932,7 @@
     <div id="daadSearchPanel" class="text-daad-ink" aria-hidden="true">
         <div class="container mx-auto px-4 py-3 pb-4">
             <div id="daadSearchPanelFiltersSlot" class="min-w-0"></div>
-            <label for="daadSearchInput" class="sr-only">Type at least 3 letters to search artist, genre, stage, or day</label>
+            <label for="daadSearchInput" class="sr-only">Search artist, genre, stage, or day</label>
             <div>
                 <div class="relative">
                 <span id="daadSearchInputIcon" aria-hidden="true">
@@ -915,8 +950,11 @@
                     aria-expanded="false"
                     aria-controls="daadSearchSuggestions"
                     aria-autocomplete="list"
-                    class="daad-field w-full rounded-sm border border-white/20 bg-black/50 py-3 pr-3 text-base text-white placeholder:text-white/40 focus:border-white focus:ring-1 focus:ring-white outline-none transition-shadow"
+                    class="daad-field w-full rounded-sm border border-white/20 bg-black/50 py-3 text-base text-white placeholder:text-white/40 focus:border-white focus:ring-1 focus:ring-white outline-none transition-shadow"
                 />
+                <button type="button" id="daadSearchInputClear" class="hidden" aria-label="Clear search" tabindex="-1">
+                    <i class="fas fa-times text-sm" aria-hidden="true"></i>
+                </button>
                 </div>
                 <ul
                     id="daadSearchSuggestions"
@@ -2050,7 +2088,6 @@
             dock.setAttribute('aria-hidden', show ? 'false' : 'true');
         }
 
-        const DAAD_SEARCH_MIN_QUERY_LEN = 3;
         const daadScheduleFilters = { date: '', location: '', tag: '', artist: '' };
         const daadDateLabels = {};
         let daadSearchSuggestionsCache = [];
@@ -2107,6 +2144,7 @@
             placeDaadActiveFiltersBar(false);
             const input = document.getElementById('daadSearchInput');
             if (input) input.value = '';
+            syncDaadSearchInputClear();
             const prev = daadSearchPanelPrevFocus;
             daadSearchPanelPrevFocus = null;
             if (prev && typeof prev.focus === 'function') {
@@ -2166,50 +2204,76 @@
             });
         }
 
+        function daadSearchTextMatchesQ(label, value, q) {
+            return (
+                String(label || '').toLowerCase().includes(q) ||
+                String(value || '').toLowerCase().includes(q)
+            );
+        }
+
+        function daadSearchTextStartsWithQ(label, value, q) {
+            return (
+                String(label || '').toLowerCase().startsWith(q) ||
+                String(value || '').toLowerCase().startsWith(q)
+            );
+        }
+
+        function sortDaadSearchSuggestionEntries(entries, q) {
+            return entries.sort((a, b) => {
+                const aStarts = daadSearchTextStartsWithQ(a.label, a.value, q);
+                const bStarts = daadSearchTextStartsWithQ(b.label, b.value, q);
+                if (aStarts !== bStarts) return aStarts ? -1 : 1;
+                return String(a.label).localeCompare(String(b.label));
+            });
+        }
+
         function buildDaadSearchSuggestions(query) {
             const trimmed = String(query || '').trim();
-            if (trimmed.length < DAAD_SEARCH_MIN_QUERY_LEN) return [];
+            if (!trimmed) return [];
             const all = Array.isArray(window.allEvents) ? window.allEvents : [];
             const pool = eventsMatchingDaadScheduleFilters(all);
             const q = trimmed.toLowerCase();
             const f = daadScheduleFilters;
             const items = [];
-            const matchesQ = (label, value) => {
-                return (
-                    String(label || '').toLowerCase().includes(q) ||
-                    String(value || '').toLowerCase().includes(q)
-                );
-            };
 
-            if (!f.date) {
-                [...new Set(pool.map((e) => e.dayKey))].sort().forEach((dayKey) => {
-                    const label = daadDateLabels[dayKey] || formatDayHeading(dayKey);
-                    if (matchesQ(label, dayKey))
-                        items.push({ type: 'date', value: dayKey, label, kind: 'Day' });
-                });
+            if (!f.artist) {
+                sortDaadSearchSuggestionEntries(
+                    [...new Set(pool.map((e) => e.summary))]
+                        .filter((name) => daadSearchTextMatchesQ(name, name, q))
+                        .map((name) => ({ type: 'artist', value: name, label: name, kind: 'Artist' })),
+                    q,
+                ).forEach((item) => items.push(item));
             }
             if (!f.location) {
-                [...new Set(pool.map((e) => e.location))]
-                    .sort((a, b) => String(a).localeCompare(String(b)))
-                    .forEach((loc) => {
-                        if (matchesQ(loc, loc))
-                            items.push({ type: 'location', value: loc, label: loc, kind: 'Stage' });
-                    });
+                sortDaadSearchSuggestionEntries(
+                    [...new Set(pool.map((e) => e.location))]
+                        .filter((loc) => daadSearchTextMatchesQ(loc, loc, q))
+                        .map((loc) => ({ type: 'location', value: loc, label: loc, kind: 'Stage' })),
+                    q,
+                ).forEach((item) => items.push(item));
+            }
+            if (!f.date) {
+                sortDaadSearchSuggestionEntries(
+                    [...new Set(pool.map((e) => e.dayKey))]
+                        .map((dayKey) => ({
+                            type: 'date',
+                            value: dayKey,
+                            label: daadDateLabels[dayKey] || formatDayHeading(dayKey),
+                            kind: 'Day',
+                        }))
+                        .filter((item) => daadSearchTextMatchesQ(item.label, item.value, q)),
+                    q,
+                ).forEach((item) => items.push(item));
             }
             if (!f.tag) {
                 const tagSet = new Set();
                 pool.forEach((e) => (e.tags || []).forEach((t) => tagSet.add(t)));
-                [...tagSet].sort().forEach((tag) => {
-                    if (matchesQ(tag, tag)) items.push({ type: 'tag', value: tag, label: tag, kind: 'Tag' });
-                });
-            }
-            if (!f.artist) {
-                [...new Set(pool.map((e) => e.summary))]
-                    .sort((a, b) => String(a).localeCompare(String(b)))
-                    .forEach((name) => {
-                        if (matchesQ(name, name))
-                            items.push({ type: 'artist', value: name, label: name, kind: 'Artist' });
-                    });
+                sortDaadSearchSuggestionEntries(
+                    [...tagSet]
+                        .filter((tag) => daadSearchTextMatchesQ(tag, tag, q))
+                        .map((tag) => ({ type: 'tag', value: tag, label: tag, kind: 'Tag' })),
+                    q,
+                ).forEach((item) => items.push(item));
             }
             return items.slice(0, 48);
         }
@@ -2275,10 +2339,18 @@
             input?.setAttribute('aria-activedescendant', `daad-search-opt-${clamped}`);
         }
 
+        function syncDaadSearchInputClear() {
+            const input = document.getElementById('daadSearchInput');
+            const clearBtn = document.getElementById('daadSearchInputClear');
+            if (!input || !clearBtn) return;
+            clearBtn.classList.toggle('hidden', !daadSearchQueryLen(input.value));
+        }
+
         function refreshDaadSearchSuggestions() {
             const input = document.getElementById('daadSearchInput');
             const value = input?.value || '';
-            if (daadSearchQueryLen(value) < DAAD_SEARCH_MIN_QUERY_LEN) {
+            syncDaadSearchInputClear();
+            if (!daadSearchQueryLen(value)) {
                 hideDaadSearchSuggestions();
                 return;
             }
@@ -2308,6 +2380,13 @@
             document.getElementById('daadSearchBackdrop')?.addEventListener('click', closeDaadSearchPanel);
             const input = document.getElementById('daadSearchInput');
             input?.addEventListener('input', refreshDaadSearchSuggestions);
+            document.getElementById('daadSearchInputClear')?.addEventListener('click', () => {
+                if (!input) return;
+                input.value = '';
+                syncDaadSearchInputClear();
+                hideDaadSearchSuggestions();
+                input.focus();
+            });
             input?.addEventListener('keydown', (ev) => {
                 const n = daadSearchSuggestionsCache.length;
                 if (ev.key === 'ArrowDown') {
