@@ -2181,7 +2181,6 @@
             daadResizeDebounceTimer = setTimeout(() => {
                 syncDaadStickyTop();
                 updateStickyHeadingStates();
-                closeDaadSearchPanel();
             }, 150);
         });
 
@@ -2248,8 +2247,6 @@
         let daadSearchFakeInputOnTransitionEnd = null;
         let daadSearchOpenedThisGesture = false;
         let daadTouchKeyboardDeviceCache = null;
-        let daadIosWebKitCache = null;
-        let daadAndroidCache = null;
 
         function daadLikelyTouchKeyboardDevice() {
             if (daadTouchKeyboardDeviceCache === null) {
@@ -2260,26 +2257,9 @@
             return daadTouchKeyboardDeviceCache;
         }
 
-        function daadLikelyIosWebKit() {
-            if (daadIosWebKitCache === null) {
-                const ua = navigator.userAgent || '';
-                daadIosWebKitCache =
-                    /iPad|iPhone|iPod/i.test(ua) ||
-                    (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
-            }
-            return daadIosWebKitCache;
-        }
-
-        function daadLikelyAndroid() {
-            if (daadAndroidCache === null) {
-                daadAndroidCache = /Android/i.test(navigator.userAgent || '');
-            }
-            return daadAndroidCache;
-        }
-
-        /** Fake-input handoff fixes iOS keyboard timing; it breaks Android scroll/layout. */
+        /** Fake-input handoff keeps keyboard open while the search panel animates in. */
         function daadUseFakeInputKeyboardHandoff() {
-            return daadLikelyTouchKeyboardDevice() && daadLikelyIosWebKit();
+            return daadLikelyTouchKeyboardDevice();
         }
 
         function clearDaadSearchFakeInputHandoffTimers() {
@@ -2302,7 +2282,7 @@
             }
         }
 
-        /** Reserve iOS keyboard during the header tap (must run synchronously on pointerdown). */
+        /** Reserve soft keyboard during the header tap (must run synchronously on pointerdown). */
         function beginDaadSearchKeyboardHandoff() {
             removeDaadSearchFakeInput();
             if (!daadUseFakeInputKeyboardHandoff()) return;
@@ -2341,13 +2321,6 @@
                 } catch (_) {}
             }
             document.getElementById('daadHeaderSearchBtn')?.blur();
-            if (daadLikelyAndroid()) {
-                requestAnimationFrame(() => {
-                    try {
-                        input.scrollIntoView({ block: 'nearest', inline: 'nearest' });
-                    } catch (_) {}
-                });
-            }
         }
 
         function finishDaadSearchFakeInputRemoval() {
@@ -2686,14 +2659,10 @@
             if (!panel) return;
             searchPanelControlsWired = true;
             const headerSearchBtn = document.getElementById('daadHeaderSearchBtn');
-            headerSearchBtn?.addEventListener('touchstart', () => {
-                if (daadSearchPanelIsOpen() || daadLikelyIosWebKit()) return;
-                tryOpenDaadSearchFromHeader();
-            }, { passive: true });
             headerSearchBtn?.addEventListener('pointerdown', (ev) => {
                 if (ev.button !== 0) return;
                 if (daadSearchPanelIsOpen()) return;
-                if (daadLikelyIosWebKit()) ev.preventDefault();
+                if (daadLikelyTouchKeyboardDevice()) ev.preventDefault();
                 tryOpenDaadSearchFromHeader();
             });
             headerSearchBtn?.addEventListener('click', (ev) => {
