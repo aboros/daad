@@ -732,7 +732,7 @@
             border-color: rgba(255, 255, 255, 0.45);
         }
 
-        /* Slide-down search from top (below site header) */
+        /* Fade-in search below site header (no slide — keeps mobile focus/keyboard synchronous). */
         #daadSearchBackdrop {
             position: fixed;
             inset: 0;
@@ -761,7 +761,6 @@
             opacity: 1;
             pointer-events: auto;
         }
-        /* Opacity + transform only (no visibility transition) — Android Chrome can leave the panel invisible */
         #daadSearchPanel {
             position: fixed;
             top: var(--daad-site-header-h, 4.5rem);
@@ -771,12 +770,9 @@
             background: rgba(8, 4, 6, 0.98);
             border-bottom: 1px solid rgba(255, 255, 255, 0.14);
             box-shadow: 0 16px 40px rgba(0, 0, 0, 0.55);
-            transform: translate3d(0, -100%, 0);
             opacity: 0;
             pointer-events: none;
-            transition:
-                transform 0.28s cubic-bezier(0.22, 1, 0.36, 1),
-                opacity 0.28s ease;
+            transition: opacity 0.2s ease;
         }
         @supports ((-webkit-backdrop-filter: blur(1px)) or (backdrop-filter: blur(1px))) {
             #daadSearchPanel {
@@ -785,7 +781,6 @@
             }
         }
         #daadSearchPanel.daad-search-panel--open {
-            transform: translate3d(0, 0, 0);
             opacity: 1;
             pointer-events: auto;
         }
@@ -2242,9 +2237,6 @@
         let daadSearchSuggestionsCache = [];
         let daadSearchActiveIndex = -1;
         let daadSearchPanelPrevFocus = null;
-        let daadSearchFakeInputEl = null;
-        let daadSearchFakeInputHandoffTimer = null;
-        let daadSearchFakeInputOnTransitionEnd = null;
         let daadSearchOpenedThisGesture = false;
         let daadTouchKeyboardDeviceCache = null;
 
@@ -2255,59 +2247,6 @@
                     window.matchMedia('(hover: none)').matches;
             }
             return daadTouchKeyboardDeviceCache;
-        }
-
-        /** Fake-input handoff keeps keyboard open while the search panel animates in. */
-        function daadUseFakeInputKeyboardHandoff() {
-            return daadLikelyTouchKeyboardDevice();
-        }
-
-        function clearDaadSearchFakeInputHandoffTimers() {
-            if (daadSearchFakeInputHandoffTimer != null) {
-                clearTimeout(daadSearchFakeInputHandoffTimer);
-                daadSearchFakeInputHandoffTimer = null;
-            }
-            const panel = document.getElementById('daadSearchPanel');
-            if (panel && daadSearchFakeInputOnTransitionEnd) {
-                panel.removeEventListener('transitionend', daadSearchFakeInputOnTransitionEnd);
-                daadSearchFakeInputOnTransitionEnd = null;
-            }
-        }
-
-        function removeDaadSearchFakeInput() {
-            clearDaadSearchFakeInputHandoffTimers();
-            if (daadSearchFakeInputEl) {
-                daadSearchFakeInputEl.remove();
-                daadSearchFakeInputEl = null;
-            }
-        }
-
-        /** Reserve soft keyboard during the header tap (must run synchronously on pointerdown). */
-        function beginDaadSearchKeyboardHandoff() {
-            removeDaadSearchFakeInput();
-            if (!daadUseFakeInputKeyboardHandoff()) return;
-            const fake = document.createElement('input');
-            fake.type = 'text';
-            fake.setAttribute('aria-hidden', 'true');
-            fake.setAttribute('tabindex', '-1');
-            fake.setAttribute('autocomplete', 'off');
-            Object.assign(fake.style, {
-                position: 'fixed',
-                opacity: '0',
-                height: '0',
-                width: '1px',
-                fontSize: '16px',
-                top: '0',
-                left: '0',
-                border: 'none',
-                padding: '0',
-                margin: '0',
-            });
-            document.body.appendChild(fake);
-            daadSearchFakeInputEl = fake;
-            try {
-                fake.focus();
-            } catch (_) {}
         }
 
         function focusDaadSearchInputFromUserGesture() {
@@ -2321,37 +2260,6 @@
                 } catch (_) {}
             }
             document.getElementById('daadHeaderSearchBtn')?.blur();
-        }
-
-        function finishDaadSearchFakeInputRemoval() {
-            const fake = daadSearchFakeInputEl;
-            if (!fake) return;
-            focusDaadSearchInputFromUserGesture();
-            if (fake.parentNode) fake.remove();
-            if (daadSearchFakeInputEl === fake) daadSearchFakeInputEl = null;
-        }
-
-        function completeDaadSearchKeyboardHandoff() {
-            focusDaadSearchInputFromUserGesture();
-            if (!daadSearchFakeInputEl) return;
-            const panel = document.getElementById('daadSearchPanel');
-            clearDaadSearchFakeInputHandoffTimers();
-            const onTransitionEnd = (ev) => {
-                if (ev.target !== panel || ev.propertyName !== 'transform') return;
-                clearDaadSearchFakeInputHandoffTimers();
-                finishDaadSearchFakeInputRemoval();
-            };
-            daadSearchFakeInputOnTransitionEnd = onTransitionEnd;
-            if (panel) panel.addEventListener('transitionend', onTransitionEnd);
-            daadSearchFakeInputHandoffTimer = window.setTimeout(() => {
-                daadSearchFakeInputHandoffTimer = null;
-                clearDaadSearchFakeInputHandoffTimers();
-                finishDaadSearchFakeInputRemoval();
-            }, 360);
-        }
-
-        function cancelDaadSearchKeyboardHandoff() {
-            removeDaadSearchFakeInput();
         }
 
         function daadSearchPanelIsOpen() {
@@ -2391,7 +2299,6 @@
             const panel = document.getElementById('daadSearchPanel');
             const backdrop = document.getElementById('daadSearchBackdrop');
             if (!panel || !daadSearchPanelIsOpen()) return;
-            cancelDaadSearchKeyboardHandoff();
             panel.classList.remove('daad-search-panel--open');
             panel.setAttribute('aria-hidden', 'true');
             backdrop?.classList.remove('daad-search-backdrop--open');
@@ -2438,7 +2345,7 @@
             headerBtn?.setAttribute('aria-expanded', 'true');
             document.addEventListener('keydown', onDaadSearchPanelEscape);
             placeDaadActiveFiltersBar(true);
-            if (focusInput) completeDaadSearchKeyboardHandoff();
+            if (focusInput) focusDaadSearchInputFromUserGesture();
             requestAnimationFrame(() => {
                 hideDaadSearchSuggestions();
                 syncDaadStickyTop();
@@ -2454,7 +2361,6 @@
             daadSearchOpenedThisGesture = true;
             const headerBtn = document.getElementById('daadHeaderSearchBtn');
             const restoreFocusTarget = headerBtn || document.activeElement;
-            beginDaadSearchKeyboardHandoff();
             openDaadSearchPanel({
                 focusInput: true,
                 skipPrevFocusCapture: true,
